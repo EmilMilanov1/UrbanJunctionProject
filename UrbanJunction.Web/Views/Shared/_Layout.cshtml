@@ -10,34 +10,64 @@
     <link rel="stylesheet" href="~/UrbanJunction.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <!-- Offcanvas Menu -->
+    <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mainMenu" aria-labelledby="mainMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mainMenuLabel">Urban Junction</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <h6 class="text-uppercase mb-3">Explore Topics</h6>
+            <ul class="list-unstyled">
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Art">🎨 Art</a></li>
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Music">🎧 Music</a></li>
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion">👕 Fashion</a></li>
+            </ul>
+
+            <hr class="border-secondary">
+
+            <h6 class="text-uppercase mb-3">Other Sections</h6>
+            <ul class="list-unstyled">
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="QA" asp-action="Index">💬 Q&A</a></li>
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Credits" asp-action="Index">📜 Credits</a></li>
+            </ul>
+
+            <hr class="border-secondary">
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <h6 class="text-uppercase mb-3">Account</h6>
+                <ul class="list-unstyled">
+                    <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Account" asp-action="Profile">👤 My Profile</a></li>
+                    <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Posts" asp-action="MyPosts">📝 My Posts</a></li>
+                    <li>
+                        <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-link text-white text-decoration-none p-0">🚪 Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            }
+            else
+            {
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light w-100 mt-3">Login</a>
+            }
+        </div>
+    </div>
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Urban Junction</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom mb-3">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+
+                <!-- Menu Button (left) -->
+                <button class="btn btn-outline-light" type="button"
+                        data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-controls="mainMenu">
+                    ☰
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                       @if (User.Identity.IsAuthenticated)
-{
-                        <li class="nav-item me-2">
-                                <a class="btn btn-primary fw-semibold me-2" asp-controller="Posts" asp-action="MyPosts">
-                                    📂 My Posts
-                                </a>
 
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-success fw-semibold" asp-controller="Posts" asp-action="Create">➕ New Post</a>
-                        </li>
-}
-
-                    </ul>
-                    <partial name="_LoginPartial" />
-                </div>
+                <!-- Login partial (right) -->
             </div>
         </nav>
+
     </header>
     <div class="container">
         <main role="main" class="pb-3">
