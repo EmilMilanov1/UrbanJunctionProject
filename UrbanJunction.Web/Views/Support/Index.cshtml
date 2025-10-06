@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Support";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <h2 class="mb-4">📞 Support</h2>
+    <p>If you're experiencing issues or have questions, we're here to help.</p>
+
+    <form method="post" class="mt-4">
+        <div class="mb-3">
+            <label for="name" class="form-label">Your Name</label>
+            <input type="text" id="name" class="form-control" placeholder="John Doe" />
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Your Email</label>
+            <input type="email" id="email" class="form-control" placeholder="you@example.com" />
+        </div>
+        <div class="mb-3">
+            <label for="message" class="form-label">Your Message</label>
+            <textarea id="message" rows="5" class="form-control" placeholder="Describe your issue..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>

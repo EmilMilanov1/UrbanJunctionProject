@@ -1,0 +1,23 @@
+﻿@model UrbanJunction.Data.Models.Post
+
+@{
+    ViewData["Title"] = "Post Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.Title</h2>
+
+<p class="text-muted">
+    Posted by <strong>@Model.User.UserName</strong> in
+    <strong>@Model.Subcategory.Topic.Name / @Model.Subcategory.Name</strong>
+    on @Model.CreatedOn.ToShortDateString()
+</p>
+
+<hr />
+
+<div class="bg-dark text-light p-4 rounded">
+    <p>@Model.Content</p>
+</div>
+
+<a onclick="history.back()" class="btn btn-outline-secondary mt-3">← Back</a>
+

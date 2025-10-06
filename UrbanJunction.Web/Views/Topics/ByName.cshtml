@@ -1,0 +1,40 @@
+﻿@model IEnumerable<UrbanJunction.Data.Models.Post>
+
+@{
+    ViewData["Title"] = ViewBag.TopicName;
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">@ViewBag.TopicName Posts</h2>
+
+    @if (!Model.Any())
+
+    {
+        <div class="alert alert-info text-center">No posts available in this topic yet.</div>
+    }
+
+    else
+
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var post in Model)
+
+            {
+                <div class="col">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@post.Title</h5>
+                            <p class="card-text">
+                                @(post.Content?.Length > 150 ? post.Content.Substring(0, 150) + "..." : post.Content)
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">@post.CreatedOn.ToShortDateString()</small>
+                            </p>
+                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id" class="btn btn-outline-primary btn-sm">View</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
