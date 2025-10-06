@@ -70,7 +70,12 @@ namespace UrbanJunction.Web
                 var services = scope.ServiceProvider;
                 SeedAdminAsync(services);
             }
+            //builder.Services.ConfigureApplicationCookie(options =>
+            //{
+            //    options.LoginPath = "/Identity/Account/Register";
+            //});
 
+            app.UseStaticFiles();
 
             app.Run();
 

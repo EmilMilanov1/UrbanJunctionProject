@@ -48,37 +48,57 @@ public class PostsController : Controller
 
     [HttpPost]
     [Authorize]
-    public IActionResult Create(PostFormViewModel model)
+    public async Task<IActionResult> Create(PostFormViewModel model, List<IFormFile>? imageFiles)
     {
         if (!ModelState.IsValid)
-        {
-            model.Subcategories = _context.Subcategories
-                .Select(s => new SelectListItem
-                {
-                    Value = s.Id.ToString(),
-                    Text = s.Topic.Name + " / " + s.Name
-                }).ToList();
-
             return View(model);
-        }
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         var post = new Post
         {
             Title = model.Title,
             Content = model.Content,
             SubcategoryId = model.SubcategoryId,
-            UserId = userId,
-            CreatedOn = DateTime.UtcNow
+            UserId = userId!
         };
 
         _context.Posts.Add(post);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync(); // we need Post.Id before saving images
 
-        TempData["Success"] = "Your post has been created!";
-        return RedirectToAction("MyPosts");
+        if (imageFiles != null && imageFiles.Count > 0)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            foreach (var file in imageFiles)
+            {
+                if (file.Length > 0)
+                {
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    var postImage = new PostImage
+                    {
+                        ImagePath = "/uploads/" + uniqueFileName,
+                        PostId = post.Id
+                    };
+
+                    _context.PostImages.Add(postImage);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction("ByName", "Topics", new { name = post.Subcategory.Topic.Name });
     }
+
     [Authorize]
     [HttpPost]
     public IActionResult Delete(int id)

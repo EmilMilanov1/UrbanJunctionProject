@@ -66,3 +66,42 @@
             color: #0dcaf0;
         }
 
+.carousel-item img {
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item:hover img {
+    transform: scale(1.02);
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(1);
+}
+/* ===== Floating Action Button ===== */
+.fab-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #0dcaf0; /* Bootstrap info blue */
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 700;
+    display: flex; /* center content */
+    align-items: center; /* vertical center */
+    justify-content: center; /* horizontal center */
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.25s ease-in-out;
+    z-index: 1050; /* above everything */
+}
+
+    .fab-btn:hover {
+        transform: scale(1.1) rotate(90deg);
+        background-color: #0bb3d4;
+        color: #fff;
+        text-decoration: none;
+    }

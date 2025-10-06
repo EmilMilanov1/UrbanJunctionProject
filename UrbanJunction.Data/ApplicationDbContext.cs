@@ -14,10 +14,12 @@ namespace UrbanJunction.Data
         {
         }
 
-       public DbSet<Post> Posts { get; set; }
-       public DbSet<Subcategory> Subcategories { get; set; }
-       public DbSet<Topic> Topics { get; set; }
-       
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<Subcategory> Subcategories { get; set; }
+        public DbSet<Topic> Topics { get; set; }
+        public DbSet<PostImage> PostImages { get; set; } = null!;
+
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

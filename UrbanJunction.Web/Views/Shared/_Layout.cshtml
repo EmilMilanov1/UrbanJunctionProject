@@ -84,6 +84,29 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    <!-- Floating “+ New Post” Button -->
+    @if (User.Identity?.IsAuthenticated ?? false)
+
+    {
+        <a asp-controller="Posts"
+           asp-action="Create"
+           class="fab-btn"
+           title="Create a new post">
+            +
+        </a>
+    }
+
+    else
+
+    {
+        <a asp-area="Identity"
+           asp-page="/Account/Register"
+           class="fab-btn"
+           title="Sign up to post">
+            +
+        </a>
+    }
+
 
 </body>
 </html>
