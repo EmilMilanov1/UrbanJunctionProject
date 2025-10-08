@@ -2,9 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.0.00000
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanJunction.Data", "UrbanJunction.Data\UrbanJunction.Data.csproj", "{79D6EA77-575D-CDC7-EE05-A402F8F9960E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrbanJunction.Data", "UrbanJunction.Data\UrbanJunction.Data.csproj", "{79D6EA77-575D-CDC7-EE05-A402F8F9960E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanJunction.Web", "UrbanJunction.Web\UrbanJunction.Web.csproj", "{5EEC3F07-6DB6-0417-A6B7-BC94168EBB3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrbanJunction.Web", "UrbanJunction.Web\UrbanJunction.Web.csproj", "{5EEC3F07-6DB6-0417-A6B7-BC94168EBB3F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -11,6 +11,7 @@ namespace UrbanJunction.Data.Models
 	public class UrbanUser : IdentityUser
 	{
 		public string PreferredTheme { get; set; } // Light/Dark
-		public ICollection<Post> Posts { get; set; } = new List<Post>();
+        public string? ProfileImageUrl { get; set; }
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
 	}
 }
