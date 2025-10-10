@@ -22,21 +22,25 @@ namespace UrbanJunction.Web
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Identity
-            builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+            // Identity configuration — use UrbanUser instead of IdentityUser
+            builder.Services.AddDefaultIdentity<UrbanUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
-                options.SignIn.RequireConfirmedEmail = false;
-
-                options.Password.RequireDigit = builder.Configuration.GetValue<bool>("Identity:Password:RequireDigit");
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
-                options.Password.RequiredLength = 4;
                 options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 4;
             })
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+
+
 
             builder.Services.AddControllersWithViews();
+
+
+            builder.Services.AddRazorPages();
 
 
             var app = builder.Build();
@@ -57,7 +61,7 @@ namespace UrbanJunction.Web
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(

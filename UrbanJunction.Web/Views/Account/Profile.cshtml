@@ -1,4 +1,18 @@
-﻿@{
-    ViewData["Title"] = "Profile";
+﻿@model UrbanJunction.Web.ViewModels.Account.ProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
 }
-<h2 class="text-center text-white mt-5">Profile - Coming Soon!</h2>
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 text-center" style="max-width: 500px; margin: auto;">
+        <img src="@(!string.IsNullOrEmpty(Model.ProfilePictureUrl) ? Model.ProfilePictureUrl : Url.Content("~/images/default-avatar.png"))"
+             alt="Profile Picture"
+             class="rounded-circle mb-3"
+             style="width: 120px; height: 120px; object-fit: cover;">
+
+        <h3>@Model.Username</h3>
+        <p class="text-muted">@Model.Email</p>
+
+        <a asp-action="EditProfile" class="btn btn-outline-primary btn-sm mt-2">Edit Profile</a>
+    </div>
+</div>

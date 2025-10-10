@@ -7,7 +7,7 @@ using UrbanJunction.Data.Configuration;
 
 namespace UrbanJunction.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<UrbanUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
