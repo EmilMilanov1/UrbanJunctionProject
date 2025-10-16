@@ -8,19 +8,88 @@ namespace UrbanJunction.Web.Controllers
     public class AccountController : Controller
     {
         private readonly UserManager<UrbanUser> _userManager;
+        private readonly SignInManager<UrbanUser> _signInManager;
         private readonly IWebHostEnvironment _env;
 
-        public AccountController(UserManager<UrbanUser> userManager, IWebHostEnvironment env)
+        public AccountController(
+            UserManager<UrbanUser> userManager,
+            SignInManager<UrbanUser> signInManager,
+            IWebHostEnvironment env)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _env = env;
         }
+
+        // ===== AUTH =====
+
+        [HttpGet]
+        public IActionResult Login() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+
+            if (result.Succeeded)
+                return RedirectToAction("Index", "Home");
+
+            ModelState.AddModelError("", "Invalid login attempt.");
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult Register() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var existingUser = await _userManager.FindByNameAsync(model.Username);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Username", "This username is already taken.");
+                return View(model);
+            }
+
+            var user = new UrbanUser
+            {
+                UserName = model.Username,
+                Email = model.Email
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
+            {
+                await _signInManager.SignInAsync(user, false);
+                return RedirectToAction("Index", "Home");
+            }
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", error.Description);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        // ===== PROFILE =====
 
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToPage("/Account/Login", new { area = "Identity" });
+            if (user == null) return RedirectToAction("Login");
 
             var model = new ProfileViewModel
             {
@@ -36,7 +105,7 @@ namespace UrbanJunction.Web.Controllers
         public async Task<IActionResult> EditProfile()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToPage("/Account/Login", new { area = "Identity" });
+            if (user == null) return RedirectToAction("Login");
 
             var model = new EditProfileViewModel
             {
@@ -52,21 +121,24 @@ namespace UrbanJunction.Web.Controllers
         public async Task<IActionResult> EditProfile(EditProfileViewModel model)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToPage("/Account/Login", new { area = "Identity" });
+            if (user == null) return RedirectToAction("Login");
 
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+                return View(model);
 
             user.UserName = model.Username;
 
             if (model.ProfilePicture != null)
             {
                 var fileName = $"{Guid.NewGuid()}_{model.ProfilePicture.FileName}";
-                var path = Path.Combine(_env.WebRootPath, "uploads", fileName);
+                var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
 
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var filePath = Path.Combine(uploadPath, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
                     await model.ProfilePicture.CopyToAsync(stream);
-                }
 
                 user.ProfilePictureUrl = "/uploads/" + fileName;
             }
