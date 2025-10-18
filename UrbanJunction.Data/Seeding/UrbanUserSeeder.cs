@@ -30,7 +30,7 @@ namespace UrbanJunction.Data.Seeding
 				new UrbanUser
 				{
 					Id = "3ad674e3-3797-41ba-b980-9b2e85c32a51",
-					UserName = "Raq",
+					UserName = "Kaloqn",
 					NormalizedUserName = "MUSICFAN@URBAN.COM",
 					Email = "musicfan@urban.com",
 					NormalizedEmail = "MUSICFAN@URBAN.COM",

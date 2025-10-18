@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UrbanJunction.Data.Models;
 using UrbanJunction.Web.ViewModels.Account;
 
@@ -32,10 +33,26 @@ namespace UrbanJunction.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(model);
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
 
             if (result.Succeeded)
+            {
+                // ✅ Add the profile picture claim when signing in
+                var claims = new List<Claim>
+                {
+                    new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/images/default-pfp.jpg")
+                };
+                await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
+
                 return RedirectToAction("Index", "Home");
+            }
 
             ModelState.AddModelError("", "Invalid login attempt.");
             return View(model);
@@ -60,8 +77,10 @@ namespace UrbanJunction.Web.Controllers
             var user = new UrbanUser
             {
                 UserName = model.Username,
-                Email = model.Email
+                Email = model.Email,
+                ProfilePictureUrl = "/images/default-pfp.jpg" // ✅ sets default on registration
             };
+
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)

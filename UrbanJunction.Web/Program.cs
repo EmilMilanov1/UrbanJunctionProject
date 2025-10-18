@@ -30,12 +30,11 @@ namespace UrbanJunction.Web
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequiredLength = 4;
+                options.Password.RequiredLength = 6;
             })
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
-
-
 
             builder.Services.AddControllersWithViews();
 
@@ -67,17 +66,13 @@ namespace UrbanJunction.Web
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-            app.MapRazorPages();
 
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 SeedAdminAsync(services);
             }
-            //builder.Services.ConfigureApplicationCookie(options =>
-            //{
-            //    options.LoginPath = "/Identity/Account/Register";
-            //});
+
 
             app.UseStaticFiles();
 

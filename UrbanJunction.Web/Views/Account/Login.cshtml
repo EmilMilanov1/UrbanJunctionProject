@@ -1,43 +1,52 @@
 ﻿@model UrbanJunction.Web.ViewModels.Account.LoginViewModel
 @{
     ViewData["Title"] = "Login";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="d-flex justify-content-center align-items-center vh-100 bg-dark text-white">
-    <div class="card shadow-lg p-4 bg-secondary text-white" style="width: 400px;">
-        <h3 class="text-center mb-4 fw-bold">Welcome Back 👋</h3>
+<div class="container mt-5" style="max-width: 400px;">
+    <h2 class="text-center mb-4">Login</h2>
 
-        <form asp-action="Login" method="post">
-            <div class="form-group mb-3">
-                <label asp-for="Email" class="form-label">Email</label>
-                <input asp-for="Email" class="form-control" placeholder="Enter your email" />
-                <span asp-validation-for="Email" class="text-warning"></span>
-            </div>
+    <form asp-action="Login" method="post" class="shadow p-4 rounded bg-light">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Password" class="form-label">Password</label>
-                <input asp-for="Password" class="form-control" placeholder="Enter your password" />
-                <span asp-validation-for="Password" class="text-warning"></span>
-            </div>
-
-            <div class="form-check mb-3">
-                <input asp-for="RememberMe" class="form-check-input" />
-                <label asp-for="RememberMe" class="form-check-label">Remember me</label>
-            </div>
-
-            <button type="submit" class="btn btn-info w-100 fw-bold">Login</button>
-        </form>
-
-        <hr class="border-light my-4">
-
-        <div class="text-center">
-            <p class="mb-1">Don’t have an account?</p>
-            <a asp-action="Register" class="btn btn-outline-light w-100">Sign Up</a>
+        <div class="form-group mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
-    </div>
+
+        <div class="form-group mb-3 position-relative">
+            <label asp-for="Password" class="form-label">Password</label>
+            <div class="input-group">
+                <input asp-for="Password" type="password" class="form-control" id="passwordInput" placeholder="Enter your password" />
+                <button type="button" class="btn btn-outline-secondary" id="togglePassword">Show</button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="RememberMe" class="form-check-input" />
+            <label asp-for="RememberMe" class="form-check-label"></label>
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100">Log In</button>
+
+        <div class="text-center mt-3">
+            <small>
+                Don’t have an account?
+                <a asp-controller="Account" asp-action="Register" class="text-decoration-none">Sign Up</a>
+            </small>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('passwordInput');
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            this.textContent = isPassword ? 'Hide' : 'Show';
+        });
+    </script>
 }

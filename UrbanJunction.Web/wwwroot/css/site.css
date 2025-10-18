@@ -127,3 +127,41 @@ body {
         color: #fff;
         box-shadow: none;
     }
+.site-logo {
+    height: 40px; /* adjust size as needed */
+    width: auto;
+    object-fit: contain;
+    background: transparent;
+    transition: transform 0.2s ease-in-out;
+}
+
+    .site-logo:hover {
+        transform: scale(1.05);
+    }
+/* Keeps menu button dark, changes outline to gray on hover */
+.btn-outline-light {
+    color: #ffffff;
+    border-color: #ffffff;
+    background-color: transparent;
+    transition: all 0.2s ease;
+}
+
+    .btn-outline-light:hover,
+    .btn-outline-light:focus {
+        color: #ffffff; /* keeps icon/text white */
+        background-color: transparent; /* no white fill */
+        border-color: #6c757d; /* gray outline */
+        box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.3); /* subtle gray glow */
+    }
+.profile-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border: 2px solid #6c757d;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+    .profile-icon:hover {
+        transform: scale(1.1);
+        border-color: #999;
+    }
