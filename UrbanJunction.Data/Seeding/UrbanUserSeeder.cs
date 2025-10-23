@@ -24,18 +24,18 @@ namespace UrbanJunction.Data.Seeding
 					Email = "artlover@urban.com",
 					NormalizedEmail = "ARTLOVER@URBAN.COM",
 					EmailConfirmed = true,
-					PreferredTheme = "Dark",
+					//PreferredTheme = "Dark",
 					PasswordHash = hasher.HashPassword(null, "ArtLover123!")
 				},
 				new UrbanUser
 				{
 					Id = "3ad674e3-3797-41ba-b980-9b2e85c32a51",
-					UserName = "Kaloqn",
+					UserName = "Valio",
 					NormalizedUserName = "MUSICFAN@URBAN.COM",
 					Email = "musicfan@urban.com",
 					NormalizedEmail = "MUSICFAN@URBAN.COM",
 					EmailConfirmed = true,
-					PreferredTheme = "Light",
+					//PreferredTheme = "Light",
 					PasswordHash = hasher.HashPassword(null, "MusicFan123!")
 				},
 				new UrbanUser
@@ -46,7 +46,7 @@ namespace UrbanJunction.Data.Seeding
 					Email = "fashionguru@urban.com",
 					NormalizedEmail = "FASHIONGURU@URBAN.COM",
 					EmailConfirmed = true,
-					PreferredTheme = "Dark",
+					//PreferredTheme = "Dark",
 					PasswordHash = hasher.HashPassword(null, "Fashion123!")
 				}
 			};

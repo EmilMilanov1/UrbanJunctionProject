@@ -47,7 +47,7 @@ namespace UrbanJunction.Web.Controllers
                 // ✅ Add the profile picture claim when signing in
                 var claims = new List<Claim>
                 {
-                    new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/images/default-pfp.jpg")
+                    new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/images/default.jpg")
                 };
                 await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
 
@@ -78,7 +78,7 @@ namespace UrbanJunction.Web.Controllers
             {
                 UserName = model.Username,
                 Email = model.Email,
-                ProfilePictureUrl = "/images/default-pfp.jpg" // ✅ sets default on registration
+                ProfilePictureUrl = "/images/default.jpg" // ✅ sets default on registration
             };
 
 

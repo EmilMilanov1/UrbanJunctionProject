@@ -80,13 +80,36 @@
                 {
                     <div class="d-flex align-items-center">
                         <a asp-controller="Account" asp-action="Profile" class="d-flex align-items-center text-decoration-none text-white">
-                            <img src="@User.FindFirst("ProfilePictureUrl")?.Value ?? " ~ /images/default-pfp.jpg""
+                            <img src="@User.FindFirst("ProfilePictureUrl")?.Value ?? " /images/default.jpg""
                                  alt="Profile"
                                  class="rounded-circle me-2 profile-icon" />
                             <span class="fw-semibold">@User.Identity?.Name</span>
                         </a>
                     </div>
                 }              
+                @if (User.Identity?.IsAuthenticated ?? false)
+
+                {
+                    <a asp-controller="Posts"
+                       asp-action="Create"
+                       class="fab-btn"
+                       title="Create a new post">
+                        +
+                    </a>
+                }
+
+                else
+
+                {
+                    <a asp-area=""
+                       asp-controller="Account"
+                       asp-action="Register"
+                       class="fab-btn"
+                       title="Sign up to post">
+                        +
+                    </a>
+                }
+
             </div>
         </nav>
 
