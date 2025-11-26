@@ -10,8 +10,7 @@ namespace UrbanJunction.Data.Models
 {
 	public class UrbanUser : IdentityUser
 	{
-		//public string PreferredTheme { get; set; } // Not added yet
-        public string? ProfilePictureUrl { get; set; }
         public ICollection<Post> Posts { get; set; } = new List<Post>();
-	}
+        public string ProfilePictureUrl { get; set; } = "/images/default.jpg";
+    }
 }

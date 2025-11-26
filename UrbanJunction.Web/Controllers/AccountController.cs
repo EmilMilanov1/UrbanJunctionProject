@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UrbanJunction.Data.Models;
-using UrbanJunction.Web.ViewModels.Account;
+using UrbanJunction.Web.Models;
 
 namespace UrbanJunction.Web.Controllers
 {
@@ -33,14 +34,33 @@ namespace UrbanJunction.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            UrbanUser? user = null;
+
+            // Try email first:
+            if (model.UsernameOrEmail.Contains("@"))
+            {
+                user = await _userManager.FindByEmailAsync(model.UsernameOrEmail);
+            }
+
+            // If not found, try username:
+            if (user == null)
+            {
+                user = await _userManager.Users
+                    .FirstOrDefaultAsync(u => u.UserName == model.UsernameOrEmail);
+            }
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(model);
+            }
             if (user == null)
             {
                 ModelState.AddModelError("", "Invalid login attempt.");
                 return View(model);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
+            var result = await _signInManager.PasswordSignInAsync(user.Email, model.Password, model.RememberMe, false);
 
             if (result.Succeeded)
             {
@@ -78,7 +98,7 @@ namespace UrbanJunction.Web.Controllers
             {
                 UserName = model.Username,
                 Email = model.Email,
-                ProfilePictureUrl = "/images/default.jpg" // ✅ sets default on registration
+                ProfilePictureUrl = "/images/Profile/default.jpg" // ✅ sets default on registration
             };
 
 

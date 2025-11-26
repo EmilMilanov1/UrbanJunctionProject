@@ -203,7 +203,7 @@ namespace UrbanJunction.Data.Migrations
                         {
                             Id = 1,
                             Content = "Check out the East Side Gallery and RAW Gelände!",
-                            CreatedOn = new DateTime(2025, 10, 20, 9, 5, 58, 59, DateTimeKind.Utc).AddTicks(7277),
+                            CreatedOn = new DateTime(2025, 11, 14, 10, 53, 54, 719, DateTimeKind.Utc).AddTicks(3065),
                             SubcategoryId = 1,
                             Title = "Best Graffiti Spots in Berlin",
                             UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
@@ -212,7 +212,7 @@ namespace UrbanJunction.Data.Migrations
                         {
                             Id = 2,
                             Content = "The scene is raw and authentic. Worth experiencing!",
-                            CreatedOn = new DateTime(2025, 10, 20, 9, 5, 58, 59, DateTimeKind.Utc).AddTicks(7286),
+                            CreatedOn = new DateTime(2025, 11, 14, 10, 53, 54, 719, DateTimeKind.Utc).AddTicks(3072),
                             SubcategoryId = 2,
                             Title = "Underground Techno in Detroit",
                             UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
@@ -221,7 +221,7 @@ namespace UrbanJunction.Data.Migrations
                         {
                             Id = 3,
                             Content = "Baggy is back. Sneakers are getting chunkier than ever.",
-                            CreatedOn = new DateTime(2025, 10, 20, 9, 5, 58, 59, DateTimeKind.Utc).AddTicks(7289),
+                            CreatedOn = new DateTime(2025, 11, 14, 10, 53, 54, 719, DateTimeKind.Utc).AddTicks(3075),
                             SubcategoryId = 3,
                             Title = "Streetwear Trends for 2025",
                             UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
@@ -385,7 +385,12 @@ namespace UrbanJunction.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ProfilePicturePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProfilePictureUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -415,15 +420,17 @@ namespace UrbanJunction.Data.Migrations
                         {
                             Id = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6d42b752-c3f5-44e9-a8bc-809273e912f3",
+                            ConcurrencyStamp = "443ef2e1-78cc-49e6-92f8-ba8652899528",
                             Email = "artlover@urban.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ARTLOVER@URBAN.COM",
-                            NormalizedUserName = "ARTLOVER@URBAN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEAcQr/kxf793hAMq21jhqdxGx6SUTGujtKesoe3LDRsYfvzLiBdBYNbhyO7b8TG3pw==",
+                            NormalizedUserName = "EMO",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBY408Sij5G8kXqk8k0/CUmhHPQdfbX+8ifNbunsj36WzeYR7TGTE5lRy2EsYZ120g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "45e0a20e-617f-42b2-8636-124a2dd1cb24",
+                            ProfilePicturePath = "/images/profile/default-profile.png",
+                            ProfilePictureUrl = "/images/profile/default-profile.png",
+                            SecurityStamp = "211f4826-b6dd-45be-8f58-410ada1f666b",
                             TwoFactorEnabled = false,
                             UserName = "Emo"
                         },
@@ -431,31 +438,35 @@ namespace UrbanJunction.Data.Migrations
                         {
                             Id = "3ad674e3-3797-41ba-b980-9b2e85c32a51",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a219e0fc-a8c7-48dd-b036-698401738410",
+                            ConcurrencyStamp = "6df99356-f7df-48c3-9df4-e424ff8326c9",
                             Email = "musicfan@urban.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "MUSICFAN@URBAN.COM",
-                            NormalizedUserName = "MUSICFAN@URBAN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEK/sH4qZzNpQkYRLFk6vAS5oELXuSsdttN6to38V2ewABC5C/3sqp3lAo1XIyKBHJw==",
+                            NormalizedUserName = "VALIO",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPslZtmJfYO4ziShBUnsr03F7nwwjX/MuwCnLfUEI7VH75yr7DWTjs/9mkLQXwfq3g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "87c623fc-9503-4c8c-a618-d41f5cae82f0",
+                            ProfilePicturePath = "/images/profile/default-profile.png",
+                            ProfilePictureUrl = "/images/profile/default-profile.png",
+                            SecurityStamp = "5f56512f-6b8a-45df-b7ae-324ab2bb51d0",
                             TwoFactorEnabled = false,
-                            UserName = "Kaloqn"
+                            UserName = "Valio"
                         },
                         new
                         {
                             Id = "c5859895-19f2-47da-ae19-569400ee20d5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1e2c5f4e-bb4e-4a64-90a1-5e896278090f",
+                            ConcurrencyStamp = "89831163-d802-4410-929f-4efc172d2f77",
                             Email = "fashionguru@urban.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "FASHIONGURU@URBAN.COM",
-                            NormalizedUserName = "FASHIONGURU@URBAN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOjNVHJj9COdgtU7ZxqFerTr87AWtrFTif4O/a2IPqMgsk8kyDEpUBWsbRuL1znzZw==",
+                            NormalizedUserName = "MR.YANEV",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOHlZekeekB5Us8VIhm3r0AEB0tMrfoO1bMO/Zq52vMD5O6ofOMlY2iv4cUJ/x05Mw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "141e3de5-893a-44b1-b55f-b2d855c91134",
+                            ProfilePicturePath = "/images/profile/default-profile.png",
+                            ProfilePictureUrl = "/images/profile/default-profile.png",
+                            SecurityStamp = "2560f402-a32b-4529-86e4-5528aed56b7f",
                             TwoFactorEnabled = false,
                             UserName = "Mr.Yanev"
                         });

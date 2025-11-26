@@ -1,29 +1,42 @@
-﻿@model UrbanJunction.Web.ViewModels.PostFormViewModel
+﻿@* @model UrbanJunction.Models.PostFormViewModel *@
+
+@model UrbanJunction.Web.Models.PostFormViewModel
 
 @{
     ViewData["Title"] = "Create Post";
 }
 
-<div class="container mt-4">
-    <h2 class="text-center mb-4 text-white">Create a New Post</h2>
+<h2>Create a New Post</h2>
 
-    <form asp-action="Create" method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label asp-for="Title" class="form-label text-white"></label>
-            <input asp-for="Title" class="form-control" />
-        </div>
+<form asp-action="Create" enctype="multipart/form-data" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
 
-        <div class="mb-3">
-            <label asp-for="Content" class="form-label text-white"></label>
-            <textarea asp-for="Content" class="form-control" rows="5"></textarea>
-        </div>
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label text-white">Upload Photos (optional)</label>
-            <input type="file" name="imageFiles" class="form-control" multiple accept="image/*" />
-        </div>
+    <div class="form-group">
+        <label asp-for="Content"></label>
+        <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
 
+    <div class="form-group">
+        <label asp-for="SubcategoryId"></label>
+        <select asp-for="SubcategoryId" asp-items="Model.Subcategories" class="form-control"></select>
+        <span asp-validation-for="SubcategoryId" class="text-danger"></span>
+    </div>
 
-        <button type="submit" class="btn btn-primary w-100">Post</button>
-    </form>
-</div>
+    <div class="form-group">
+        <label asp-for="ImageFiles"></label>
+        <input asp-for="ImageFiles" type="file" class="form-control" multiple />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Post</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
