@@ -67,7 +67,7 @@ namespace UrbanJunction.Web.Controllers
                 // ✅ Add the profile picture claim when signing in
                 var claims = new List<Claim>
                 {
-                    new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "/images/default.jpg")
+                    new Claim("ProfilePicturePath", user.ProfilePicturePath ?? "/images/default.jpg")
                 };
                 await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
 
@@ -98,7 +98,7 @@ namespace UrbanJunction.Web.Controllers
             {
                 UserName = model.Username,
                 Email = model.Email,
-                ProfilePictureUrl = "/images/Profile/default.jpg" // ✅ sets default on registration
+                ProfilePicturePath = "/images/default.jpg" // ✅ sets default on registration
             };
 
 
@@ -134,7 +134,7 @@ namespace UrbanJunction.Web.Controllers
             {
                 Username = user.UserName,
                 Email = user.Email,
-                ProfilePictureUrl = user.ProfilePictureUrl
+                ProfilePictureUrl = user.ProfilePicturePath
             };
 
             return View(model);
@@ -150,7 +150,7 @@ namespace UrbanJunction.Web.Controllers
             {
                 Username = user.UserName,
                 Email = user.Email,
-                ExistingProfilePictureUrl = user.ProfilePictureUrl
+                ExistingProfilePictureUrl = user.ProfilePicturePath 
             };
 
             return View(model);
@@ -179,7 +179,7 @@ namespace UrbanJunction.Web.Controllers
                 using (var stream = new FileStream(filePath, FileMode.Create))
                     await model.ProfilePicture.CopyToAsync(stream);
 
-                user.ProfilePictureUrl = "/uploads/" + fileName;
+                user.ProfilePicturePath = "/images/" + fileName;
             }
 
             await _userManager.UpdateAsync(user);
