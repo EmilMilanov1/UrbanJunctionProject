@@ -7,14 +7,14 @@ namespace UrbanJunction.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
             // Database
             string connectionString = builder.Configuration
                 .GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
@@ -37,10 +37,7 @@ namespace UrbanJunction.Web
             .AddDefaultTokenProviders();
 
             builder.Services.AddControllersWithViews();
-
-
             builder.Services.AddRazorPages();
-
 
             var app = builder.Build();
 
@@ -60,6 +57,7 @@ namespace UrbanJunction.Web
             app.UseStaticFiles();
 
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -67,19 +65,18 @@ namespace UrbanJunction.Web
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
+            app.MapRazorPages();
+
+            // Seed admin user - properly awaited
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                SeedAdminAsync(services);
+                await SeedAdminAsync(services);
             }
 
-
-            app.UseStaticFiles();
-
-            app.Run();
-
-
+            await app.RunAsync();
         }
+
         public static async Task SeedAdminAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -103,8 +100,7 @@ namespace UrbanJunction.Web
                     Email = "admin@urban.com",
                     EmailConfirmed = true
                 };
-
-                await userManager.CreateAsync(adminUser, "Admin123!"); // or your own password
+                await userManager.CreateAsync(adminUser, "Admin123!");
             }
 
             // 3. Assign Admin Role to Admin User
@@ -113,6 +109,5 @@ namespace UrbanJunction.Web
                 await userManager.AddToRoleAsync(adminUser, "Admin");
             }
         }
-
     }
 }
