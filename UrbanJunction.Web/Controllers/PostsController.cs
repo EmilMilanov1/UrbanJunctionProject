@@ -191,19 +191,23 @@ public class PostsController : Controller
         return RedirectToAction("MyPosts");
     }
 
-    [Authorize]
+    // In PostsController.cs - Update Delete method
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var post = _context.Posts.FirstOrDefault(p => p.Id == id && p.UserId == userId);
+        var post = await _context.Posts.FindAsync(id);
 
         if (post == null)
             return NotFound();
 
+        // ✅ Allow admin to delete any post, user can only delete their own
+        if (post.UserId != userId && !User.IsInRole("Admin"))
+            return Forbid();
+
         _context.Posts.Remove(post);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         TempData["Success"] = "Post deleted successfully.";
         return RedirectToAction("MyPosts");
@@ -224,4 +228,5 @@ public class PostsController : Controller
 
         return View(post);
     }
+
 }

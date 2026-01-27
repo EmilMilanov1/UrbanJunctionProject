@@ -12,8 +12,8 @@ using UrbanJunction.Data;
 namespace UrbanJunction.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251008112953_DbContextOptionsBuilder")]
-    partial class DbContextOptionsBuilder
+    [Migration("20260123115025_Seeding")]
+    partial class Seeding
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,80 +75,6 @@ namespace UrbanJunction.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator().HasValue("IdentityUser");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -280,7 +206,7 @@ namespace UrbanJunction.Data.Migrations
                         {
                             Id = 1,
                             Content = "Check out the East Side Gallery and RAW Gelände!",
-                            CreatedOn = new DateTime(2025, 10, 8, 11, 29, 53, 466, DateTimeKind.Utc).AddTicks(3919),
+                            CreatedOn = new DateTime(2026, 1, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             SubcategoryId = 1,
                             Title = "Best Graffiti Spots in Berlin",
                             UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
@@ -289,7 +215,7 @@ namespace UrbanJunction.Data.Migrations
                         {
                             Id = 2,
                             Content = "The scene is raw and authentic. Worth experiencing!",
-                            CreatedOn = new DateTime(2025, 10, 8, 11, 29, 53, 466, DateTimeKind.Utc).AddTicks(3937),
+                            CreatedOn = new DateTime(2026, 1, 23, 11, 50, 24, 873, DateTimeKind.Utc).AddTicks(2634),
                             SubcategoryId = 2,
                             Title = "Underground Techno in Detroit",
                             UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
@@ -298,7 +224,7 @@ namespace UrbanJunction.Data.Migrations
                         {
                             Id = 3,
                             Content = "Baggy is back. Sneakers are getting chunkier than ever.",
-                            CreatedOn = new DateTime(2025, 10, 8, 11, 29, 53, 466, DateTimeKind.Utc).AddTicks(3940),
+                            CreatedOn = new DateTime(2026, 1, 23, 11, 50, 24, 873, DateTimeKind.Utc).AddTicks(2637),
                             SubcategoryId = 3,
                             Title = "Streetwear Trends for 2025",
                             UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
@@ -422,68 +348,140 @@ namespace UrbanJunction.Data.Migrations
 
             modelBuilder.Entity("UrbanJunction.Data.Models.UrbanUser", b =>
                 {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("PreferredTheme")
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ProfilePicturePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileImageUrl")
+                    b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasDiscriminator().HasValue("UrbanUser");
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "68ac6848-84ea-47cc-8cc4-a15575276895",
+                            ConcurrencyStamp = "f111692a-0f48-4dee-a11e-8918783842cf",
                             Email = "artlover@urban.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ARTLOVER@URBAN.COM",
-                            NormalizedUserName = "ARTLOVER@URBAN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEN+NNYwbn+WdRmbkebarcu0CcEjb2gjG9w/xvP164HnV4TN5OpEKloMZJLKKcSxWPg==",
+                            NormalizedUserName = "EMO",
+                            PasswordHash = "AQAAAAIAAYagAAAAEP5IJSqGEzgYEfsgl1bdUcOOns1qMTcUT6EPZi2DLCLQ8HQUi+xKAlVKDwhCiRj3yQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9268050d-aac3-406f-80c7-b7bea5d27ade",
+                            ProfilePicturePath = "/images/profile/default-profile.png",
+                            SecurityStamp = "fed2c3eb-6ef7-42fa-af70-ec75c83a5f26",
                             TwoFactorEnabled = false,
-                            UserName = "Emo",
-                            PreferredTheme = "Dark"
+                            UserName = "Emo"
+                        },
+                        new
+                        {
+                            Id = "c3cabab2-2413-4aa6-b3e5-07000f3a069f",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "6844fa58-f516-4707-b0cc-26b4a76a0ac2",
+                            Email = "admin@urban.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@URBAN.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEH2nqlqBZqkfUS0E1pUBPDVdZLNrn21eScDsWPDYFFTc/WdTzNRiREH4KbifJVkirQ==",
+                            PhoneNumberConfirmed = false,
+                            ProfilePicturePath = "/images/profile/default-profile.png",
+                            SecurityStamp = "e11cc3da-94c4-474b-9341-6db0045e215d",
+                            TwoFactorEnabled = false,
+                            UserName = "Admin"
                         },
                         new
                         {
                             Id = "3ad674e3-3797-41ba-b980-9b2e85c32a51",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a8b595d4-a49b-418a-bdfb-2f3be63f5bfe",
+                            ConcurrencyStamp = "3e3e06a6-d0a6-4119-ae80-4f4b255ccaa5",
                             Email = "musicfan@urban.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "MUSICFAN@URBAN.COM",
-                            NormalizedUserName = "MUSICFAN@URBAN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJWPbuwSxJH0zqWiz7RdroN9QIWSRSBYC+drJoei3Ec9rnzy/RlgaywJeKl9fkZGVw==",
+                            NormalizedUserName = "VALIO",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMw1RWZZPVMM8moC37zr07hyp1PtIQuScQjl5eHwOGXjaKZVLz49R3Oz0rTVywORiw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2d9ae951-bf64-4a58-becf-f1178ce4895a",
+                            ProfilePicturePath = "/images/profile/default-profile.png",
+                            SecurityStamp = "0cb7c1e7-5c31-4788-85e4-12c83f4ee527",
                             TwoFactorEnabled = false,
-                            UserName = "Raq",
-                            PreferredTheme = "Light"
+                            UserName = "Valio"
                         },
                         new
                         {
                             Id = "c5859895-19f2-47da-ae19-569400ee20d5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c9c2f3b6-341e-4791-ad06-83f358d3c8d8",
+                            ConcurrencyStamp = "ef056d48-a707-4482-9064-24404ef2b201",
                             Email = "fashionguru@urban.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "FASHIONGURU@URBAN.COM",
-                            NormalizedUserName = "FASHIONGURU@URBAN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMUNBIbGjhoLvV0SOgUZeba97+TJ5zvYDfESp9UjFgNLqd1tZeyM7d7S6I8YlMHLdQ==",
+                            NormalizedUserName = "MR.YANEV",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJCORzIBvxarTWzHR+kDB81GVoYFK6BeOSCIVXiHtsbPjK55LRPjGWd/jtpCoiesJw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "eb7a085d-4e1d-4882-b9e6-c96605b4d920",
+                            ProfilePicturePath = "/images/profile/default-profile.png",
+                            SecurityStamp = "3e6e8e72-0c82-4f1d-b0af-38f7083d055f",
                             TwoFactorEnabled = false,
-                            UserName = "Mr.Yanev",
-                            PreferredTheme = "Dark"
+                            UserName = "Mr.Yanev"
                         });
                 });
 
@@ -498,7 +496,7 @@ namespace UrbanJunction.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("UrbanJunction.Data.Models.UrbanUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -507,7 +505,7 @@ namespace UrbanJunction.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("UrbanJunction.Data.Models.UrbanUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -522,7 +520,7 @@ namespace UrbanJunction.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("UrbanJunction.Data.Models.UrbanUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -531,7 +529,7 @@ namespace UrbanJunction.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("UrbanJunction.Data.Models.UrbanUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

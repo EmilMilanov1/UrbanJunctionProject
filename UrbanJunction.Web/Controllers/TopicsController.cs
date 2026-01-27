@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UrbanJunction.Data;
+using UrbanJunction.Data.Models;
 
 public class TopicsController : Controller
 {
@@ -11,17 +12,22 @@ public class TopicsController : Controller
         _context = context;
     }
 
-    // /Topics/ByName?name=Art
+     ///Topics/ByName? name = Art
     [Route("Topics/{name}")]
     public IActionResult ByName(string name)
     {
         var posts = _context.Posts
-            .Include(p => p.Subcategory)
-            .ThenInclude(s => s.Topic)
+            .AsNoTracking()
             .Where(p => p.Subcategory.Topic.Name == name)
             .ToList();
 
-        ViewBag.TopicName = name;
+        //var posts = _context.Posts
+        //    .Include(p => p.Subcategory)
+        //    .ThenInclude(s => s.Topic)
+        //    .Where(p => p.Subcategory.Topic.Name == name)
+        //    .ToList();
+
+        //ViewBag.TopicName = name;
         return View(posts);
     }
 

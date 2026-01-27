@@ -18,7 +18,7 @@ namespace UrbanJunction.Data.Seeding
 					Id = 1,
 					Title = "Best Graffiti Spots in Berlin",
 					Content = "Check out the East Side Gallery and RAW Gelände!",
-					CreatedOn = DateTime.UtcNow,
+					CreatedOn = new DateTime(2026, 1, 19),
 					UserId =  "93e5df7b-fb35-46d7-bd8c-7b88546ac77e",          
 					SubcategoryId = 1           // Graffiti
 				},

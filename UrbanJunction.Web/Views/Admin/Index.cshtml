@@ -1,0 +1,39 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-white">Admin Dashboard</h2>
+
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card bg-dark text-white border-info">
+                <div class="card-body">
+                    <h3>@Model.TotalUsers</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white border-success">
+                <div class="card-body">
+                    <h3>@Model.TotalPosts</h3>
+                    <p>Total Posts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white border-warning">
+                <div class="card-body">
+                    <h3>@Model.TotalTopics</h3>
+                    <p>Total Topics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="AllPosts" class="btn btn-info">Manage All Posts</a>
+    </div>
+</div>

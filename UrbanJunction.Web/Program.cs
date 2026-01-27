@@ -22,7 +22,6 @@ namespace UrbanJunction.Web
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Identity
-            // Identity configuration — use UrbanUser instead of IdentityUser
             builder.Services.AddDefaultIdentity<UrbanUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
@@ -67,13 +66,6 @@ namespace UrbanJunction.Web
 
             app.MapRazorPages();
 
-            // Seed admin user - properly awaited
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                await SeedAdminAsync(services);
-            }
-
             await app.RunAsync();
         }
 
@@ -96,16 +88,29 @@ namespace UrbanJunction.Web
             {
                 adminUser = new UrbanUser
                 {
-                    UserName = "admin@urban.com",
-                    Email = "admin@urban.com",
-                    EmailConfirmed = true
+                    UserName = "AdminUser",  // ✅ Changed to avoid conflicts
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    ProfilePicturePath = "/images/default.jpg"
                 };
-                await userManager.CreateAsync(adminUser, "Admin123!");
-            }
 
-            // 3. Assign Admin Role to Admin User
-            if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+                var result = await userManager.CreateAsync(adminUser, "Admin123!");
+
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        Console.WriteLine($"Error creating admin: {error.Description}");
+                    }
+                    return;
+                }
+
+                // 3. Assign Admin Role to Admin User
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+            else if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
             {
+                // If user exists but doesn't have admin role, add it
                 await userManager.AddToRoleAsync(adminUser, "Admin");
             }
         }

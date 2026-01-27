@@ -1,11 +1,7 @@
 ﻿@{
     string profilePic =
-
         User.FindFirst("ProfilePictureUrl")?.Value
-
         ?? "/images/default.jpg";
-
-
 
     string username = User.Identity?.Name ?? "";
 }
@@ -52,6 +48,16 @@
                 <ul class="list-unstyled">
                     <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Account" asp-action="Profile">👤 My Profile</a></li>
                     <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Posts" asp-action="MyPosts">📝 My Posts</a></li>
+
+                    @* ✅ ADD THIS: Admin Panel Link - Only shows for Admin users *@
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>
+                            <hr class="border-secondary my-2">
+                        </li>
+                        <li><a class="text-white text-decoration-none d-block py-1 text-warning" asp-controller="Admin" asp-action="Index">🛡️ Admin Panel</a></li>
+                    }
+
                     <li>
                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                             <button type="submit" class="btn btn-link text-white text-decoration-none p-0">🚪 Logout</button>
@@ -91,7 +97,6 @@
                 <div class="d-flex align-items-center">
 
                     @if (User.Identity?.IsAuthenticated ?? false)
-
                     {
                         <a asp-controller="Account" asp-action="Profile"
                            class="d-flex align-items-center text-decoration-none text-white me-3">
@@ -111,9 +116,7 @@
                             +
                         </a>
                     }
-
                     else
-
                     {
                         <a asp-controller="Account" asp-action="Register"
                            class="fab-btn"

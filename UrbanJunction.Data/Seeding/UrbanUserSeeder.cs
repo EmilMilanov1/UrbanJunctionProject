@@ -28,6 +28,16 @@ namespace UrbanJunction.Data.Seeding
                 },
                 new UrbanUser
                 {
+                    Id = "c3cabab2-2413-4aa6-b3e5-07000f3a069f",
+                    UserName = "Admin",
+                    NormalizedUserName = "ADMIN",
+                    Email = "admin@urban.com",
+                    NormalizedEmail = "ADMIN@URBAN.COM",
+                    EmailConfirmed = true,
+                    PasswordHash = hasher.HashPassword(null, "Admin123!")
+                },
+                new UrbanUser
+                {
                     Id = "3ad674e3-3797-41ba-b980-9b2e85c32a51",
                     UserName = "Valio",
                     NormalizedUserName = "VALIO",

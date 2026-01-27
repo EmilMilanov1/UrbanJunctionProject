@@ -36,17 +36,16 @@ namespace UrbanJunction.Web.Controllers
 
             UrbanUser? user = null;
 
-            // Try email first:
+            // Try email first
             if (model.UsernameOrEmail.Contains("@"))
             {
                 user = await _userManager.FindByEmailAsync(model.UsernameOrEmail);
             }
 
-            // If not found, try username:
+            // If not found, try username
             if (user == null)
             {
-                user = await _userManager.Users
-                    .FirstOrDefaultAsync(u => u.UserName == model.UsernameOrEmail);
+                user = await _userManager.FindByNameAsync(model.UsernameOrEmail);
             }
 
             if (user == null)
@@ -54,13 +53,9 @@ namespace UrbanJunction.Web.Controllers
                 ModelState.AddModelError("", "Invalid login attempt.");
                 return View(model);
             }
-            if (user == null)
-            {
-                ModelState.AddModelError("", "Invalid login attempt.");
-                return View(model);
-            }
 
-            var result = await _signInManager.PasswordSignInAsync(user.Email, model.Password, model.RememberMe, false);
+            // ✅ FIX: Use UserName instead of Email
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
 
             if (result.Succeeded)
             {
@@ -69,7 +64,7 @@ namespace UrbanJunction.Web.Controllers
                 {
                     new Claim("ProfilePicturePath", user.ProfilePicturePath ?? "/images/default.jpg")
                 };
-                await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
+                await _signInManager.SignInWithClaimsAsync(user, isPersistent: model.RememberMe, claims);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -150,7 +145,7 @@ namespace UrbanJunction.Web.Controllers
             {
                 Username = user.UserName,
                 Email = user.Email,
-                ExistingProfilePictureUrl = user.ProfilePicturePath 
+                ExistingProfilePictureUrl = user.ProfilePicturePath
             };
 
             return View(model);
@@ -179,7 +174,7 @@ namespace UrbanJunction.Web.Controllers
                 using (var stream = new FileStream(filePath, FileMode.Create))
                     await model.ProfilePicture.CopyToAsync(stream);
 
-                user.ProfilePicturePath = "/images/" + fileName;
+                user.ProfilePicturePath = "/uploads/" + fileName;
             }
 
             await _userManager.UpdateAsync(user);
