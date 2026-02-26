@@ -12,22 +12,19 @@ public class TopicsController : Controller
         _context = context;
     }
 
-     ///Topics/ByName? name = Art
+    ///Topics/ByName? name = Art
     [Route("Topics/{name}")]
     public IActionResult ByName(string name)
     {
         var posts = _context.Posts
-            .AsNoTracking()
+            .Include(p => p.Subcategory)
+                .ThenInclude(s => s.Topic)
+            .Include(p => p.Images)
             .Where(p => p.Subcategory.Topic.Name == name)
+            .AsNoTracking()
             .ToList();
 
-        //var posts = _context.Posts
-        //    .Include(p => p.Subcategory)
-        //    .ThenInclude(s => s.Topic)
-        //    .Where(p => p.Subcategory.Topic.Name == name)
-        //    .ToList();
-
-        //ViewBag.TopicName = name;
+        ViewBag.TopicName = name;
         return View(posts);
     }
 

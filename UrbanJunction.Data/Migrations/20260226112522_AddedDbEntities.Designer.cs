@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UrbanJunction.Data;
 
@@ -11,9 +12,11 @@ using UrbanJunction.Data;
 namespace UrbanJunction.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260226112522_AddedDbEntities")]
+    partial class AddedDbEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,8 +172,7 @@ namespace UrbanJunction.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
@@ -180,8 +182,7 @@ namespace UrbanJunction.Data.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -194,35 +195,6 @@ namespace UrbanJunction.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Content = "Check out the East Side Gallery and RAW Gelände!",
-                            CreatedOn = new DateTime(2026, 1, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            SubcategoryId = 1,
-                            Title = "Best Graffiti Spots in Berlin",
-                            UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Content = "The scene is raw and authentic. Worth experiencing!",
-                            CreatedOn = new DateTime(2026, 2, 26, 11, 31, 55, 924, DateTimeKind.Utc).AddTicks(6425),
-                            SubcategoryId = 2,
-                            Title = "Underground Techno in Detroit",
-                            UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Content = "Baggy is back. Sneakers are getting chunkier than ever.",
-                            CreatedOn = new DateTime(2026, 2, 26, 11, 31, 55, 924, DateTimeKind.Utc).AddTicks(6429),
-                            SubcategoryId = 3,
-                            Title = "Streetwear Trends for 2025",
-                            UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
-                        });
                 });
 
             modelBuilder.Entity("UrbanJunction.Data.Models.PostImage", b =>
@@ -257,8 +229,7 @@ namespace UrbanJunction.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TopicId")
                         .HasColumnType("int");
@@ -268,26 +239,6 @@ namespace UrbanJunction.Data.Migrations
                     b.HasIndex("TopicId");
 
                     b.ToTable("Subcategories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Graffiti",
-                            TopicId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Techno",
-                            TopicId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Streetwear",
-                            TopicId = 3
-                        });
                 });
 
             modelBuilder.Entity("UrbanJunction.Data.Models.Topic", b =>
@@ -300,8 +251,7 @@ namespace UrbanJunction.Data.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -309,35 +259,11 @@ namespace UrbanJunction.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Topics");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Everything about art",
-                            ImageUrl = "/img/art.jpg",
-                            Name = "Art"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "All genres of music",
-                            ImageUrl = "/img/music.jpg",
-                            Name = "Music"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Trends, streetwear, and design",
-                            ImageUrl = "/img/fashion.jpg",
-                            Name = "Fashion"
-                        });
                 });
 
             modelBuilder.Entity("UrbanJunction.Data.Models.UrbanUser", b =>
@@ -471,7 +397,7 @@ namespace UrbanJunction.Data.Migrations
                     b.HasOne("UrbanJunction.Data.Models.UrbanUser", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Subcategory");

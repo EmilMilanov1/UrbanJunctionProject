@@ -8,53 +8,42 @@ using UrbanJunction.Data.Models;
 
 namespace UrbanJunction.Data.Seeding
 {
+    public class UserDTO
+    {
+        public string Email { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
     public class UrbanUserSeeder
     {
-        public static IEnumerable<UrbanUser> SeedUsers()
+        public static IEnumerable<UserDTO> GetUsers()
         {
-            var hasher = new PasswordHasher<UrbanUser>();
-
-            return new List<UrbanUser>()
+            return new List<UserDTO>()
             {
-                new UrbanUser
+                new UserDTO
                 {
-                    Id = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e",
                     UserName = "Emo",
-                    NormalizedUserName = "EMO",
                     Email = "artlover@urban.com",
-                    NormalizedEmail = "ARTLOVER@URBAN.COM",
-                    EmailConfirmed = true,
-                    PasswordHash = hasher.HashPassword(null, "ArtLover123!")
+                    Password = "ArtLover123!"
                 },
-                new UrbanUser
+                new UserDTO
                 {
-                    Id = "c3cabab2-2413-4aa6-b3e5-07000f3a069f",
                     UserName = "Admin",
-                    NormalizedUserName = "ADMIN",
                     Email = "admin@urban.com",
-                    NormalizedEmail = "ADMIN@URBAN.COM",
-                    EmailConfirmed = true,
-                    PasswordHash = hasher.HashPassword(null, "Admin123!")
+                    Password = "Admin123!"
                 },
-                new UrbanUser
+                new UserDTO
                 {
-                    Id = "3ad674e3-3797-41ba-b980-9b2e85c32a51",
                     UserName = "Valio",
-                    NormalizedUserName = "VALIO",
                     Email = "musicfan@urban.com",
-                    NormalizedEmail = "MUSICFAN@URBAN.COM",
-                    EmailConfirmed = true,
-                    PasswordHash = hasher.HashPassword(null, "MusicFan123!")
+                    Password = "MusicFan123!"
                 },
-                new UrbanUser
+                new UserDTO
                 {
-                    Id = "c5859895-19f2-47da-ae19-569400ee20d5",
                     UserName = "Mr.Yanev",
-                    NormalizedUserName = "MR.YANEV",
                     Email = "fashionguru@urban.com",
-                    NormalizedEmail = "FASHIONGURU@URBAN.COM",
-                    EmailConfirmed = true,
-                    PasswordHash = hasher.HashPassword(null, "Fashion123!")
+                    Password = "Fashion123!"
                 }
             };
         }

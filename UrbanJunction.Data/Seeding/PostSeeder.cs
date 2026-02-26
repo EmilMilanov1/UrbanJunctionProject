@@ -1,43 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UrbanJunction.Data.Models;
-
-namespace UrbanJunction.Data.Seeding
+﻿namespace UrbanJunction.Data.Seeding
 {
-	public class PostSeeder
+	public class PostDTO
 	{
-		public static IEnumerable<Post> SeedPosts()
+		public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+		public string Content { get; set; } = string.Empty;
+		public DateTime CreatedOn { get; set; }
+		public int SubcategoryId { get; set; }
+	}
+
+    public static class PostSeeder
+	{
+        public static IEnumerable<PostDTO> GetPosts()
 		{
-			IEnumerable<Post> posts = new List<Post>()
+			IEnumerable<PostDTO> posts = new List<PostDTO>()
 			{
-				new Post
-				{
-					Id = 1,
+				new PostDTO
+                {
 					Title = "Best Graffiti Spots in Berlin",
 					Content = "Check out the East Side Gallery and RAW Gelände!",
 					CreatedOn = new DateTime(2026, 1, 19),
-					UserId =  "93e5df7b-fb35-46d7-bd8c-7b88546ac77e",          
 					SubcategoryId = 1           // Graffiti
 				},
-				new Post
-				{
-					Id = 2,
+				new PostDTO
+                {
 					Title = "Underground Techno in Detroit",
 					Content = "The scene is raw and authentic. Worth experiencing!",
 					CreatedOn = DateTime.UtcNow,
-					UserId =  "93e5df7b-fb35-46d7-bd8c-7b88546ac77e",
 					SubcategoryId = 2           // Techno
 				},
-				new Post
-				{
-					Id = 3,
+				new PostDTO
+                {
 					Title = "Streetwear Trends for 2025",
 					Content = "Baggy is back. Sneakers are getting chunkier than ever.",
 					CreatedOn = DateTime.UtcNow,
-					UserId =  "93e5df7b-fb35-46d7-bd8c-7b88546ac77e",
+					SubcategoryId = 3           // Streetwear
+				},
+				new PostDTO
+                {
+					Title = "Test test",
+					Content = "This is a pure test.",
+					CreatedOn = DateTime.UtcNow,
 					SubcategoryId = 3           // Streetwear
 				}
 			};

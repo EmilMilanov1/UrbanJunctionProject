@@ -14,7 +14,16 @@ namespace UrbanJunction.Data.Configuration
 	{
 		public void Configure(EntityTypeBuilder<Topic> builder)
 		{
-			builder.HasData(TopicSeeder.SeedTopics());
+            builder.HasKey(t => t.Id);
+
+            builder.Property(t => t.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+            builder.Property(t => t.Description)
+                    .HasMaxLength(1000);
+
+            builder.HasData(TopicSeeder.SeedTopics());
 		}
 	}
 }

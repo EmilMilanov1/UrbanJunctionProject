@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UrbanJunction.Data.Models;
+using UrbanJunction.Web.Extensions;
 
 namespace UrbanJunction.Web
 {
@@ -39,6 +40,11 @@ namespace UrbanJunction.Web
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
+            // Seed admin role and user
+            using (var scope = app.Services.CreateScope())
+            {
+                await Program.SeedAdminAsync(scope.ServiceProvider);
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -51,6 +57,9 @@ namespace UrbanJunction.Web
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            await app.SeedUsersAsync();
+            await app.SeedPostsAsync();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

@@ -12,8 +12,8 @@ using UrbanJunction.Data;
 namespace UrbanJunction.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260123115025_Seeding")]
-    partial class Seeding
+    [Migration("20260226113101_SeededSubCategories")]
+    partial class SeededSubCategories
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -172,22 +172,17 @@ namespace UrbanJunction.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SubcategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -200,35 +195,6 @@ namespace UrbanJunction.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Content = "Check out the East Side Gallery and RAW Gelände!",
-                            CreatedOn = new DateTime(2026, 1, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            SubcategoryId = 1,
-                            Title = "Best Graffiti Spots in Berlin",
-                            UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Content = "The scene is raw and authentic. Worth experiencing!",
-                            CreatedOn = new DateTime(2026, 1, 23, 11, 50, 24, 873, DateTimeKind.Utc).AddTicks(2634),
-                            SubcategoryId = 2,
-                            Title = "Underground Techno in Detroit",
-                            UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Content = "Baggy is back. Sneakers are getting chunkier than ever.",
-                            CreatedOn = new DateTime(2026, 1, 23, 11, 50, 24, 873, DateTimeKind.Utc).AddTicks(2637),
-                            SubcategoryId = 3,
-                            Title = "Streetwear Trends for 2025",
-                            UserId = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e"
-                        });
                 });
 
             modelBuilder.Entity("UrbanJunction.Data.Models.PostImage", b =>
@@ -413,76 +379,6 @@ namespace UrbanJunction.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "93e5df7b-fb35-46d7-bd8c-7b88546ac77e",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "f111692a-0f48-4dee-a11e-8918783842cf",
-                            Email = "artlover@urban.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ARTLOVER@URBAN.COM",
-                            NormalizedUserName = "EMO",
-                            PasswordHash = "AQAAAAIAAYagAAAAEP5IJSqGEzgYEfsgl1bdUcOOns1qMTcUT6EPZi2DLCLQ8HQUi+xKAlVKDwhCiRj3yQ==",
-                            PhoneNumberConfirmed = false,
-                            ProfilePicturePath = "/images/profile/default-profile.png",
-                            SecurityStamp = "fed2c3eb-6ef7-42fa-af70-ec75c83a5f26",
-                            TwoFactorEnabled = false,
-                            UserName = "Emo"
-                        },
-                        new
-                        {
-                            Id = "c3cabab2-2413-4aa6-b3e5-07000f3a069f",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "6844fa58-f516-4707-b0cc-26b4a76a0ac2",
-                            Email = "admin@urban.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@URBAN.COM",
-                            NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEH2nqlqBZqkfUS0E1pUBPDVdZLNrn21eScDsWPDYFFTc/WdTzNRiREH4KbifJVkirQ==",
-                            PhoneNumberConfirmed = false,
-                            ProfilePicturePath = "/images/profile/default-profile.png",
-                            SecurityStamp = "e11cc3da-94c4-474b-9341-6db0045e215d",
-                            TwoFactorEnabled = false,
-                            UserName = "Admin"
-                        },
-                        new
-                        {
-                            Id = "3ad674e3-3797-41ba-b980-9b2e85c32a51",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "3e3e06a6-d0a6-4119-ae80-4f4b255ccaa5",
-                            Email = "musicfan@urban.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "MUSICFAN@URBAN.COM",
-                            NormalizedUserName = "VALIO",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMw1RWZZPVMM8moC37zr07hyp1PtIQuScQjl5eHwOGXjaKZVLz49R3Oz0rTVywORiw==",
-                            PhoneNumberConfirmed = false,
-                            ProfilePicturePath = "/images/profile/default-profile.png",
-                            SecurityStamp = "0cb7c1e7-5c31-4788-85e4-12c83f4ee527",
-                            TwoFactorEnabled = false,
-                            UserName = "Valio"
-                        },
-                        new
-                        {
-                            Id = "c5859895-19f2-47da-ae19-569400ee20d5",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "ef056d48-a707-4482-9064-24404ef2b201",
-                            Email = "fashionguru@urban.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "FASHIONGURU@URBAN.COM",
-                            NormalizedUserName = "MR.YANEV",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJCORzIBvxarTWzHR+kDB81GVoYFK6BeOSCIVXiHtsbPjK55LRPjGWd/jtpCoiesJw==",
-                            PhoneNumberConfirmed = false,
-                            ProfilePicturePath = "/images/profile/default-profile.png",
-                            SecurityStamp = "3e6e8e72-0c82-4f1d-b0af-38f7083d055f",
-                            TwoFactorEnabled = false,
-                            UserName = "Mr.Yanev"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -547,7 +443,7 @@ namespace UrbanJunction.Data.Migrations
                     b.HasOne("UrbanJunction.Data.Models.UrbanUser", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Subcategory");

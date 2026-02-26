@@ -14,7 +14,7 @@ namespace UrbanJunction.Data.Configuration
 	{
 		public void Configure(EntityTypeBuilder<UrbanUser> builder)
 		{
-			builder.HasData(UrbanUserSeeder.SeedUsers());
+			//builder.HasData(UrbanUserSeeder.SeedUsers());
 		}
 	}
 }

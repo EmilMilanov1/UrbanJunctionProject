@@ -14,7 +14,18 @@ namespace UrbanJunction.Data.Configuration
 	{
 		public void Configure(EntityTypeBuilder<Subcategory> builder)
 		{
-			builder.HasData(SubcategorySeeder.SeedSubcategories());
+            builder.HasKey(s => s.Id);
+
+            builder.Property(s => s.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.HasOne(s => s.Topic)
+                .WithMany(t => t.Subcategories)
+                .HasForeignKey(s => s.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasData(SubcategorySeeder.SeedSubcategories());
 		}
 	}
 }

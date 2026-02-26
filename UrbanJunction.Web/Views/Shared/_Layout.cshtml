@@ -1,6 +1,6 @@
 ﻿@{
     string profilePic =
-        User.FindFirst("ProfilePictureUrl")?.Value
+        User.FindFirst("ProfilePicturePath")?.Value
         ?? "/images/default.jpg";
 
     string username = User.Identity?.Name ?? "";
@@ -42,14 +42,13 @@
 
             <hr class="border-secondary">
 
-            @if (User.Identity.IsAuthenticated)
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 <h6 class="text-uppercase mb-3">Account</h6>
                 <ul class="list-unstyled">
                     <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Account" asp-action="Profile">👤 My Profile</a></li>
                     <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Posts" asp-action="MyPosts">📝 My Posts</a></li>
 
-                    @* ✅ ADD THIS: Admin Panel Link - Only shows for Admin users *@
                     @if (User.IsInRole("Admin"))
                     {
                         <li>
@@ -60,6 +59,7 @@
 
                     <li>
                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-link text-white text-decoration-none p-0">🚪 Logout</button>
                         </form>
                     </li>
@@ -78,8 +78,6 @@
 
                 <!-- Menu + Logo -->
                 <div class="d-flex align-items-center">
-
-                    <!-- Sliding Menu Button -->
                     <button class="btn btn-outline-light me-2 menu-btn"
                             type="button"
                             data-bs-toggle="offcanvas"
@@ -87,7 +85,6 @@
                         ☰
                     </button>
 
-                    <!-- Logo (Home Button) -->
                     <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
                         <img src="~/images/logo.png" alt="Urban Junction" class="site-logo" />
                     </a>
