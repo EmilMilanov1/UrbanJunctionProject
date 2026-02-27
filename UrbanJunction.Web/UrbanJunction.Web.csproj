@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UrbanJunction.Data\UrbanJunction.Data.csproj" />
+    <ProjectReference Include="..\UrbanJunction.Services\UrbanJunction.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>

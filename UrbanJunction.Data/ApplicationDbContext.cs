@@ -28,5 +28,7 @@ namespace UrbanJunction.Data
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<Topic> Topics { get; set; }
         public DbSet<PostImage> PostImages { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Reaction> Reactions { get; set; }
     }
 }

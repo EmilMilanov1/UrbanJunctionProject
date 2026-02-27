@@ -35,15 +35,15 @@ namespace UrbanJunction.Data.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
 
-            migrationBuilder.InsertData(
-                table: "Posts",
-                columns: new[] { "Id", "Content", "CreatedOn", "SubcategoryId", "Title", "UserId" },
-                values: new object[,]
-                {
-                    { 1, "Check out the East Side Gallery and RAW Gelände!", new DateTime(2026, 1, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Best Graffiti Spots in Berlin", "93e5df7b-fb35-46d7-bd8c-7b88546ac77e" },
-                    { 2, "The scene is raw and authentic. Worth experiencing!", new DateTime(2026, 2, 26, 11, 31, 55, 924, DateTimeKind.Utc).AddTicks(6425), 2, "Underground Techno in Detroit", "93e5df7b-fb35-46d7-bd8c-7b88546ac77e" },
-                    { 3, "Baggy is back. Sneakers are getting chunkier than ever.", new DateTime(2026, 2, 26, 11, 31, 55, 924, DateTimeKind.Utc).AddTicks(6429), 3, "Streetwear Trends for 2025", "93e5df7b-fb35-46d7-bd8c-7b88546ac77e" }
-                });
+            //migrationBuilder.InsertData(
+            //    table: "Posts",
+            //    columns: new[] { "Id", "Content", "CreatedOn", "SubcategoryId", "Title", "UserId" },
+            //    values: new object[,]
+            //    {
+            //        { 1, "Check out the East Side Gallery and RAW Gelände!", new DateTime(2026, 1, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Best Graffiti Spots in Berlin", "93e5df7b-fb35-46d7-bd8c-7b88546ac77e" },
+            //        { 2, "The scene is raw and authentic. Worth experiencing!", new DateTime(2026, 2, 26, 11, 31, 55, 924, DateTimeKind.Utc).AddTicks(6425), 2, "Underground Techno in Detroit", "93e5df7b-fb35-46d7-bd8c-7b88546ac77e" },
+            //        { 3, "Baggy is back. Sneakers are getting chunkier than ever.", new DateTime(2026, 2, 26, 11, 31, 55, 924, DateTimeKind.Utc).AddTicks(6429), 3, "Streetwear Trends for 2025", "93e5df7b-fb35-46d7-bd8c-7b88546ac77e" }
+            //    });
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Posts_AspNetUsers_UserId",

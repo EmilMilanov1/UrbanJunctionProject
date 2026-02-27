@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UrbanJunction.Data;
 using UrbanJunction.Data.Models;
-using UrbanJunction.Web.Models;
+using UrbanJunction.Data.ViewModels;
 
 [Authorize]
 public class PostsController : Controller

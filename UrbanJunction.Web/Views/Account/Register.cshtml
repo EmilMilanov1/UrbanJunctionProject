@@ -39,6 +39,13 @@
             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
         </div>
 
+        <!-- ReCaptcha added -->
+        <div class="g-recaptcha mb-3" data-sitekey="YOUR_SITE_KEY_HERE"></div>
+        <span class="text-danger" id="recaptcha-error"></span>
+
+        <button type="submit" class="btn btn-dark w-100">Sign Up</button>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
         <button type="submit" class="btn btn-dark w-100">Sign Up</button>
 
         <div class="text-center mt-3">

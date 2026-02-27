@@ -1,4 +1,4 @@
-﻿namespace UrbanJunction.Data.ViewModels
+namespace UrbanJunction.Data.ViewModels
 {
     public class ProfileViewModel
     {
@@ -6,6 +6,5 @@
         public string Email { get; set; } = string.Empty;
         public string? ProfilePictureUrl { get; set; }
         public string? Bio { get; set; }
-
     }
 }

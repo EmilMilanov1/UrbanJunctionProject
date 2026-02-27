@@ -8,6 +8,8 @@
         public DateTime CreatedOn { get; set; } = DateTime.Now;
 
         public ICollection<PostImage> Images { get; set; } = new List<PostImage>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Reaction> Reactions { get; set; } = new List<Reaction>();
 
         public int SubcategoryId { get; set; }
         public Subcategory Subcategory { get; set; } = null!;

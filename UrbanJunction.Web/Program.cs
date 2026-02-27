@@ -1,4 +1,6 @@
 ﻿using UrbanJunction.Data;
+using UrbanJunction.Services.Interfaces;
+using UrbanJunction.Services.Implementations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UrbanJunction.Data.Models;
@@ -35,6 +37,16 @@ namespace UrbanJunction.Web
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+
+            builder.Services.AddHttpClient();
+            builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<ICommentService, CommentService>();
+            builder.Services.AddScoped<IReactionService, ReactionService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IRecaptchaService, RecaptchaService>();
+            builder.Services.AddScoped<IImageService, ImageService>();
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
