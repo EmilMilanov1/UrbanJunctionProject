@@ -1,31 +1,38 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using UrbanJunction.Data;
-using UrbanJunction.Data.Models;
+using System.Security.Claims;
+using UrbanJunction.Services.Interfaces;
 
 public class TopicsController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IPostService _postService;
 
-    public TopicsController(ApplicationDbContext context)
+    public TopicsController(IPostService postService)
     {
-        _context = context;
+        _postService = postService;
     }
 
-    ///Topics/ByName? name = Art
     [Route("Topics/{name}")]
-    public IActionResult ByName(string name)
+    public async Task<IActionResult> ByName(string name, string? query)
     {
-        var posts = _context.Posts
-            .Include(p => p.Subcategory)
-                .ThenInclude(s => s.Topic)
-            .Include(p => p.Images)
-            .Where(p => p.Subcategory.Topic.Name == name)
-            .AsNoTracking()
-            .ToList();
+        var posts = string.IsNullOrWhiteSpace(query)
+            ? await _postService.GetByTopicAsync(name)
+            : await _postService.SearchAsync(name, query);
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var likedPostIds = new HashSet<int>();
+
+        if (userId != null)
+        {
+            likedPostIds = posts
+                .Where(p => p.Reactions.Any(r => r.UserId == userId))
+                .Select(p => p.Id)
+                .ToHashSet();
+        }
 
         ViewBag.TopicName = name;
+        ViewBag.Query = query;
+        ViewBag.LikedPostIds = likedPostIds;
+
         return View(posts);
     }
-
 }

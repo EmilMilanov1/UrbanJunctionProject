@@ -1,60 +1,37 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using UrbanJunction.Data;
+using UrbanJunction.Services.Interfaces;
 
-namespace UrbanJunction.Web.Controllers
+[Authorize(Roles = "Admin")]
+public class AdminController : Controller
 {
-    [Authorize(Roles = "Admin")]  // ✅ Only admins can access
-    public class AdminController : Controller
+    private readonly IAdminService _adminService;
+
+    public AdminController(IAdminService adminService)
     {
-        private readonly ApplicationDbContext _context;
+        _adminService = adminService;
+    }
 
-        public AdminController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+    public async Task<IActionResult> Index()
+    {
+        var stats = await _adminService.GetStatsAsync();
+        return View(stats);
+    }
 
-        // Admin Dashboard
-        public async Task<IActionResult> Index()
-        {
-            var stats = new
-            {
-                TotalUsers = await _context.Users.CountAsync(),
-                TotalPosts = await _context.Posts.CountAsync(),
-                TotalTopics = await _context.Topics.CountAsync()
-            };
+    public async Task<IActionResult> AllPosts()
+    {
+        var posts = await _adminService.GetAllPostsAsync();
+        return View(posts);
+    }
 
-            return View(stats);
-        }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeletePost(int id)
+    {
+        var success = await _adminService.DeletePostAsync(id);
+        if (!success) return NotFound();
 
-        // View all posts (for moderation)
-        public async Task<IActionResult> AllPosts()
-        {
-            var posts = await _context.Posts
-                .Include(p => p.User)
-                .Include(p => p.Subcategory)
-                .ThenInclude(s => s.Topic)
-                .OrderByDescending(p => p.CreatedOn)
-                .ToListAsync();
-
-            return View(posts);
-        }
-
-        // Delete any post
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeletePost(int id)
-        {
-            var post = await _context.Posts.FindAsync(id);
-            if (post == null)
-                return NotFound();
-
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Post deleted successfully.";
-            return RedirectToAction(nameof(AllPosts));
-        }
+        TempData["Success"] = "Post deleted successfully.";
+        return RedirectToAction(nameof(AllPosts));
     }
 }

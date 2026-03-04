@@ -29,6 +29,8 @@ namespace UrbanJunction.Services.Implementations
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
                 .Include(p => p.Images)
                 .Include(p => p.User)
+                .Include(p => p.Reactions)   
+                .Include(p => p.Comments)    
                 .Where(p => p.Subcategory.Topic.Name == topicName)
                 .OrderByDescending(p => p.CreatedOn)
                 .AsNoTracking()

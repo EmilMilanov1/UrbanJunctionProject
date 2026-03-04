@@ -1,49 +1,150 @@
 ﻿@model UrbanJunction.Data.Models.Post
-
 @{
     ViewData["Title"] = "Post Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    bool userLiked = (bool)(ViewBag.UserLiked ?? false);
+    int likeCount = (int)(ViewBag.LikeCount ?? 0);
 }
 
-<h2>@Model.Title</h2>
+<div class="container mt-4" style="max-width: 800px;">
 
-<p class="text-muted">
-    Posted by <strong>@Model.User.UserName</strong> in
-    <strong>@Model.Subcategory.Topic.Name / @Model.Subcategory.Name</strong>
-    on @Model.CreatedOn.ToShortDateString()
-</p>
+    <div class="mb-3">
+        <h2 class="fw-bold text-white">@Model.Title</h2>
+        <p class="text-muted mb-0">
+            Posted by
+            <strong class="text-info">@Model.User.UserName</strong>
+            in <strong>@Model.Subcategory.Topic.Name / @Model.Subcategory.Name</strong>
+            · @Model.CreatedOn.ToShortDateString()
+        </p>
+    </div>
 
-<hr />
+    <hr class="border-secondary" />
 
-<div class="bg-dark text-light p-4 rounded">
-    <p>@Model.Content</p>
-</div>
+    <div class="bg-dark text-light p-4 rounded mb-4">
+        <p class="mb-0" style="white-space: pre-wrap;">@Model.Content</p>
+    </div>
 
-@if (Model.Images != null && Model.Images.Any())
-{
-    <div id="detailsCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            @for (int i = 0; i < Model.Images.Count(); i++)
+    @if (Model.Images != null && Model.Images.Any())
+    {
+        <div id="detailsCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                @for (int i = 0; i < Model.Images.Count(); i++)
+                {
+                    var image = Model.Images.ElementAt(i);
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="@image.ImagePath" class="d-block w-100 rounded"
+                             style="max-height: 500px; object-fit: cover;" alt="Post Image">
+                    </div>
+                }
+            </div>
+            @if (Model.Images.Count() > 1)
             {
-                var image = Model.Images.ElementAt(i);
-                <div class="carousel-item @(i == 0 ? "active" : "")">
-                    <img src="@image.ImagePath" class="d-block w-100 rounded"
-                         style="max-height: 500px; object-fit: cover;" alt="Post Image">
-                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#detailsCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#detailsCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
             }
         </div>
-        @if (Model.Images.Count() > 1)
+    }
+
+    <!-- Like and Comment Bar -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+
+        @if (User.Identity?.IsAuthenticated == true)
         {
-            <button class="carousel-control-prev" type="button" data-bs-target="#detailsCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#detailsCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            <form asp-action="ToggleLike" asp-controller="Posts" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger d-flex align-items-center gap-2">
+                    <i class="@(userLiked ? "fa-solid" : "fa-regular") fa-heart"></i>
+                    @(userLiked ? "Liked" : "Like") · @likeCount
+                </button>
+            </form>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                <i class="fa-regular fa-heart"></i> Like · @likeCount
+            </a>
+        }
+
+        <span class="btn btn-outline-secondary disabled d-flex align-items-center gap-2">
+            <i class="fa-regular fa-comment"></i>
+            @Model.Comments.Count() @(Model.Comments.Count() == 1 ? "Comment" : "Comments")
+        </span> 
+    </div>
+
+    <hr class="border-secondary" />
+
+    <!-- Comments -->
+    <div class="mb-4">
+        <h5 class="text-white mb-3">Comments</h5>
+
+        @if (!Model.Comments.Any())
+        {
+            <p class="text-muted">No comments yet. Be the first!</p>
+        }
+        else
+        {
+            @foreach (var comment in Model.Comments.OrderBy(c => c.CreatedOn))
+            {
+                <div class="d-flex gap-3 mb-3">
+                    <img src="@(comment.User.ProfilePicturePath ?? "/images/default.jpg")"
+                         class="rounded-circle"
+                         style="width: 38px; height: 38px; object-fit: cover; flex-shrink: 0;"
+                         onerror="this.src='/images/default.jpg'" />
+                    <div class="flex-grow-1">
+                        <div class="bg-dark rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-info fw-semibold small">@comment.User.UserName</span>
+                                <span class="text-muted" style="font-size: 0.75rem;">@comment.CreatedOn.ToShortDateString()</span>
+                            </div>
+                            <p class="mb-0 text-light" style="white-space: pre-wrap;">@comment.Content</p>
+                        </div>
+
+                        @if (User.Identity?.IsAuthenticated == true &&
+                                        (comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                                        || User.IsInRole("Admin")))
+                        {
+                            <form asp-action="DeleteComment" asp-controller="Posts" method="post" class="mt-1">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="commentId" value="@comment.Id" />
+                                <input type="hidden" name="postId" value="@Model.Id" />
+                                <button type="submit" class="btn btn-link p-0 text-danger"
+                                        style="font-size: 0.75rem;"
+                                        onclick="return confirm('Delete this comment?')">
+                                    Delete
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
         }
     </div>
-}
 
-<a onclick="history.back()" class="btn btn-outline-secondary mt-3">← Back</a>
+    <!-- Add Comment -->
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="mb-4">
+            <form asp-action="AddComment" asp-controller="Posts" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <div class="input-group">
+                    <input type="text" name="content" class="form-control bg-dark text-light border-secondary"
+                           placeholder="Write a comment..." maxlength="500" required />
+                    <button type="submit" class="btn btn-info">Post</button>
+                </div>
+            </form>
+        </div>
+    }
+
+    else
+    {
+        <p class="text-muted">
+            <a asp-controller="Account" asp-action="Login" class="text-info">Log in</a> to like and comment.
+        </p>
+    }
+
+    <a onclick="history.back()" class="btn btn-outline-secondary mt-2">← Back</a>
+</div>

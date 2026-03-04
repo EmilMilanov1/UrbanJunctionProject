@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Urban Junction</title>
     <link rel="icon" type="image/x-icon" href="~/images/logo.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UrbanJunction.Web.styles.css" asp-append-version="true" />
@@ -25,19 +26,20 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body">
+
             <h6 class="text-uppercase mb-3">Explore Topics</h6>
             <ul class="list-unstyled">
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Art">🎨 Art</a></li>
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Music">🎧 Music</a></li>
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion">👕 Fashion</a></li>
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Art"><i class="fa-solid fa-palette me-2"></i>Art</a></li>
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Music"><i class="fa-solid fa-music me-2"></i>Music</a></li>
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"><i class="fa-solid fa-shirt me-2"></i>Fashion</a></li>
             </ul>
 
             <hr class="border-secondary">
 
             <h6 class="text-uppercase mb-3">Other Sections</h6>
             <ul class="list-unstyled">
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="QA" asp-action="Index">💬 Q&A</a></li>
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Credits" asp-action="Index">📜 Credits</a></li>
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="QA" asp-action="Index"><i class="fa-solid fa-circle-question me-2"></i>Q&A</a></li>
+                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Credits" asp-action="Index"><i class="fa-solid fa-scroll me-2"></i>Credits</a></li>
             </ul>
 
             <hr class="border-secondary">
@@ -46,28 +48,30 @@
             {
                 <h6 class="text-uppercase mb-3">Account</h6>
                 <ul class="list-unstyled">
-                    <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Account" asp-action="Profile">👤 My Profile</a></li>
-                    <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Posts" asp-action="MyPosts">📝 My Posts</a></li>
+                    <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Account" asp-action="Profile"><i class="fa-solid fa-user me-2"></i>My Profile</a></li>
+                    <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Posts" asp-action="MyPosts"><i class="fa-solid fa-pen-to-square me-2"></i>My Posts</a></li>
 
                     @if (User.IsInRole("Admin"))
                     {
-                        <li>
-                            <hr class="border-secondary my-2">
-                        </li>
-                        <li><a class="text-white text-decoration-none d-block py-1 text-warning" asp-controller="Admin" asp-action="Index">🛡️ Admin Panel</a></li>
+                        <li><hr class="border-secondary my-2"></li>
+                        <li><a class="text-white text-decoration-none d-block py-1 text-warning" asp-controller="Admin" asp-action="Index"><i class="fa-solid fa-shield me-2"></i>Admin Panel</a></li>
                     }
 
                     <li>
                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link text-white text-decoration-none p-0">🚪 Logout</button>
+                            <button type="submit" class="btn btn-link text-white text-decoration-none p-0">
+                                <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                            </button>
                         </form>
                     </li>
                 </ul>
             }
             else
             {
-                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light w-100 mt-3">Login</a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light w-100 mt-3">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>Login
+                </a>
             }
         </div>
     </div>
@@ -82,7 +86,7 @@
                             type="button"
                             data-bs-toggle="offcanvas"
                             data-bs-target="#mainMenu">
-                        ☰
+                        <i class="fa-solid fa-bars"></i>
                     </button>
 
                     <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
@@ -90,22 +94,25 @@
                     </a>
                 </div>
 
-                <!-- Profile and Create button -->
+                <!-- Profile -->
                 <div class="d-flex align-items-center">
-
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <a asp-controller="Account" asp-action="Profile"
                            class="d-flex align-items-center text-decoration-none text-white me-3">
-
                             <img src="@profilePic"
                                  onerror="this.src='/images/default.jpg'"
                                  class="rounded-circle profile-icon me-2"
                                  style="width:42px; height:42px; object-fit:cover;" />
-
                             <span class="fw-semibold">@username</span>
                         </a>
-                    }                   
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-sm">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i>Login
+                        </a>
+                    }
                 </div>
 
             </div>

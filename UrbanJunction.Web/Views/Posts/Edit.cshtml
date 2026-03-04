@@ -1,37 +1,39 @@
 ﻿@model PostFormViewModel
-
 @{
     ViewData["Title"] = "Edit Post";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Edit Post</h2>
+<div class="container mt-5" style="max-width: 600px;">
+    <h2 class="text-center mb-4">Edit Post</h2>
 
-<form asp-action="Edit" method="post" class="mt-4">
-    <input type="hidden" asp-for="Id" />
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
 
-    <div class="mb-3">
-        <label asp-for="Title" class="form-label"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control bg-dark text-light border-secondary" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="Content" class="form-label"></label>
-        <textarea asp-for="Content" rows="6" class="form-control"></textarea>
-        <span asp-validation-for="Content" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Content" class="form-label"></label>
+            <textarea asp-for="Content" rows="6" class="form-control bg-dark text-light border-secondary"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="SubcategoryId" class="form-label">Category</label>
-        <select asp-for="SubcategoryId" class="form-select" asp-items="Model.Subcategories"></select>
-        <span asp-validation-for="SubcategoryId" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="SubcategoryId" class="form-label">Category</label>
+            <select asp-for="SubcategoryId" class="form-select bg-dark text-light border-secondary" asp-items="Model.Subcategories"></select>
+            <span asp-validation-for="SubcategoryId" class="text-danger"></span>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-    <a onclick="history.back()" class="btn btn-outline-secondary mt-3">← Back</a>
-
-</form>
+        <div class="d-flex justify-content-center gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a onclick="history.back()" class="btn btn-outline-secondary">← Back</a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

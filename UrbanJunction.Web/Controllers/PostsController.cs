@@ -4,136 +4,74 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UrbanJunction.Data;
-using UrbanJunction.Data.Models;
 using UrbanJunction.Data.ViewModels;
+using UrbanJunction.Services.Interfaces;
 
 [Authorize]
 public class PostsController : Controller
 {
+    private readonly IPostService _postService;
+    private readonly IReactionService _reactionService;
+    private readonly ICommentService _commentService;
     private readonly ApplicationDbContext _context;
 
-    public PostsController(ApplicationDbContext context)
+    public PostsController(
+        IPostService postService,
+        IReactionService reactionService,
+        ICommentService commentService,
+        ApplicationDbContext context)
     {
+        _postService = postService;
+        _reactionService = reactionService;
+        _commentService = commentService;
         _context = context;
     }
 
-    public IActionResult MyPosts()
+    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+    private bool IsAdmin => User.IsInRole("Admin");
+
+    public async Task<IActionResult> MyPosts()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        var posts = _context.Posts
-            .Include(p => p.Subcategory)
-                .ThenInclude(sc => sc.Topic)
-            .Where(p => p.UserId == userId)
-            .OrderByDescending(p => p.CreatedOn)
-            .ToList();
-
+        var posts = await _postService.GetByUserAsync(UserId);
         return View(posts);
     }
 
-    [Authorize]
+    [HttpGet]
     public IActionResult Create()
     {
         var model = new PostFormViewModel
         {
-            Subcategories = _context.Subcategories
-                .Include(s => s.Topic)
-                .Select(s => new SelectListItem
-                {
-                    Value = s.Id.ToString(),
-                    Text = $"{s.Topic.Name} / {s.Name}"
-                }).ToList()
+            Subcategories = GetSubcategoryList()
         };
-
         return View(model);
     }
 
     [HttpPost]
-    [Authorize]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(PostFormViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            model.Subcategories = _context.Subcategories
-                .Include(s => s.Topic)
-                .Select(s => new SelectListItem
-                {
-                    Value = s.Id.ToString(),
-                    Text = $"{s.Topic.Name} / {s.Name}"
-                }).ToList();
-
+            model.Subcategories = GetSubcategoryList();
             return View(model);
         }
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var post = await _postService.CreateAsync(model, UserId);
+
         var subcategory = await _context.Subcategories
             .Include(s => s.Topic)
             .FirstOrDefaultAsync(s => s.Id == model.SubcategoryId);
 
-        if (subcategory == null)
-        {
-            ModelState.AddModelError("", "Invalid subcategory.");
-            return View(model);
-        }
-
-        var post = new Post
-        {
-            Title = model.Title,
-            Content = model.Content,
-            SubcategoryId = model.SubcategoryId,
-            UserId = userId!,
-            CreatedOn = DateTime.UtcNow
-        };
-
-        _context.Posts.Add(post);
-        await _context.SaveChangesAsync();
-
-        // ✅ Handle image uploads
-        if (model.ImageFiles != null && model.ImageFiles.Any())
-        {
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-            Directory.CreateDirectory(uploadsFolder);
-
-            foreach (var file in model.ImageFiles)
-            {
-                if (file.Length > 0)
-                {
-                    var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    _context.PostImages.Add(new PostImage
-                    {
-                        ImagePath = $"/uploads/{uniqueFileName}",
-                        PostId = post.Id
-                    });
-                }
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
         TempData["Success"] = "Post created successfully!";
-        return RedirectToAction("ByName", "Topics", new { name = subcategory.Topic.Name });
+        return RedirectToAction("ByName", "Topics", new { name = subcategory?.Topic?.Name ?? "Art" });
     }
 
-    [Authorize]
-    public IActionResult Edit(int id)
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var post = await _postService.GetDetailsAsync(id);
 
-        var post = _context.Posts
-            .Include(p => p.Subcategory)
-            .ThenInclude(s => s.Topic)
-            .Include(p => p.Images)
-            .FirstOrDefault(p => p.Id == id && p.UserId == userId);
-
-        if (post == null)
+        if (post == null || (post.UserId != UserId && !IsAdmin))
             return NotFound();
 
         var model = new PostFormViewModel
@@ -142,91 +80,98 @@ public class PostsController : Controller
             Title = post.Title,
             Content = post.Content,
             SubcategoryId = post.SubcategoryId,
-            Subcategories = _context.Subcategories
-                .Include(s => s.Topic)
-                .Select(s => new SelectListItem
-                {
-                    Value = s.Id.ToString(),
-                    Text = $"{s.Topic.Name} / {s.Name}"
-                }).ToList()
+            Subcategories = GetSubcategoryList()
         };
 
         return View(model);
     }
 
     [HttpPost]
-    [Authorize]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, PostFormViewModel model)
     {
-        if (id != model.Id)
-            return BadRequest();
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var post = _context.Posts.FirstOrDefault(p => p.Id == id && p.UserId == userId);
-
-        if (post == null)
-            return NotFound();
+        if (id != model.Id) return BadRequest();
 
         if (!ModelState.IsValid)
         {
-            model.Subcategories = _context.Subcategories
-                .Include(s => s.Topic)
-                .Select(s => new SelectListItem
-                {
-                    Value = s.Id.ToString(),
-                    Text = $"{s.Topic.Name} / {s.Name}"
-                }).ToList();
-
+            model.Subcategories = GetSubcategoryList();
             return View(model);
         }
 
-        post.Title = model.Title;
-        post.Content = model.Content;
-        post.SubcategoryId = model.SubcategoryId;
-
-        await _context.SaveChangesAsync();
+        var success = await _postService.EditAsync(id, model, UserId);
+        if (!success) return NotFound();
 
         TempData["Success"] = "Post updated successfully!";
-        return RedirectToAction("MyPosts");
+        return RedirectToAction(nameof(MyPosts));
     }
 
-    // In PostsController.cs - Update Delete method
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var post = await _context.Posts.FindAsync(id);
-
-        if (post == null)
-            return NotFound();
-
-        // ✅ Allow admin to delete any post, user can only delete their own
-        if (post.UserId != userId && !User.IsInRole("Admin"))
-            return Forbid();
-
-        _context.Posts.Remove(post);
-        await _context.SaveChangesAsync();
+        var success = await _postService.DeleteAsync(id, UserId, IsAdmin);
+        if (!success) return NotFound();
 
         TempData["Success"] = "Post deleted successfully.";
-        return RedirectToAction("MyPosts");
+        return RedirectToAction(nameof(MyPosts));
     }
 
     [AllowAnonymous]
-    public IActionResult Details(int id)
+    public async Task<IActionResult> Details(int id)
     {
-        var post = _context.Posts
-            .Include(p => p.User)
-            .Include(p => p.Subcategory)
-            .ThenInclude(s => s.Topic)
-            .Include(p => p.Images)
-            .FirstOrDefault(p => p.Id == id);
+        var post = await _postService.GetDetailsAsync(id);
+        if (post == null) return NotFound();
 
-        if (post == null)
-            return NotFound();
+        var likeCount = await _reactionService.GetCountAsync(id);
+        var userLiked = User.Identity?.IsAuthenticated == true
+            ? await _reactionService.HasUserLikedAsync(id, UserId)
+            : false;
+
+        ViewBag.LikeCount = likeCount;
+        ViewBag.UserLiked = userLiked;
 
         return View(post);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleLike(int id)
+    {
+        await _reactionService.ToggleAsync(id, UserId);
+        var count = await _reactionService.GetCountAsync(id);
+        var userLiked = await _reactionService.HasUserLikedAsync(id, UserId);
+
+        // Always return JSON regardless of how the request was made
+        return Json(new { count, userLiked });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddComment(int id, string content)
+    {
+        if (!string.IsNullOrWhiteSpace(content))
+            await _commentService.AddAsync(id, content, UserId);
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteComment(int commentId, int postId)
+    {
+        await _commentService.DeleteAsync(commentId, UserId, IsAdmin);
+        return RedirectToAction(nameof(Details), new { id = postId });
+    }
+
+
+    private List<SelectListItem> GetSubcategoryList()
+    {
+        return _context.Subcategories
+            .Include(s => s.Topic)
+            .Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = $"{s.Topic.Name} / {s.Name}"
+            }).ToList();
+    }
 }
