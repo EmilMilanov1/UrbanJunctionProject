@@ -6,7 +6,7 @@
 <div class="container mt-5" style="max-width: 400px;">
     <h2 class="text-center mb-4">Create an Account</h2>
 
-    <form asp-action="Register" method="post" class="shadow p-4 rounded bg-light">
+    <form asp-action="Register" method="post" class="shadow p-4 rounded bg-light" id="registerForm">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <div class="form-group mb-3">
@@ -21,14 +21,11 @@
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
-        <div class="form-group mb-3 position-relative">
+        <div class="form-group mb-3">
             <label asp-for="Password" class="form-label">Password</label>
             <div class="input-group">
                 <input asp-for="Password" type="password" class="form-control" id="passwordInput" placeholder="Create a strong password" />
                 <button type="button" class="btn btn-outline-secondary" id="togglePassword">Show</button>
-            </div>
-            <div class="form-text text-muted">
-                Must be at least 6 characters, include one number and one uppercase letter.
             </div>
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
@@ -39,14 +36,10 @@
             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
         </div>
 
-        <!-- ReCaptcha added -->
-        <div class="g-recaptcha mb-3" data-sitekey="YOUR_SITE_KEY_HERE"></div>
-        <span class="text-danger" id="recaptcha-error"></span>
+        <!-- Hidden field carries the v3 token to the server -->
+        <input type="hidden" name="RecaptchaToken" id="recaptchaToken" />
 
-        <button type="submit" class="btn btn-dark w-100">Sign Up</button>
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-        <button type="submit" class="btn btn-dark w-100">Sign Up</button>
+        <button type="submit" class="btn btn-dark w-100 mt-2">Sign Up</button>
 
         <div class="text-center mt-3">
             <small>
@@ -57,13 +50,27 @@
     </form>
 </div>
 
-@section Scripts {
-    <script>
-        document.getElementById('togglePassword').addEventListener('click', function () {
-            const passwordInput = document.getElementById('passwordInput');
-            const isPassword = passwordInput.getAttribute('type') === 'password';
-            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-            this.textContent = isPassword ? 'Hide' : 'Show';
+<script src="https://www.google.com/recaptcha/api.js?render=@ViewBag.RecaptchaSiteKey"></script>
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const input = document.getElementById('passwordInput');
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        this.textContent = isPassword ? 'Hide' : 'Show';
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const form = this;
+        grecaptcha.ready(function () {
+            grecaptcha.execute('@ViewBag.RecaptchaSiteKey', { action: 'register' }).then(function (token) {
+                document.getElementById('recaptchaToken').value = token;
+                form.submit();
+            });
         });
-    </script>
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

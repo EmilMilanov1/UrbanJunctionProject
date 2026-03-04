@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UrbanJunction.Data.Models;
 using UrbanJunction.Web.Models;
 using UrbanJunction.Data.ViewModels;
-
+using UrbanJunction.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace UrbanJunction.Web.Controllers
 {
@@ -14,18 +14,22 @@ namespace UrbanJunction.Web.Controllers
         private readonly UserManager<UrbanUser> _userManager;
         private readonly SignInManager<UrbanUser> _signInManager;
         private readonly IWebHostEnvironment _env;
+        private readonly IRecaptchaService _recaptchaService;
+        private readonly IConfiguration _config;
 
         public AccountController(
             UserManager<UrbanUser> userManager,
             SignInManager<UrbanUser> signInManager,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            IRecaptchaService recaptchaService,
+            IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _env = env;
+            _recaptchaService = recaptchaService;
+            _config = config;
         }
-
-        // ===== AUTH =====
 
         [HttpGet]
         public IActionResult Login() => View();
@@ -38,17 +42,11 @@ namespace UrbanJunction.Web.Controllers
 
             UrbanUser? user = null;
 
-            // Try email first
             if (model.UsernameOrEmail.Contains("@"))
-            {
                 user = await _userManager.FindByEmailAsync(model.UsernameOrEmail);
-            }
 
-            // If not found, try username
             if (user == null)
-            {
                 user = await _userManager.FindByNameAsync(model.UsernameOrEmail);
-            }
 
             if (user == null)
             {
@@ -56,18 +54,15 @@ namespace UrbanJunction.Web.Controllers
                 return View(model);
             }
 
-            // ✅ FIX: Use UserName instead of Email
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
+            var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password, model.RememberMe, false);
 
             if (result.Succeeded)
             {
-                // ✅ Add the profile picture claim when signing in
                 var claims = new List<Claim>
                 {
                     new Claim("ProfilePicturePath", user.ProfilePicturePath ?? "/images/default.jpg")
                 };
                 await _signInManager.SignInWithClaimsAsync(user, isPersistent: model.RememberMe, claims);
-
                 return RedirectToAction("Index", "Home");
             }
 
@@ -76,13 +71,28 @@ namespace UrbanJunction.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register() => View();
+        public IActionResult Register()
+        {
+            // Pass the site key so the view can load the reCAPTCHA script
+            ViewBag.RecaptchaSiteKey = _config["GoogleReCaptcha:SiteKey"];
+            return View();
+        }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model, string RecaptchaToken)
         {
+            ViewBag.RecaptchaSiteKey = _config["GoogleReCaptcha:SiteKey"];
+
             if (!ModelState.IsValid)
                 return View(model);
+
+            // Verify reCAPTCHA token before doing anything else
+            var recaptchaValid = await _recaptchaService.VerifyAsync(RecaptchaToken);
+            if (!recaptchaValid)
+            {
+                ModelState.AddModelError("", "reCAPTCHA verification failed. Please try again.");
+                return View(model);
+            }
 
             var existingUser = await _userManager.FindByNameAsync(model.Username);
             if (existingUser != null)
@@ -95,9 +105,8 @@ namespace UrbanJunction.Web.Controllers
             {
                 UserName = model.Username,
                 Email = model.Email,
-                ProfilePicturePath = "/images/default.jpg" // ✅ sets default on registration
+                ProfilePicturePath = "/images/default.jpg"
             };
-
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
@@ -119,22 +128,18 @@ namespace UrbanJunction.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // ===== PROFILE =====
-
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login");
 
-            var model = new ProfileViewModel
+            return View(new ProfileViewModel
             {
-                Username = user.UserName,
-                Email = user.Email,
+                Username = user.UserName!,
+                Email = user.Email!,
                 ProfilePictureUrl = user.ProfilePicturePath
-            };
-
-            return View(model);
+            });
         }
 
         [HttpGet]
@@ -143,14 +148,12 @@ namespace UrbanJunction.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login");
 
-            var model = new EditProfileViewModel
+            return View(new EditProfileViewModel
             {
-                Username = user.UserName,
-                Email = user.Email,
+                Username = user.UserName!,
+                Email = user.Email!,
                 ExistingProfilePictureUrl = user.ProfilePicturePath
-            };
-
-            return View(model);
+            });
         }
 
         [HttpPost]
@@ -168,9 +171,7 @@ namespace UrbanJunction.Web.Controllers
             {
                 var fileName = $"{Guid.NewGuid()}_{model.ProfilePicture.FileName}";
                 var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
-
-                if (!Directory.Exists(uploadPath))
-                    Directory.CreateDirectory(uploadPath);
+                Directory.CreateDirectory(uploadPath);
 
                 var filePath = Path.Combine(uploadPath, fileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
