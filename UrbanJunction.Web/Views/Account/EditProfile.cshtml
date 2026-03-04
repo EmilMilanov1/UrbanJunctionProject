@@ -16,13 +16,30 @@
         <div class="form-group mb-3">
             <label asp-for="Email" class="form-label"></label>
             <input asp-for="Email" class="form-control bg-dark text-light border-secondary" readonly />
-            <span asp-validation-for="Email" class="text-danger"></span>
-
         </div>
 
+        <div class="form-group mb-3">
+            <label class="form-label">Change Profile Picture</label>
+            @if (!string.IsNullOrEmpty(Model.ExistingProfilePictureUrl))
+            {
+                <div class="mb-2">
+                    <img src="@Model.ExistingProfilePictureUrl" class="rounded-circle"
+                         style="width: 60px; height: 60px; object-fit: cover;" />
+                </div>
+            }
+            <input asp-for="ProfilePicture" type="file" class="form-control bg-dark text-light border-secondary" accept="image/*" />
+        </div>
+        
         <div class="form-group mb-4">
-            <label asp-for="ProfilePicture" class="form-label">Change Profile Picture</label>
-            <input asp-for="ProfilePicture" type="file" class="form-control bg-dark text-light border-secondary" />
+            <label class="form-label">Change Banner Image</label>
+            @if (!string.IsNullOrEmpty(Model.ExistingBannerImageUrl))
+            {
+                <div class="mb-2">
+                    <img src="@Model.ExistingBannerImageUrl"
+                         style="width: 100%; height: 80px; object-fit: cover; border-radius: 6px;" />
+                </div>
+            }
+            <input asp-for="BannerImage" type="file" class="form-control bg-dark text-light border-secondary" accept="image/*" />
         </div>
 
         <div class="d-flex justify-content-center gap-2 mt-3">

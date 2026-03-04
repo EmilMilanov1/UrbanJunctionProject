@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System.Net.NetworkInformation;
 using System.Security.Claims;
+using UrbanJunction.Data;
 using UrbanJunction.Data.Models;
-using UrbanJunction.Web.Models;
 using UrbanJunction.Data.ViewModels;
 using UrbanJunction.Services.Interfaces;
-using Microsoft.Extensions.Configuration;
+using UrbanJunction.Web.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace UrbanJunction.Web.Controllers
 {
@@ -16,19 +20,22 @@ namespace UrbanJunction.Web.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly IRecaptchaService _recaptchaService;
         private readonly IConfiguration _config;
+        private readonly ApplicationDbContext _context;
 
         public AccountController(
             UserManager<UrbanUser> userManager,
             SignInManager<UrbanUser> signInManager,
             IWebHostEnvironment env,
             IRecaptchaService recaptchaService,
-            IConfiguration config)
+            IConfiguration config,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _env = env;
             _recaptchaService = recaptchaService;
             _config = config;
+            _context = context;
         }
 
         [HttpGet]
@@ -129,16 +136,38 @@ namespace UrbanJunction.Web.Controllers
         }
 
         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login");
 
+            var posts = await _context.Posts
+                .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
+                .Include(p => p.Images)
+                .Include(p => p.Reactions)
+                .Include(p => p.Comments)
+                .Where(p => p.UserId == user.Id)
+                .OrderByDescending(p => p.CreatedOn)
+                .ToListAsync();
+
+            var likedPosts = await _context.Posts
+                .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
+                .Include(p => p.Images)
+                .Include(p => p.Reactions)
+                .Include(p => p.Comments)
+                .Where(p => p.Reactions.Any(r => r.UserId == user.Id))
+                .OrderByDescending(p => p.CreatedOn)
+                .ToListAsync();
+
             return View(new ProfileViewModel
             {
                 Username = user.UserName!,
                 Email = user.Email!,
-                ProfilePictureUrl = user.ProfilePicturePath
+                ProfilePictureUrl = user.ProfilePicturePath,
+                BannerImageUrl = user.BannerImagePath,
+                Posts = posts,
+                LikedPosts = likedPosts
             });
         }
 
@@ -152,7 +181,8 @@ namespace UrbanJunction.Web.Controllers
             {
                 Username = user.UserName!,
                 Email = user.Email!,
-                ExistingProfilePictureUrl = user.ProfilePicturePath
+                ExistingProfilePictureUrl = user.ProfilePicturePath,
+                ExistingBannerImageUrl = user.BannerImagePath
             });
         }
 
@@ -167,17 +197,25 @@ namespace UrbanJunction.Web.Controllers
 
             user.UserName = model.Username;
 
+            var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadPath);
+
             if (model.ProfilePicture != null)
             {
-                var fileName = $"{Guid.NewGuid()}_{model.ProfilePicture.FileName}";
-                var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploadPath);
-
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.ProfilePicture.FileName)}";
                 var filePath = Path.Combine(uploadPath, fileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                     await model.ProfilePicture.CopyToAsync(stream);
-
                 user.ProfilePicturePath = "/uploads/" + fileName;
+            }
+
+            if (model.BannerImage != null)
+            {
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.BannerImage.FileName)}";
+                var filePath = Path.Combine(uploadPath, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await model.BannerImage.CopyToAsync(stream);
+                user.BannerImagePath = "/uploads/" + fileName;
             }
 
             await _userManager.UpdateAsync(user);
