@@ -1,44 +1,81 @@
 ﻿@model ProfileViewModel
 @{
-    ViewData["Title"] = "My Profile";
+    ViewData["Title"] = Model.Username + "'s Profile";
     string activeTab = Context.Request.Query["tab"].ToString();
     if (string.IsNullOrEmpty(activeTab)) activeTab = "posts";
 }
 
-<!-- Banner -->
-<div style="width: 100%; height: 200px; background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); position: relative;">
-    <div style="position: absolute; bottom: -50px; left: 30px;">
+<div class="container" style="max-width: 700px;">
+    <!-- Banner -->
+    <div style="width: 100%; height: 200px; position: relative; overflow: hidden; border-radius: 12px;
+                background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);">
+        @if (!string.IsNullOrEmpty(Model.BannerImageUrl))
+        {
+            <img src="@Model.BannerImageUrl"
+                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
+        }
+    </div>
+
+    <!-- Avatar -->
+    <div style="position: relative; margin-top: -50px; margin-bottom: 10px; z-index: 10;">
         <img src="@(!string.IsNullOrEmpty(Model.ProfilePictureUrl) ? Model.ProfilePictureUrl : "/images/default.jpg")"
              onerror="this.src='/images/default.jpg'"
-             class="rounded-circle border border-dark"
-             style="width: 100px; height: 100px; object-fit: cover; border-width: 4px !important;" />
+             class="rounded-circle"
+             style="width: 100px; height: 100px; object-fit: cover; border: 4px solid #111;" />
     </div>
-    <div style="position: absolute; bottom: 10px; right: 20px;">
-        <a asp-action="EditProfile" class="btn btn-outline-light btn-sm rounded-pill px-3">
-            <i class="fa-solid fa-pen me-1"></i> Edit Profile
+
+    <!-- Username row -->
+    <div class="d-flex align-items-start justify-content-between mb-1">
+        <div>
+            <h4 class="text-white fw-bold mb-0">@Model.Username</h4>
+            <p class="text-muted mb-1">@@@Model.Username</p>
+        </div>
+        @if (Model.IsOwnProfile)
+        {
+            <a asp-action="EditProfile" class="btn btn-outline-light btn-sm rounded-pill px-3 mt-1">
+                <i class="fa-solid fa-pen me-1"></i> Edit Profile
+            </a>
+        }
+        else if (User.Identity?.IsAuthenticated == true)
+        {
+            <form asp-action="ToggleFollow" asp-controller="Account" method="post" class="mt-1">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="targetUserId" value="@Model.UserId" />
+                <button type="submit" class="btn btn-sm rounded-pill px-3 @(Model.IsFollowedByCurrentUser ? "btn-outline-light" : "btn-info")">
+                    @(Model.IsFollowedByCurrentUser ? "Unfollow" : "Follow")
+                </button>
+            </form>
+        }
+    </div>
+
+    <!-- Bio -->
+    @if (!string.IsNullOrEmpty(Model.Bio))
+    {
+        <p class="text-light mb-2" style="font-size: 0.95rem;">@Model.Bio</p>
+    }
+
+    <!-- Follower/Following counts -->
+    <div class="d-flex gap-4 mb-4 mt-1">
+        <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followersModal">
+            <span class="text-white fw-bold">@Model.FollowerCount</span>
+            <span class="text-muted ms-1">Followers</span>
+        </a>
+        <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followingModal">
+            <span class="text-white fw-bold">@Model.FollowingCount</span>
+            <span class="text-muted ms-1">Following</span>
         </a>
     </div>
-</div>
-
-<!-- Profile Info -->
-<div class="container" style="max-width: 700px; padding-top: 60px;">
-    <h4 class="text-white fw-bold mb-0">@Model.Username</h4>
-    <p class="text-muted mb-3">@@Model.Username</p>
 
     <!-- Tabs -->
     <div class="border-bottom border-secondary mb-4">
         <ul class="nav">
             <li class="nav-item">
                 <a class="nav-link @(activeTab == "posts" ? "text-white border-bottom border-info" : "text-muted")"
-                   href="?tab=posts" style="font-weight: @(activeTab == "posts" ? "600" : "400")">
-                    Posts
-                </a>
+                   href="?tab=posts" style="font-weight: @(activeTab == "posts" ? "600" : "400")">Posts</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link @(activeTab == "likes" ? "text-white border-bottom border-info" : "text-muted")"
-                   href="?tab=likes" style="font-weight: @(activeTab == "likes" ? "600" : "400")">
-                    Likes
-                </a>
+                   href="?tab=likes" style="font-weight: @(activeTab == "likes" ? "600" : "400")">Likes</a>
             </li>
         </ul>
     </div>
@@ -57,8 +94,7 @@
                 <div class="card bg-dark text-light border-secondary mb-3 rounded-3">
                     @if (post.Images != null && post.Images.Any())
                     {
-                        <img src="@post.Images.First().ImagePath"
-                             class="card-img-top rounded-top"
+                        <img src="@post.Images.First().ImagePath" class="card-img-top rounded-top"
                              style="height: 200px; object-fit: cover;" />
                     }
                     <div class="card-body">
@@ -97,8 +133,7 @@
                 <div class="card bg-dark text-light border-secondary mb-3 rounded-3">
                     @if (post.Images != null && post.Images.Any())
                     {
-                        <img src="@post.Images.First().ImagePath"
-                             class="card-img-top rounded-top"
+                        <img src="@post.Images.First().ImagePath" class="card-img-top rounded-top"
                              style="height: 200px; object-fit: cover;" />
                     }
                     <div class="card-body">
@@ -123,3 +158,68 @@
         }
     }
 </div>
+
+<!-- Followers Modal -->
+<div class="modal fade" id="followersModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Followers</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @if (!Model.Followers.Any())
+                {
+                    <p class="text-muted text-center">No followers yet.</p>
+                }
+                else
+                {
+                    @foreach (var u in Model.Followers)
+                    {
+                        <a href="/u/@u.Username" class="d-flex align-items-center gap-3 text-decoration-none text-white mb-3">
+                            <img src="@(u.ProfilePictureUrl ?? "/images/default.jpg")"
+                                 onerror="this.src='/images/default.jpg'"
+                                 class="rounded-circle"
+                                 style="width: 44px; height: 44px; object-fit: cover;" />
+                            <span class="fw-semibold">@u.Username</span>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Following Modal -->
+<div class="modal fade" id="followingModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Following</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @if (!Model.FollowingUsers.Any())
+                {
+                    <p class="text-muted text-center">Not following anyone yet.</p>
+                }
+                else
+                {
+                    @foreach (var u in Model.FollowingUsers)
+                    {
+                        <a href="/u/@u.Username" class="d-flex align-items-center gap-3 text-decoration-none text-white mb-3">
+                            <img src="@(u.ProfilePictureUrl ?? "/images/default.jpg")"
+                                 onerror="this.src='/images/default.jpg'"
+                                 class="rounded-circle"
+                                 style="width: 44px; height: 44px; object-fit: cover;" />
+                            <span class="fw-semibold">@u.Username</span>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+

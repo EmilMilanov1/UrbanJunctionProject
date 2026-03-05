@@ -19,6 +19,12 @@
         </div>
 
         <div class="form-group mb-3">
+            <label asp-for="Bio" class="form-label">Bio</label>
+            <textarea asp-for="Bio" class="form-control bg-dark text-light border-secondary" rows="3"
+                      placeholder="Tell people about yourself..."></textarea>
+        </div>
+
+        <div class="form-group mb-3">
             <label class="form-label">Change Profile Picture</label>
             @if (!string.IsNullOrEmpty(Model.ExistingProfilePictureUrl))
             {
@@ -29,7 +35,7 @@
             }
             <input asp-for="ProfilePicture" type="file" class="form-control bg-dark text-light border-secondary" accept="image/*" />
         </div>
-        
+
         <div class="form-group mb-4">
             <label class="form-label">Change Banner Image</label>
             @if (!string.IsNullOrEmpty(Model.ExistingBannerImageUrl))

@@ -2,14 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.Net.NetworkInformation;
 using System.Security.Claims;
 using UrbanJunction.Data;
 using UrbanJunction.Data.Models;
 using UrbanJunction.Data.ViewModels;
 using UrbanJunction.Services.Interfaces;
 using UrbanJunction.Web.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace UrbanJunction.Web.Controllers
 {
@@ -44,17 +42,13 @@ namespace UrbanJunction.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(model);
 
             UrbanUser? user = null;
-
             if (model.UsernameOrEmail.Contains("@"))
                 user = await _userManager.FindByEmailAsync(model.UsernameOrEmail);
-
             if (user == null)
                 user = await _userManager.FindByNameAsync(model.UsernameOrEmail);
-
             if (user == null)
             {
                 ModelState.AddModelError("", "Invalid login attempt.");
@@ -62,7 +56,6 @@ namespace UrbanJunction.Web.Controllers
             }
 
             var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password, model.RememberMe, false);
-
             if (result.Succeeded)
             {
                 var claims = new List<Claim>
@@ -80,7 +73,6 @@ namespace UrbanJunction.Web.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            // Pass the site key so the view can load the reCAPTCHA script
             ViewBag.RecaptchaSiteKey = _config["GoogleReCaptcha:SiteKey"];
             return View();
         }
@@ -89,11 +81,8 @@ namespace UrbanJunction.Web.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model, string RecaptchaToken)
         {
             ViewBag.RecaptchaSiteKey = _config["GoogleReCaptcha:SiteKey"];
+            if (!ModelState.IsValid) return View(model);
 
-            if (!ModelState.IsValid)
-                return View(model);
-
-            // Verify reCAPTCHA token before doing anything else
             var recaptchaValid = await _recaptchaService.VerifyAsync(RecaptchaToken);
             if (!recaptchaValid)
             {
@@ -135,12 +124,32 @@ namespace UrbanJunction.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [HttpGet]
+        // Own profile
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login");
+
+            return await BuildProfileViewModel(user.Id, user.Id);
+        }
+
+        // Public profile by username
+        [HttpGet]
+        [Route("u/{username}")]
+        public async Task<IActionResult> UserProfile(string username)
+        {
+            var profileUser = await _userManager.FindByNameAsync(username);
+            if (profileUser == null) return NotFound();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return await BuildProfileViewModel(profileUser.Id, currentUserId);
+        }
+
+        private async Task<IActionResult> BuildProfileViewModel(string profileUserId, string? currentUserId)
+        {
+            var user = await _userManager.FindByIdAsync(profileUserId);
+            if (user == null) return NotFound();
 
             var posts = await _context.Posts
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
@@ -160,15 +169,68 @@ namespace UrbanJunction.Web.Controllers
                 .OrderByDescending(p => p.CreatedOn)
                 .ToListAsync();
 
-            return View(new ProfileViewModel
+            var followers = await _context.UserFollows
+                .Include(f => f.Follower)
+                .Where(f => f.FollowingId == user.Id)
+                .Select(f => new ProfileUserDto
+                {
+                    Username = f.Follower.UserName!,
+                    ProfilePictureUrl = f.Follower.ProfilePicturePath
+                }).ToListAsync();
+
+            var following = await _context.UserFollows
+                .Include(f => f.Following)
+                .Where(f => f.FollowerId == user.Id)
+                .Select(f => new ProfileUserDto
+                {
+                    Username = f.Following.UserName!,
+                    ProfilePictureUrl = f.Following.ProfilePicturePath
+                }).ToListAsync();
+
+            var isFollowed = currentUserId != null &&
+                await _context.UserFollows.AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == user.Id);
+
+            var vm = new ProfileViewModel
             {
+                UserId = user.Id,
                 Username = user.UserName!,
                 Email = user.Email!,
                 ProfilePictureUrl = user.ProfilePicturePath,
                 BannerImageUrl = user.BannerImagePath,
+                Bio = user.Bio,
+                FollowerCount = followers.Count,
+                FollowingCount = following.Count,
+                IsFollowedByCurrentUser = isFollowed,
+                IsOwnProfile = currentUserId == user.Id,
+                Followers = followers,
+                FollowingUsers = following,
                 Posts = posts,
                 LikedPosts = likedPosts
-            });
+            };
+
+            return View("Profile", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleFollow(string targetUserId)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (currentUserId == null || currentUserId == targetUserId)
+                return BadRequest();
+
+            var existing = await _context.UserFollows
+                .FirstOrDefaultAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId);
+
+            if (existing != null)
+                _context.UserFollows.Remove(existing);
+            else
+                _context.UserFollows.Add(new UserFollow { FollowerId = currentUserId, FollowingId = targetUserId });
+
+            await _context.SaveChangesAsync();
+
+            var targetUser = await _userManager.FindByIdAsync(targetUserId);
+            return RedirectToAction("UserProfile", new { username = targetUser!.UserName });
         }
 
         [HttpGet]
@@ -181,6 +243,7 @@ namespace UrbanJunction.Web.Controllers
             {
                 Username = user.UserName!,
                 Email = user.Email!,
+                Bio = user.Bio,
                 ExistingProfilePictureUrl = user.ProfilePicturePath,
                 ExistingBannerImageUrl = user.BannerImagePath
             });
@@ -192,10 +255,10 @@ namespace UrbanJunction.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login");
 
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(model);
 
             user.UserName = model.Username;
+            user.Bio = model.Bio;
 
             var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
             Directory.CreateDirectory(uploadPath);
