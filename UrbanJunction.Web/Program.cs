@@ -81,6 +81,8 @@ namespace UrbanJunction.Web
             app.UseRouting();
 
             app.UseAuthentication();
+            // Check if user is authenticated and update last active time
+            app.UseMiddleware<LastActiveMiddleware>();
             app.UseAuthorization();
 
             app.MapControllerRoute(

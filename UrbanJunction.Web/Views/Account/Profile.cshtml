@@ -5,209 +5,198 @@
     if (string.IsNullOrEmpty(activeTab)) activeTab = "posts";
 }
 
-<div style="max-width:700px;margin:0 auto;padding:24px 16px;">
+<div style="max-width: 860px; margin: 0 auto; padding: 0 1rem 3rem;">
 
     <!-- Banner -->
-    <div class="uj-profile-banner mb-0">
+    <div style="width:100%;height:200px;border-radius:0 0 12px 12px;overflow:hidden;
+                background:linear-gradient(135deg,#1a1014,#0e1a14,#0e0f1a);position:relative;">
         @if (!string.IsNullOrEmpty(Model.BannerImageUrl))
         {
-            <img src="@Model.BannerImageUrl" />
+            <img src="@Model.BannerImageUrl"
+                 style="width:100%;height:100%;object-fit:cover;display:block;" />
         }
     </div>
 
-    <!-- Avatar -->
-    <div style="margin-top:-50px;margin-bottom:10px;z-index:10;position:relative;">
-        <img src="@(!string.IsNullOrEmpty(Model.ProfilePictureUrl) ? Model.ProfilePictureUrl : "/images/default.jpg")"
-             onerror="this.src='/images/default.jpg'"
-             class="uj-profile-avatar" />
-    </div>
-
-    <!-- Username row -->
-    <div class="d-flex align-items-start justify-content-between mb-1">
-        <div>
-            <h4 style="color:#e8e0d5;font-weight:700;margin-bottom:2px;">@Model.Username</h4>
-            <p style="color:#6b6358;margin:0;font-size:14px;">@@@Model.Username</p>
+    <!-- Header row -->
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;
+                padding:0 1.5rem;margin-top:-40px;margin-bottom:1rem;">
+        <div style="position:relative;z-index:10;">
+            <img src="@(!string.IsNullOrEmpty(Model.ProfilePictureUrl) ? Model.ProfilePictureUrl : "/images/default.jpg")"
+                 onerror="this.src='/images/default.jpg'"
+                 style="width:80px;height:80px;border-radius:50%;object-fit:cover;
+                        border:3px solid var(--bg);display:block;" />
         </div>
-        @if (Model.IsOwnProfile)
-        {
-            <a asp-action="EditProfile" class="btn btn-outline-light btn-sm rounded-pill px-3 mt-1">
-                <i class="fa-solid fa-pen me-1"></i> Edit Profile
-            </a>
-        }
-        else if (User.Identity?.IsAuthenticated == true)
-        {
-            <form asp-action="ToggleFollow" asp-controller="Account" method="post" class="mt-1">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="targetUserId" value="@Model.UserId" />
-                <button type="submit"
-                        class="btn btn-sm rounded-pill px-3 @(Model.IsFollowedByCurrentUser ? "btn-outline-light" : "")"
-                        style="@(Model.IsFollowedByCurrentUser ? "" : "background:#e85d4a;border:none;color:white;")">
-                    @(Model.IsFollowedByCurrentUser ? "Unfollow" : "Follow")
-                </button>
-            </form>
-        }
+        <div style="margin-bottom:0.25rem;">
+            @if (Model.IsOwnProfile)
+            {
+                <a asp-action="EditProfile"
+                   style="display:inline-flex;align-items:center;gap:0.4rem;
+                              padding:0.4rem 1rem;border-radius:6px;font-size:0.82rem;
+                              font-weight:600;border:1px solid var(--border-light);
+                              color:var(--text-muted);transition:all 150ms;text-decoration:none;"
+                   onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--text-dim)'"
+                   onmouseout="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-light)'">
+                    <i class="fa-solid fa-pen fa-xs"></i> Edit Profile
+                </a>
+            }
+            else if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-action="ToggleFollow" asp-controller="Account" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="targetUserId" value="@Model.UserId" />
+                    <button type="submit" class="btn-follow @(Model.IsFollowedByCurrentUser ? "following" : "")">
+                        @(Model.IsFollowedByCurrentUser ? "Unfollow" : "Follow")
+                    </button>
+                </form>
+            }
+        </div>
     </div>
 
-    <!-- Bio -->
-    @if (!string.IsNullOrEmpty(Model.Bio))
-    {
-        <p style="color:#d0c8be;font-size:14px;margin-bottom:12px;line-height:1.6;">@Model.Bio</p>
-    }
-
-    <!-- Follower counts -->
-    <div class="d-flex gap-4 mb-4 mt-2">
-        <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followersModal">
-            <span style="color:#e8e0d5;font-weight:700;">@Model.FollowerCount</span>
-            <span style="color:#6b6358;font-size:13px;margin-left:4px;">Followers</span>
-        </a>
-        <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followingModal">
-            <span style="color:#e8e0d5;font-weight:700;">@Model.FollowingCount</span>
-            <span style="color:#6b6358;font-size:13px;margin-left:4px;">Following</span>
-        </a>
+    <!-- Name + bio + stats -->
+    <div style="padding:0 1.5rem;margin-bottom:1.5rem;">
+        <div style="font-family:var(--font-head);font-size:1.3rem;font-weight:800;
+                    letter-spacing:-0.02em;color:var(--text);margin-bottom:0.15rem;">
+            @Model.Username
+        </div>
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);
+                    margin-bottom:0.6rem;">
+            @@@Model.Username
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Bio))
+        {
+            <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;
+                          margin-bottom:0.75rem;max-width:520px;">@Model.Bio</p>
+        }
+        <div style="display:flex;gap:1.5rem;">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#followersModal"
+               style="text-decoration:none;display:flex;align-items:baseline;gap:0.3rem;">
+                <span style="font-family:var(--font-mono);font-size:1rem;font-weight:500;color:var(--text);">@Model.FollowerCount</span>
+                <span style="font-size:0.75rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;">Followers</span>
+            </a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#followingModal"
+               style="text-decoration:none;display:flex;align-items:baseline;gap:0.3rem;">
+                <span style="font-family:var(--font-mono);font-size:1rem;font-weight:500;color:var(--text);">@Model.FollowingCount</span>
+                <span style="font-size:0.75rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;">Following</span>
+            </a>
+        </div>
     </div>
 
     <!-- Tabs -->
-    <div class="d-flex gap-4 mb-4" style="border-bottom:1px solid rgba(255,255,255,0.07);">
-        <a href="?tab=posts" class="uj-tab-link @(activeTab == "posts" ? "active" : "")">Posts</a>
-        <a href="?tab=likes" class="uj-tab-link @(activeTab == "likes" ? "active" : "")">Likes</a>
+    <div style="display:flex;border-bottom:1px solid var(--border);padding:0 1.5rem;margin-bottom:1.25rem;">
+        <a href="?tab=posts"
+           style="font-size:0.85rem;font-weight:500;padding:0.6rem 1rem;
+                  border-bottom:2px solid @(activeTab == "posts" ? "var(--accent)" : "transparent");
+                  color:@(activeTab == "posts" ? "var(--text)" : "var(--text-muted)");
+                  text-decoration:none;margin-bottom:-1px;transition:color 150ms;">
+            Posts <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);margin-left:0.3rem;">@Model.Posts.Count()</span>
+        </a>
+        <a href="?tab=likes"
+           style="font-size:0.85rem;font-weight:500;padding:0.6rem 1rem;
+                  border-bottom:2px solid @(activeTab == "likes" ? "var(--accent)" : "transparent");
+                  color:@(activeTab == "likes" ? "var(--text)" : "var(--text-muted)");
+                  text-decoration:none;margin-bottom:-1px;transition:color 150ms;">
+            Likes <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);margin-left:0.3rem;">@Model.LikedPosts.Count()</span>
+        </a>
     </div>
 
-    <!-- Posts Tab -->
-    @if (activeTab == "posts")
-    {
-        @if (!Model.Posts.Any())
-        {
-            <p style="color:#6b6358;text-align:center;margin-top:32px;">No posts yet.</p>
-        }
-        else
-        {
-            @foreach (var post in Model.Posts)
-            {
-                string tn = post.Subcategory?.Topic?.Name ?? "";
-                string tc = tn.ToLower() switch { "art" => "art", "music" => "music", "fashion" => "fashion", _ => "default" };
-                <div class="uj-profile-post-card">
-                    @if (post.Images != null && post.Images.Any())
-                    {
-                        <img src="@post.Images.First().ImagePath"
-                             style="width:100%;height:180px;object-fit:cover;" />
-                    }
-                    <div style="padding:14px 16px;">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <h6 style="color:#e8e0d5;font-weight:600;margin:0;font-size:15px;">@post.Title</h6>
-                            <span class="uj-tag @tc">@(post.Subcategory?.Name ?? tn)</span>
-                        </div>
-                        <p style="color:#6b6358;font-size:13px;margin:6px 0 10px;line-height:1.5;">
-                            @(post.Content?.Length > 120 ? post.Content.Substring(0, 120) + "..." : post.Content)
-                        </p>
-                        <div class="d-flex align-items-center gap-3">
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <form asp-action="ToggleLike" asp-controller="Posts" asp-route-id="@post.Id"
-                                      method="post" class="d-inline like-form">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit"
-                                            class="d-flex align-items-center gap-1"
-                                            style="background:none;border:none;cursor:pointer;color:#6b6358;font-size:13px;padding:0;">
-                                        <i class="like-icon fa-regular fa-heart" style="color:#e25555;"></i>
-                                        <span class="like-count">@post.Reactions.Count()</span>
-                                    </button>
-                                </form>
-                            }
-                            else
-                            {
-                                <a asp-controller="Account" asp-action="Login"
-                                   class="d-flex align-items-center gap-1 text-decoration-none"
-                                   style="color:#6b6358;font-size:13px;">
-                                    <i class="fa-regular fa-heart" style="color:#e25555;"></i>
-                                    <span>@post.Reactions.Count()</span>
-                                </a>
-                            }
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
-                               class="d-flex align-items-center gap-1 text-decoration-none"
-                               style="color:#6b6358;font-size:13px;">
-                                <i class="fa-regular fa-comment"></i>
-                                <span>@post.Comments.Count()</span>
-                            </a>
-                            <span style="color:#6b6358;font-size:12px;">@post.CreatedOn.ToString("dd MMM yyyy")</span>
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
-                               class="ms-auto btn btn-sm rounded-pill px-3"
-                               style="border:1px solid rgba(255,255,255,0.12);color:#a09880;font-size:12px;">
-                                View Post
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
+    <!-- Posts / Likes content -->
+    @{
+        var activePosts = activeTab == "likes" ? Model.LikedPosts : Model.Posts;
+        bool isLikesTab = activeTab == "likes";
     }
 
-    <!-- Likes Tab -->
-    @if (activeTab == "likes")
+    @if (!activePosts.Any())
     {
-        @if (!Model.LikedPosts.Any())
-        {
-            <p style="color:#6b6358;text-align:center;margin-top:32px;">No liked posts yet.</p>
-        }
-        else
-        {
-            @foreach (var post in Model.LikedPosts)
+        <div style="text-align:center;padding:4rem 0;color:var(--text-dim);">
+            <i class="fa-regular fa-face-sad-tear fa-2x" style="display:block;margin-bottom:0.75rem;"></i>
+            @(isLikesTab ? "No liked posts yet." : "No posts yet.")
+        </div>
+    }
+    else
+    {
+        <div class="thread-list">
+            @foreach (var post in activePosts)
             {
-                string tn2 = post.Subcategory?.Topic?.Name ?? "";
-                string tc2 = tn2.ToLower() switch { "art" => "art", "music" => "music", "fashion" => "fashion", _ => "default" };
-                <div class="uj-profile-post-card">
-                    @if (post.Images != null && post.Images.Any())
-                    {
-                        <img src="@post.Images.First().ImagePath"
-                             style="width:100%;height:180px;object-fit:cover;" />
-                    }
-                    <div style="padding:14px 16px;">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <h6 style="color:#e8e0d5;font-weight:600;margin:0;font-size:15px;">@post.Title</h6>
-                            <span class="uj-tag @tc2">@(post.Subcategory?.Name ?? tn2)</span>
+                string tn = post.Subcategory?.Topic?.Name ?? "";
+                string tc = tn.ToLower() switch
+                {
+                                "art" => "art",
+                                "music" => "music",
+                                "fashion" => "fashion",
+                    _ => "default"
+                };
+                var subcatName = post.Subcategory?.Name ?? "";
+                var firstImage = post.Images?.FirstOrDefault()?.ImagePath;
+                var reactionCount = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0);
+                var commentCount = post.Comments?.Count() ?? 0;
+                var preview = post.Content?.Length > 120
+                ? post.Content.Substring(0, 120) + "…"
+                : post.Content ?? "";
+
+                <div class="thread-row" data-subcat="@subcatName">
+
+                    <!-- Vote column (read-only on profile) -->
+                    <div class="thread-vote">
+                        <i class="fa-solid fa-chevron-up" style="font-size:0.65rem;color:var(--text-dim);"></i>
+                        <span class="vote-count @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")">
+                            @reactionCount
+                        </span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;color:var(--text-dim);"></i>
+                    </div>
+
+                    <!-- Thread body -->
+                    <div class="thread-body">
+                        <div class="thread-tags">
+                            <span class="thread-tag @tc">@tn</span>
+                            @if (!string.IsNullOrEmpty(subcatName))
+                            {
+                                <span class="thread-tag custom">@subcatName</span>
+                            }
                         </div>
-                        <p style="color:#6b6358;font-size:13px;margin:6px 0 10px;line-height:1.5;">
-                            @(post.Content?.Length > 120 ? post.Content.Substring(0, 120) + "..." : post.Content)
-                        </p>
-                        <div class="d-flex align-items-center gap-3">
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <form asp-action="ToggleLike" asp-controller="Posts" asp-route-id="@post.Id"
-                                      method="post" class="d-inline like-form">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit"
-                                            class="d-flex align-items-center gap-1"
-                                            style="background:none;border:none;cursor:pointer;color:#6b6358;font-size:13px;padding:0;">
-                                        <i class="like-icon fa-solid fa-heart" style="color:#e25555;"></i>
-                                        <span class="like-count">@post.Reactions.Count()</span>
-                                    </button>
-                                </form>
-                            }
-                            else
-                            {
-                                <a asp-controller="Account" asp-action="Login"
-                                   class="d-flex align-items-center gap-1 text-decoration-none"
-                                   style="color:#6b6358;font-size:13px;">
-                                    <i class="fa-solid fa-heart" style="color:#e25555;"></i>
-                                    <span>@post.Reactions.Count()</span>
-                                </a>
-                            }
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
-                               class="d-flex align-items-center gap-1 text-decoration-none"
-                               style="color:#6b6358;font-size:13px;">
-                                <i class="fa-regular fa-comment"></i>
-                                <span>@post.Comments.Count()</span>
+
+                        <div class="thread-title">
+                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                @post.Title
                             </a>
-                            <span style="color:#6b6358;font-size:12px;">@post.CreatedOn.ToString("dd MMM yyyy")</span>
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
-                               class="ms-auto btn btn-sm rounded-pill px-3"
-                               style="border:1px solid rgba(255,255,255,0.12);color:#a09880;font-size:12px;">
-                                View Post
-                            </a>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(preview))
+                        {
+                            <div class="thread-preview">@preview</div>
+                        }
+
+                        <div class="thread-meta">
+                            <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
+                            <span class="thread-meta-stat">
+                                <i class="fa-regular fa-heart fa-xs" style="color:var(--accent);"></i>
+                                @reactionCount
+                            </span>
+                            <span class="thread-meta-stat">
+                                <i class="fa-regular fa-comment fa-xs"></i>
+                                @commentCount
+                            </span>
                         </div>
                     </div>
+
+                    <!-- Thumbnail -->
+                    @if (!string.IsNullOrEmpty(firstImage))
+                    {
+                        <div class="thread-thumbnail">
+                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                <img src="@firstImage" onerror="this.style.display='none'" alt="@post.Title" />
+                            </a>
+                        </div>
+                    }
+
+                    <!-- Reply count -->
+                    <div class="thread-replies">
+                        <span class="thread-reply-count">@commentCount</span>
+                        <span class="thread-reply-label">replies</span>
+                    </div>
+
                 </div>
             }
-        }
+        </div>
     }
 </div>
 
@@ -217,22 +206,23 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Followers</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 @if (!Model.Followers.Any())
                 {
-                    <p style="color:#6b6358;text-align:center;">No followers yet.</p>
+                    <p style="color:var(--text-dim);text-align:center;">No followers yet.</p>
                 }
                 else
                 {
                     @foreach (var u in Model.Followers)
                     {
-                        <a href="/u/@u.Username" class="d-flex align-items-center gap-3 text-decoration-none mb-3">
+                        <a href="/u/@u.Username"
+                           style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;margin-bottom:0.75rem;">
                             <img src="@(u.ProfilePictureUrl ?? "/images/default.jpg")"
                                  onerror="this.src='/images/default.jpg'"
-                                 style="width:42px;height:42px;border-radius:50%;object-fit:cover;" />
-                            <span style="color:#d0c8be;font-weight:500;">@u.Username</span>
+                                 style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid var(--border-light);" />
+                            <span style="font-size:0.875rem;font-weight:500;color:var(--text-muted);">@u.Username</span>
                         </a>
                     }
                 }
@@ -247,22 +237,23 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Following</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 @if (!Model.FollowingUsers.Any())
                 {
-                    <p style="color:#6b6358;text-align:center;">Not following anyone yet.</p>
+                    <p style="color:var(--text-dim);text-align:center;">Not following anyone yet.</p>
                 }
                 else
                 {
                     @foreach (var u in Model.FollowingUsers)
                     {
-                        <a href="/u/@u.Username" class="d-flex align-items-center gap-3 text-decoration-none mb-3">
+                        <a href="/u/@u.Username"
+                           style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;margin-bottom:0.75rem;">
                             <img src="@(u.ProfilePictureUrl ?? "/images/default.jpg")"
                                  onerror="this.src='/images/default.jpg'"
-                                 style="width:42px;height:42px;border-radius:50%;object-fit:cover;" />
-                            <span style="color:#d0c8be;font-weight:500;">@u.Username</span>
+                                 style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid var(--border-light);" />
+                            <span style="font-size:0.875rem;font-weight:500;color:var(--text-muted);">@u.Username</span>
                         </a>
                     }
                 }
@@ -270,39 +261,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.like-form').forEach(form => {
-                form.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const icon = this.querySelector('.like-icon');
-                    const count = this.querySelector('.like-count');
-                    const token = this.querySelector('input[name="__RequestVerificationToken"]').value;
-                    try {
-                        const response = await fetch(this.action, {
-                            method: 'POST',
-                            headers: {
-                                'RequestVerificationToken': token,
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            },
-                            body: `__RequestVerificationToken=${encodeURIComponent(token)}`
-                        });
-                        if (response.ok) {
-                            const data = await response.json();
-                            count.textContent = data.count;
-                            if (data.userLiked) {
-                                icon.classList.replace('fa-regular', 'fa-solid');
-                            } else {
-                                icon.classList.replace('fa-solid', 'fa-regular');
-                            }
-                        }
-                    } catch (err) { console.error('Like failed', err); }
-                });
-            });
-        });
-    </script>
-}

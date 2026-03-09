@@ -2,41 +2,79 @@
     ViewData["Title"] = "Urban Junction";
 }
 
-<div class="container text-center mt-5">
-    <h1 class="fw-bold mb-5">URBAN JUNCTION</h1>
+<style>
+    .forum-layout {
+        display: block;
+    }
 
-    <div class="row justify-content-center">
-        <div class="col-md-4 mb-4">
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" class="text-decoration-none">
-                <div class="card bg-dark text-white">
-                    <img src="~/images/art.jpg" class="card-img" alt="Art" style="object-fit: cover; height: 450px;">
-                    <div class="card-img-overlay d-flex align-items-end justify-content-center">
-                        <h2 class="fw-bold text-uppercase text-wrap">Art</h2>
-                    </div>
-                </div>
-            </a>
-        </div>
+    .sidebar-left, .sidebar-right {
+        display: none !important;
+    }
+</style>
 
-        <div class="col-md-4 mb-4">
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" class="text-decoration-none">
-                <div class="card bg-dark text-white border-0">
-                    <img src="~/images/music.jpg" class="card-img" alt="Music" style="object-fit: cover; height: 450px;">
-                    <div class="card-img-overlay d-flex align-items-end justify-content-center">
-                        <h2 class="fw-bold text-uppercase">Music</h2>
-                    </div>
-                </div>
-            </a>
-        </div>
+<div style="padding: 3rem 2rem; max-width: 1100px; margin: 0 auto;">
 
-        <div class="col-md-4 mb-4">
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" class="text-decoration-none">
-                <div class="card bg-dark text-white border-0">
-                    <img src="~/images/fashion.jpg" class="card-img" alt="Fashion" style="object-fit: cover; height: 450px;">
-                    <div class="card-img-overlay d-flex align-items-end justify-content-center">
-                        <h2 class="fw-bold text-uppercase">Fashion</h2>
-                    </div>
-                </div>
-            </a>
-        </div>
+    <h1 style="font-family: var(--font-head); font-size: 2.5rem; font-weight: 800;
+               letter-spacing: -0.03em; text-align: center; margin-bottom: 2.5rem;
+               color: var(--text);">
+        Urban Junction
+    </h1>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+
+        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
+           style="position:relative; display:block; border-radius:12px; overflow:hidden;
+                  height:460px; border:1px solid var(--border); text-decoration:none;
+                  transition: transform 0.3s ease, box-shadow 0.3s ease;"
+           onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 8px 40px rgba(0,0,0,0.6)'"
+           onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
+            <img src="~/images/art.jpg" alt="Art"
+                 style="width:100%;height:100%;object-fit:cover;display:block;" />
+            <div style="position:absolute;bottom:0;left:0;right:0;
+                        padding:60px 20px 24px;
+                        background:linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+                        font-family:var(--font-head);font-size:2rem;font-weight:900;
+                        text-transform:uppercase;text-align:center;letter-spacing:2px;
+                        color:var(--art);text-shadow:0 2px 8px rgba(0,0,0,0.8);">
+                Art
+            </div>
+        </a>
+
+        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
+           style="position:relative; display:block; border-radius:12px; overflow:hidden;
+                  height:460px; border:1px solid var(--border); text-decoration:none;
+                  transition: transform 0.3s ease, box-shadow 0.3s ease;"
+           onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 8px 40px rgba(0,0,0,0.6)'"
+           onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
+            <img src="~/images/music.jpg" alt="Music"
+                 style="width:100%;height:100%;object-fit:cover;display:block;" />
+            <div style="position:absolute;bottom:0;left:0;right:0;
+                        padding:60px 20px 24px;
+                        background:linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+                        font-family:var(--font-head);font-size:2rem;font-weight:900;
+                        text-transform:uppercase;text-align:center;letter-spacing:2px;
+                        color:var(--music);text-shadow:0 2px 8px rgba(0,0,0,0.8);">
+                Music
+            </div>
+        </a>
+
+        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
+           style="position:relative; display:block; border-radius:12px; overflow:hidden;
+                  height:460px; border:1px solid var(--border); text-decoration:none;
+                  transition: transform 0.3s ease, box-shadow 0.3s ease;"
+           onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 8px 40px rgba(0,0,0,0.6)'"
+           onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
+            <img src="~/images/fashion.jpg" alt="Fashion"
+                 style="width:100%;height:100%;object-fit:cover;display:block;" />
+            <div style="position:absolute;bottom:0;left:0;right:0;
+                        padding:60px 20px 24px;
+                        background:linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+                        font-family:var(--font-head);font-size:2rem;font-weight:900;
+                        text-transform:uppercase;text-align:center;letter-spacing:2px;
+                        color:var(--fashion);text-shadow:0 2px 8px rgba(0,0,0,0.8);">
+                Fashion
+            </div>
+        </a>
+
     </div>
 </div>

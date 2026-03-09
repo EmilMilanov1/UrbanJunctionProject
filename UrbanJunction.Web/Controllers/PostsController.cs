@@ -122,13 +122,14 @@ public class PostsController : Controller
         var post = await _postService.GetDetailsAsync(id);
         if (post == null) return NotFound();
 
-        var likeCount = await _reactionService.GetCountAsync(id);
-        var userLiked = User.Identity?.IsAuthenticated == true
-            ? await _reactionService.HasUserLikedAsync(id, UserId)
-            : false;
+        var score = await _reactionService.GetScoreAsync(id);
+        var userVote = User.Identity?.IsAuthenticated == true
+            ? await _reactionService.GetUserVoteAsync(id, UserId)
+            : null;
 
-        ViewBag.LikeCount = likeCount;
-        ViewBag.UserLiked = userLiked;
+        ViewBag.Score = score;
+        ViewBag.UserVote = userVote;
+        ViewBag.TopicName = post.Subcategory?.Topic?.Name ?? ""; 
 
         return View(post);
     }
@@ -140,9 +141,17 @@ public class PostsController : Controller
         await _reactionService.ToggleAsync(id, UserId);
         var count = await _reactionService.GetCountAsync(id);
         var userLiked = await _reactionService.HasUserLikedAsync(id, UserId);
-
-        // Always return JSON regardless of how the request was made
         return Json(new { count, userLiked });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Vote(int id, bool isUpvote)
+    {
+        await _reactionService.VoteAsync(id, UserId, isUpvote);
+        var score = await _reactionService.GetScoreAsync(id);
+        var userVote = await _reactionService.GetUserVoteAsync(id, UserId);
+        return Json(new { score, userVote });
     }
 
     [HttpPost]
@@ -162,7 +171,6 @@ public class PostsController : Controller
         await _commentService.DeleteAsync(commentId, UserId, IsAdmin);
         return RedirectToAction(nameof(Details), new { id = postId });
     }
-
 
     private List<SelectListItem> GetSubcategoryList()
     {

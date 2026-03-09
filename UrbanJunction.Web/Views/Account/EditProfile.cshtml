@@ -3,56 +3,114 @@
     ViewData["Title"] = "Edit Profile";
 }
 
-<div class="container mt-5" style="max-width: 500px;">
-    <h3 class="text-center mb-4">Edit Profile</h3>
+<style>
+    .forum-layout {
+        display: block;
+    }
 
-    <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
-        <div class="form-group mb-3">
-            <label asp-for="Username" class="form-label"></label>
-            <input asp-for="Username" class="form-control bg-dark text-light border-secondary" />
-            <span asp-validation-for="Username" class="text-danger"></span>
+    .sidebar-left, .sidebar-right {
+        display: none !important;
+    }
+</style>
+
+<div style="min-height:calc(100vh - 56px);display:flex;align-items:flex-start;
+            justify-content:center;padding:2rem 1rem;">
+    <div style="width:100%;max-width:520px;">
+
+        <!-- Header -->
+        <div style="margin-bottom:1.5rem;">
+            <a onclick="history.back()"
+               style="display:inline-flex;align-items:center;gap:0.4rem;margin-bottom:1rem;
+                      color:var(--text-dim);font-size:0.8rem;cursor:pointer;text-decoration:none;"
+               onmouseover="this.style.color='var(--text-muted)'"
+               onmouseout="this.style.color='var(--text-dim)'">
+                <i class="fa-solid fa-arrow-left fa-xs"></i> Back
+            </a>
+            <div style="font-family:var(--font-head);font-size:1.3rem;font-weight:800;
+                        letter-spacing:-0.02em;color:var(--text);">
+                Edit Profile
+            </div>
         </div>
 
-        <div class="form-group mb-3">
-            <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control bg-dark text-light border-secondary" readonly />
-        </div>
+        <!-- Card -->
+        <div style="background:var(--bg-card);border:1px solid var(--border-light);
+                    border-radius:12px;padding:2rem;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
 
-        <div class="form-group mb-3">
-            <label asp-for="Bio" class="form-label">Bio</label>
-            <textarea asp-for="Bio" class="form-control bg-dark text-light border-secondary" rows="3"
-                      placeholder="Tell people about yourself..."></textarea>
-        </div>
+            <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
 
-        <div class="form-group mb-3">
-            <label class="form-label">Change Profile Picture</label>
-            @if (!string.IsNullOrEmpty(Model.ExistingProfilePictureUrl))
-            {
-                <div class="mb-2">
-                    <img src="@Model.ExistingProfilePictureUrl" class="rounded-circle"
-                         style="width: 60px; height: 60px; object-fit: cover;" />
+                <!-- Username -->
+                <div style="margin-bottom:1.1rem;">
+                    <label asp-for="Username" class="form-label">Username</label>
+                    <input asp-for="Username" class="form-control" />
+                    <span asp-validation-for="Username" class="validation-message"></span>
                 </div>
-            }
-            <input asp-for="ProfilePicture" type="file" class="form-control bg-dark text-light border-secondary" accept="image/*" />
-        </div>
 
-        <div class="form-group mb-4">
-            <label class="form-label">Change Banner Image</label>
-            @if (!string.IsNullOrEmpty(Model.ExistingBannerImageUrl))
-            {
-                <div class="mb-2">
-                    <img src="@Model.ExistingBannerImageUrl"
-                         style="width: 100%; height: 80px; object-fit: cover; border-radius: 6px;" />
+                <!-- Email (readonly) -->
+                <div style="margin-bottom:1.1rem;">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" readonly
+                           style="opacity:0.5;cursor:not-allowed;" />
                 </div>
-            }
-            <input asp-for="BannerImage" type="file" class="form-control bg-dark text-light border-secondary" accept="image/*" />
-        </div>
 
-        <div class="d-flex justify-content-center gap-2 mt-3">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a onclick="history.back()" class="btn btn-outline-secondary">← Back</a>
+                <!-- Bio -->
+                <div style="margin-bottom:1.1rem;">
+                    <label asp-for="Bio" class="form-label">Bio</label>
+                    <textarea asp-for="Bio" class="form-control" rows="3"
+                              placeholder="Tell people about yourself..."></textarea>
+                </div>
+
+                <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
+
+                <!-- Profile Picture -->
+                <div style="margin-bottom:1.25rem;">
+                    <label class="form-label">Profile Picture</label>
+                    @if (!string.IsNullOrEmpty(Model.ExistingProfilePictureUrl))
+                    {
+                        <div style="margin-bottom:0.65rem;">
+                            <img src="@Model.ExistingProfilePictureUrl"
+                                 style="width:52px;height:52px;border-radius:50%;object-fit:cover;
+                                            border:2px solid var(--border-light);" />
+                        </div>
+                    }
+                    <input asp-for="ProfilePicture" type="file" class="form-control" accept="image/*" />
+                </div>
+
+                <!-- Banner Image -->
+                <div style="margin-bottom:1.5rem;">
+                    <label class="form-label">Banner Image</label>
+                    @if (!string.IsNullOrEmpty(Model.ExistingBannerImageUrl))
+                    {
+                        <div style="margin-bottom:0.65rem;">
+                            <img src="@Model.ExistingBannerImageUrl"
+                                 style="width:100%;height:72px;object-fit:cover;
+                                            border-radius:6px;border:1px solid var(--border);" />
+                        </div>
+                    }
+                    <input asp-for="BannerImage" type="file" class="form-control" accept="image/*" />
+                </div>
+
+                <!-- Actions -->
+                <div style="display:flex;gap:0.75rem;">
+                    <button type="submit"
+                            style="flex:1;padding:0.65rem;border-radius:6px;font-size:0.9rem;
+                                   background:var(--accent);border:none;color:#fff;font-weight:600;
+                                   cursor:pointer;font-family:var(--font-body);transition:background 150ms;">
+                        Save Changes
+                    </button>
+                    <a onclick="history.back()"
+                       style="flex:1;padding:0.65rem;border-radius:6px;font-size:0.9rem;
+                              border:1px solid var(--border-light);color:var(--text-muted);
+                              text-align:center;cursor:pointer;text-decoration:none;
+                              transition:all 150ms;"
+                       onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--text-dim)'"
+                       onmouseout="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-light)'">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {

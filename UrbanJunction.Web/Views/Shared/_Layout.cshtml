@@ -3,9 +3,19 @@
 @inject UserManager<UrbanUser> UserManager
 
 @{
+    
     var currentUser = await UserManager.GetUserAsync(User);
     string profilePic = currentUser?.ProfilePicturePath ?? "/images/default.jpg";
     string username = User.Identity?.Name ?? "";
+
+    var routeController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var routeAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var routeTopic = ViewContext.RouteData.Values["name"]?.ToString() ?? ViewBag.TopicName as string ?? "";
+
+    bool isArt = routeTopic?.Equals("Art", StringComparison.OrdinalIgnoreCase) ?? false;
+    bool isMusic = routeTopic?.Equals("Music", StringComparison.OrdinalIgnoreCase) ?? false;
+    bool isFashion = routeTopic?.Equals("Fashion", StringComparison.OrdinalIgnoreCase) ?? false;
+    bool isTopicPage = isArt || isMusic || isFashion;
 }
 
 <!DOCTYPE html>
@@ -13,168 +23,351 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Urban Junction</title>
+    <title>@(ViewBag.Title != null ? ViewBag.Title + " — Urban Junction" : "Urban Junction")</title>
     <link rel="icon" type="image/x-icon" href="~/images/logo.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UrbanJunction.Web.styles.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
 
-    <!-- Offcanvas Menu -->
-    <div class="offcanvas offcanvas-start text-white" tabindex="-1" id="mainMenu" aria-labelledby="mainMenuLabel">
-        <div class="offcanvas-header py-3 px-4">
-            <div class="d-flex align-items-center gap-2">
-                <img src="~/images/logo.png" alt="Urban Junction" style="height:32px;width:auto;" />
-                <h5 class="offcanvas-title mb-0 fw-bold" id="mainMenuLabel" style="color:#e8e0d5;">Urban Junction</h5>
-            </div>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body px-4">
-
-            <div class="section-label">Explore Topics</div>
-            <ul class="list-unstyled">
-                <li class="mb-1">
-                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
-                       asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
-                       style="color:#4caf72;">
-                        <i class="fa-solid fa-palette fa-sm"></i> Art
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
-                       asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
-                       style="color:#6c63ff;">
-                        <i class="fa-solid fa-music fa-sm"></i> Music
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
-                       asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
-                       style="color:#f5a623;">
-                        <i class="fa-solid fa-shirt fa-sm"></i> Fashion
-                    </a>
-                </li>
-            </ul>
-
-            <hr />
-
-            <div class="section-label">Other Sections</div>
-            <ul class="list-unstyled">
-                <li class="mb-1">
-                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
-                       asp-controller="QA" asp-action="Index">
-                        <i class="fa-solid fa-circle-question fa-sm"></i> Q&amp;A
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
-                       asp-controller="Credits" asp-action="Index">
-                        <i class="fa-solid fa-scroll fa-sm"></i> Credits
-                    </a>
-                </li>
-            </ul>
-
-            <hr />
-
-            @if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
-                <div class="section-label">Account</div>
-                <ul class="list-unstyled">
-                    <li class="mb-1">
-                        <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
-                           asp-controller="Account" asp-action="Profile">
-                            <i class="fa-solid fa-user fa-sm"></i> My Profile
-                        </a>
-                    </li>
-                    <li class="mb-1">
-                        <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
-                           asp-controller="Posts" asp-action="MyPosts">
-                            <i class="fa-solid fa-pen-to-square fa-sm"></i> My Posts
-                        </a>
-                    </li>
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <li><hr /></li>
-                        <li class="mb-1">
-                            <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
-                               asp-controller="Admin" asp-action="Index" style="color:#f5a623;">
-                                <i class="fa-solid fa-shield fa-sm"></i> Admin Panel
-                            </a>
-                        </li>
-                    }
-                    <li class="mb-1">
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit"
-                                    class="btn btn-link text-decoration-none p-0 d-flex align-items-center gap-2 py-2"
-                                    style="color:#a09880;">
-                                <i class="fa-solid fa-right-from-bracket fa-sm"></i> Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            }
-            else
-            {
-                <a asp-controller="Account" asp-action="Login"
-                   class="btn btn-outline-light w-100 mt-3 rounded-pill">
-                    <i class="fa-solid fa-right-to-bracket me-2"></i>Login
-                </a>
-            }
-        </div>
-    </div>
-
-    <!-- Navbar -->
+    
     <header>
-        <nav class="navbar navbar-expand-sm navbar-dark border-bottom mb-0">
-            <div class="container-fluid d-flex justify-content-between align-items-center px-3">
+        <nav class="navbar">
 
-                <div class="d-flex align-items-center gap-3">
-                    <button class="menu-btn btn" type="button"
-                            data-bs-toggle="offcanvas" data-bs-target="#mainMenu">
-                        <i class="fa-solid fa-bars fa-sm"></i>
-                    </button>
-                    <a asp-controller="Home" asp-action="Index" class="navbar-brand mb-0">
-                        <img src="~/images/logo.png" alt="Urban Junction" class="site-logo" />
-                    </a>
-                </div>
+            <a asp-controller="Home" asp-action="Index" class="navbar-brand">
+                <img src="~/images/logo.png" alt="Urban Junction" class="nav-logo-emblem" />
+                <span class="navbar-brand-name">Urban Junction</span>
+            </a>
 
-                <div class="d-flex align-items-center gap-2">
-                    @if (User.Identity?.IsAuthenticated ?? false)
-                    {
-                        <a asp-controller="Account" asp-action="Profile"
-                           class="d-flex align-items-center text-decoration-none gap-2">
-                            <img src="@profilePic"
-                                 onerror="this.src='/images/default.jpg'"
-                                 class="profile-icon" />
-                            <span style="font-size:14px;color:#a09880;">@username</span>
-                        </a>
-                    }
-                    else
-                    {
-                        <a asp-controller="Account" asp-action="Login"
-                           class="btn btn-outline-light btn-sm rounded-pill px-3">
-                            <i class="fa-solid fa-right-to-bracket me-1"></i>Login
-                        </a>
-                    }
-                </div>
-
+            <div class="navbar-topics d-none d-md-flex">
+                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
+                   class="nav-topic-link art @(isArt ? "active" : "")">
+                    <i class="fa-solid fa-palette fa-xs me-1"></i>Art
+                </a>
+                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
+                   class="nav-topic-link music @(isMusic ? "active" : "")">
+                    <i class="fa-solid fa-music fa-xs me-1"></i>Music
+                </a>
+                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
+                   class="nav-topic-link fashion @(isFashion ? "active" : "")">
+                    <i class="fa-solid fa-shirt fa-xs me-1"></i>Fashion
+                </a>
+                <a asp-controller="Topics" asp-action="ByName" asp-route-name="QA"
+                   class="nav-topic-link @(routeController == "QA" ? "active" : "")">
+                    <i class="fa-solid fa-circle-question fa-xs me-1"></i>Q&amp;A
+                </a>
             </div>
+
+            <div class="navbar-actions">
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    
+                    @if (isTopicPage)
+                    {
+                        <a asp-controller="Posts" asp-action="Create"
+                           asp-route-topicName="@routeTopic"
+                           class="btn-new-thread d-none d-sm-flex">
+                            <i class="fa-solid fa-plus fa-xs"></i>
+                            <span>New Thread</span>
+                        </a>
+                    }
+
+                    <a asp-controller="Account" asp-action="Profile"
+                       class="d-flex align-items-center gap-2 text-decoration-none">
+                        <img src="@profilePic"
+                             onerror="this.src='/images/default.jpg'"
+                             class="navbar-avatar"
+                             alt="@username" />
+                        <span class="d-none d-lg-inline" style="font-size:0.82rem;color:var(--text-muted);">@username</span>
+                    </a>
+
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="navbar-icon-btn" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket fa-sm"></i>
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-new-thread">
+                        <i class="fa-solid fa-right-to-bracket fa-xs"></i>
+                        <span>Login</span>
+                    </a>
+                }
+
+                <button class="navbar-icon-btn d-md-none"
+                        type="button"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#mobileMenu"
+                        aria-label="Menu">
+                    <i class="fa-solid fa-bars fa-sm"></i>
+                </button>
+            </div>
+
         </nav>
     </header>
 
-    <div class="container-fluid px-0">
-        <main role="main" class="pb-5">
+   
+    <div class="forum-layout">
+
+        
+        <aside class="sidebar-left d-none d-lg-flex">
+
+            <div class="sidebar-logo-block">
+                <img src="~/images/logo.png" alt="Urban Junction" class="sidebar-logo-emblem" />
+                <div class="sidebar-logo-name">Urban Junction</div>
+                <div class="sidebar-logo-label">Forum</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Topics</div>
+
+                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
+                   class="sidebar-nav-item @(isArt ? "active" : "")">
+                    <span class="sidebar-topic-dot art"></span>
+                    Art
+                    <span class="sidebar-count">@(ViewBag.ArtCount ?? "")</span>
+                </a>
+                @if (isArt)
+                {
+                    <div class="sidebar-subcats">
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Graffiti"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Graffiti" ? "active" : "")">Graffiti</a>
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Photography"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Photography" ? "active" : "")">Photography</a>
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Digital"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Digital" ? "active" : "")">Digital Art</a>
+                    </div>
+                }
+
+                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
+                   class="sidebar-nav-item @(isMusic ? "active" : "")">
+                    <span class="sidebar-topic-dot music"></span>
+                    Music
+                    <span class="sidebar-count">@(ViewBag.MusicCount ?? "")</span>
+                </a>
+                @if (isMusic)
+                {
+                    <div class="sidebar-subcats">
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="HipHop"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "HipHop" ? "active" : "")">Hip-Hop</a>
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Electronic"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Electronic" ? "active" : "")">Electronic</a>
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Indie"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Indie" ? "active" : "")">Indie</a>
+                    </div>
+                }
+
+                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
+                   class="sidebar-nav-item @(isFashion ? "active" : "")">
+                    <span class="sidebar-topic-dot fashion"></span>
+                    Fashion
+                    <span class="sidebar-count">@(ViewBag.FashionCount ?? "")</span>
+                </a>
+                @if (isFashion)
+                {
+                    <div class="sidebar-subcats">
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Streetwear"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Streetwear" ? "active" : "")">Streetwear</a>
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Vintage"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Vintage" ? "active" : "")">Vintage</a>
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Designers"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Designers" ? "active" : "")">Designers</a>
+                    </div>
+                }
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Sections</div>
+
+                <a asp-controller="QA" asp-action="Index"
+                   class="sidebar-nav-item @(routeController == "QA" ? "active" : "")">
+                    <i class="fa-solid fa-circle-question fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
+                    Q&amp;A
+                </a>
+
+                <a asp-controller="Credits" asp-action="Index"
+                   class="sidebar-nav-item @(routeController == "Credits" ? "active" : "")">
+                    <i class="fa-solid fa-scroll fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
+                    Credits
+                </a>
+
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <a asp-controller="Account" asp-action="Profile"
+                       class="sidebar-nav-item @(routeController == "Account" && routeAction == "Profile" ? "active" : "")">
+                        <i class="fa-solid fa-user fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
+                        My Profile
+                    </a>
+
+                    <a asp-controller="Posts" asp-action="MyPosts"
+                       class="sidebar-nav-item @(routeController == "Posts" && routeAction == "MyPosts" ? "active" : "")">
+                        <i class="fa-solid fa-pen-to-square fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
+                        My Posts
+                    </a>
+                }
+            </div>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">Admin</div>
+                    <a asp-controller="Admin" asp-action="Index"
+                       class="sidebar-nav-item @(routeController == "Admin" ? "active" : "")">
+                        <i class="fa-solid fa-shield fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
+                        Admin Panel
+                    </a>
+                </div>
+            }
+
+        </aside>
+
+       
+        <main role="main" class="pb-5" style="min-width:0;">
             @RenderBody()
         </main>
+
+        
+        <aside class="sidebar-right d-none d-xl-flex">
+            @if (IsSectionDefined("RightSidebar"))
+            {
+                @await RenderSectionAsync("RightSidebar", required: false)
+            }
+            else if (isTopicPage)
+            {
+                <div class="widget">
+                    <div class="widget-title">Forum Stats</div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">@(ViewBag.TotalThreads ?? "—")</div>
+                            <div class="stat-label">Threads</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">@(ViewBag.TotalReplies ?? "—")</div>
+                            <div class="stat-label">Replies</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">@(ViewBag.TotalMembers ?? "—")</div>
+                            <div class="stat-label">Members</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">@(ViewBag.OnlineCount ?? "—")</div>
+                            <div class="stat-label">Online</div>
+                        </div>
+                    </div>
+                </div>
+
+               
+                @if (ViewBag.TrendingPosts != null)
+                {
+                    <div class="widget">
+                        <div class="widget-title">Trending This Week</div>
+                        <div class="trending-list">
+                            @{
+                                int rank = 1;
+                            }
+                            @foreach (var post in ViewBag.TrendingPosts)
+                            {
+                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
+                                   class="trending-item text-decoration-none">
+                                    <span class="trending-rank @(rank == 1 ? "top" : "")">@rank</span>
+                                    <span class="trending-title">@post.Title</span>
+                                    <span class="trending-replies">@post.CommentCount</span>
+                                </a>
+                                rank++;
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </aside>
+
     </div>
 
+    
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header">
+            <div class="d-flex align-items-center gap-2">
+                <img src="~/images/logo.png" alt="Urban Junction" style="height:28px;width:auto;" />
+                <span class="offcanvas-title" id="mobileMenuLabel">Urban Junction</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+
+            {{!-- Topics --}}
+            <div class="sidebar-section-label mb-2">Topics</div>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" class="sidebar-nav-item mb-1">
+                <span class="sidebar-topic-dot art"></span> Art
+            </a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" class="sidebar-nav-item mb-1">
+                <span class="sidebar-topic-dot music"></span> Music
+            </a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" class="sidebar-nav-item mb-1">
+                <span class="sidebar-topic-dot fashion"></span> Fashion
+            </a>
+
+            <div class="sidebar-divider"></div>
+
+            {{!-- Sections --}}
+            <div class="sidebar-section-label mb-2">Sections</div>
+            <a asp-controller="QA" asp-action="Index" class="sidebar-nav-item mb-1">
+                <i class="fa-solid fa-circle-question fa-xs me-2"></i>Q&amp;A
+            </a>
+
+            <div class="sidebar-divider"></div>
+
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <a asp-controller="Account" asp-action="Profile" class="sidebar-nav-item mb-1">
+                    <i class="fa-solid fa-user fa-xs me-2"></i>My Profile
+                </a>
+                <a asp-controller="Posts" asp-action="MyPosts" class="sidebar-nav-item mb-1">
+                    <i class="fa-solid fa-pen-to-square fa-xs me-2"></i>My Posts
+                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Admin" asp-action="Index" class="sidebar-nav-item mb-1" style="color:var(--fashion);">
+                        <i class="fa-solid fa-shield fa-xs me-2"></i>Admin Panel
+                    </a>
+                }
+                <div class="sidebar-divider"></div>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="sidebar-nav-item w-100 text-start" style="color:var(--accent);">
+                        <i class="fa-solid fa-right-from-bracket fa-xs me-2"></i>Logout
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn-new-thread d-flex justify-content-center mt-2">
+                    <i class="fa-solid fa-right-to-bracket fa-xs me-2"></i>Login
+                </a>
+            }
+
+        </div>
+    </div>
+
+    
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>
