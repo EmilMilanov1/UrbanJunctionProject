@@ -21,49 +21,96 @@
     <link rel="stylesheet" href="~/UrbanJunction.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
+
     <!-- Offcanvas Menu -->
-    <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mainMenu" aria-labelledby="mainMenuLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="mainMenuLabel">Urban Junction</h5>
+    <div class="offcanvas offcanvas-start text-white" tabindex="-1" id="mainMenu" aria-labelledby="mainMenuLabel">
+        <div class="offcanvas-header py-3 px-4">
+            <div class="d-flex align-items-center gap-2">
+                <img src="~/images/logo.png" alt="Urban Junction" style="height:32px;width:auto;" />
+                <h5 class="offcanvas-title mb-0 fw-bold" id="mainMenuLabel" style="color:#e8e0d5;">Urban Junction</h5>
+            </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
-        <div class="offcanvas-body">
+        <div class="offcanvas-body px-4">
 
-            <h6 class="text-uppercase mb-3">Explore Topics</h6>
+            <div class="section-label">Explore Topics</div>
             <ul class="list-unstyled">
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Art"><i class="fa-solid fa-palette me-2"></i>Art</a></li>
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Music"><i class="fa-solid fa-music me-2"></i>Music</a></li>
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"><i class="fa-solid fa-shirt me-2"></i>Fashion</a></li>
+                <li class="mb-1">
+                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
+                       asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
+                       style="color:#4caf72;">
+                        <i class="fa-solid fa-palette fa-sm"></i> Art
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
+                       asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
+                       style="color:#6c63ff;">
+                        <i class="fa-solid fa-music fa-sm"></i> Music
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
+                       asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
+                       style="color:#f5a623;">
+                        <i class="fa-solid fa-shirt fa-sm"></i> Fashion
+                    </a>
+                </li>
             </ul>
 
-            <hr class="border-secondary">
+            <hr />
 
-            <h6 class="text-uppercase mb-3">Other Sections</h6>
+            <div class="section-label">Other Sections</div>
             <ul class="list-unstyled">
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="QA" asp-action="Index"><i class="fa-solid fa-circle-question me-2"></i>Q&A</a></li>
-                <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Credits" asp-action="Index"><i class="fa-solid fa-scroll me-2"></i>Credits</a></li>
+                <li class="mb-1">
+                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
+                       asp-controller="QA" asp-action="Index">
+                        <i class="fa-solid fa-circle-question fa-sm"></i> Q&amp;A
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
+                       asp-controller="Credits" asp-action="Index">
+                        <i class="fa-solid fa-scroll fa-sm"></i> Credits
+                    </a>
+                </li>
             </ul>
 
-            <hr class="border-secondary">
+            <hr />
 
             @if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                <h6 class="text-uppercase mb-3">Account</h6>
+                <div class="section-label">Account</div>
                 <ul class="list-unstyled">
-                    <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Account" asp-action="Profile"><i class="fa-solid fa-user me-2"></i>My Profile</a></li>
-                    <li><a class="text-white text-decoration-none d-block py-1" asp-controller="Posts" asp-action="MyPosts"><i class="fa-solid fa-pen-to-square me-2"></i>My Posts</a></li>
-
+                    <li class="mb-1">
+                        <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
+                           asp-controller="Account" asp-action="Profile">
+                            <i class="fa-solid fa-user fa-sm"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
+                           asp-controller="Posts" asp-action="MyPosts">
+                            <i class="fa-solid fa-pen-to-square fa-sm"></i> My Posts
+                        </a>
+                    </li>
                     @if (User.IsInRole("Admin"))
                     {
-                        <li><hr class="border-secondary my-2"></li>
-                        <li><a class="text-white text-decoration-none d-block py-1 text-warning" asp-controller="Admin" asp-action="Index"><i class="fa-solid fa-shield me-2"></i>Admin Panel</a></li>
+                        <li><hr /></li>
+                        <li class="mb-1">
+                            <a class="text-decoration-none d-flex align-items-center gap-2 py-2"
+                               asp-controller="Admin" asp-action="Index" style="color:#f5a623;">
+                                <i class="fa-solid fa-shield fa-sm"></i> Admin Panel
+                            </a>
+                        </li>
                     }
-
-                    <li>
+                    <li class="mb-1">
                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link text-white text-decoration-none p-0">
-                                <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                            <button type="submit"
+                                    class="btn btn-link text-decoration-none p-0 d-flex align-items-center gap-2 py-2"
+                                    style="color:#a09880;">
+                                <i class="fa-solid fa-right-from-bracket fa-sm"></i> Logout
                             </button>
                         </form>
                     </li>
@@ -71,47 +118,44 @@
             }
             else
             {
-                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light w-100 mt-3">
+                <a asp-controller="Account" asp-action="Login"
+                   class="btn btn-outline-light w-100 mt-3 rounded-pill">
                     <i class="fa-solid fa-right-to-bracket me-2"></i>Login
                 </a>
             }
         </div>
     </div>
 
+    <!-- Navbar -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-dark bg-dark border-bottom mb-3">
-            <div class="container-fluid d-flex justify-content-between align-items-center">
+        <nav class="navbar navbar-expand-sm navbar-dark border-bottom mb-0">
+            <div class="container-fluid d-flex justify-content-between align-items-center px-3">
 
-                <!-- Menu + Logo -->
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-light me-2 menu-btn"
-                            type="button"
-                            data-bs-toggle="offcanvas"
-                            data-bs-target="#mainMenu">
-                        <i class="fa-solid fa-bars"></i>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="menu-btn btn" type="button"
+                            data-bs-toggle="offcanvas" data-bs-target="#mainMenu">
+                        <i class="fa-solid fa-bars fa-sm"></i>
                     </button>
-
-                    <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
+                    <a asp-controller="Home" asp-action="Index" class="navbar-brand mb-0">
                         <img src="~/images/logo.png" alt="Urban Junction" class="site-logo" />
                     </a>
                 </div>
 
-                <!-- Profile -->
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center gap-2">
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <a asp-controller="Account" asp-action="Profile"
-                           class="d-flex align-items-center text-decoration-none text-white me-3">
+                           class="d-flex align-items-center text-decoration-none gap-2">
                             <img src="@profilePic"
                                  onerror="this.src='/images/default.jpg'"
-                                 class="rounded-circle profile-icon me-2"
-                                 style="width:42px; height:42px; object-fit:cover;" />
-                            <span class="fw-semibold">@username</span>
+                                 class="profile-icon" />
+                            <span style="font-size:14px;color:#a09880;">@username</span>
                         </a>
                     }
                     else
                     {
-                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-sm">
+                        <a asp-controller="Account" asp-action="Login"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fa-solid fa-right-to-bracket me-1"></i>Login
                         </a>
                     }
@@ -121,8 +165,8 @@
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="container-fluid px-0">
+        <main role="main" class="pb-5">
             @RenderBody()
         </main>
     </div>
