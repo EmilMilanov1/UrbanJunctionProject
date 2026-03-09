@@ -1,8 +1,10 @@
-﻿@{
-    string profilePic =
-        User.FindFirst("ProfilePicturePath")?.Value
-        ?? "/images/default.jpg";
+﻿@using Microsoft.AspNetCore.Identity
+@using UrbanJunction.Data.Models
+@inject UserManager<UrbanUser> UserManager
 
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    string profilePic = currentUser?.ProfilePicturePath ?? "/images/default.jpg";
     string username = User.Identity?.Name ?? "";
 }
 

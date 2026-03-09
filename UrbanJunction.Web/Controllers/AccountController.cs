@@ -250,7 +250,7 @@ namespace UrbanJunction.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+        public async Task<IActionResult> EditProfile(EditProfileViewModel model, string? CroppedProfilePicture, string? CroppedBannerImage)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login");
@@ -263,26 +263,43 @@ namespace UrbanJunction.Web.Controllers
             var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
             Directory.CreateDirectory(uploadPath);
 
-            if (model.ProfilePicture != null)
+            if (!string.IsNullOrEmpty(CroppedProfilePicture))
             {
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.ProfilePicture.FileName)}";
-                var filePath = Path.Combine(uploadPath, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                    await model.ProfilePicture.CopyToAsync(stream);
-                user.ProfilePicturePath = "/uploads/" + fileName;
+                var path = SaveBase64Image(CroppedProfilePicture, uploadPath);
+                user.ProfilePicturePath = path;
             }
 
-            if (model.BannerImage != null)
+            if (!string.IsNullOrEmpty(CroppedBannerImage))
             {
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.BannerImage.FileName)}";
-                var filePath = Path.Combine(uploadPath, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                    await model.BannerImage.CopyToAsync(stream);
-                user.BannerImagePath = "/uploads/" + fileName;
+                var path = SaveBase64Image(CroppedBannerImage, uploadPath);
+                user.BannerImagePath = path;
             }
 
             await _userManager.UpdateAsync(user);
+            await _signInManager.RefreshSignInAsync(user);
             return RedirectToAction(nameof(Profile));
+        }
+
+        private string SaveBase64Image(string base64, string uploadPath)
+        {
+            try
+            {
+                string base64Data = base64.Contains(",") ? base64.Split(',')[1] : base64;
+                base64Data = base64Data.Trim().Replace(" ", "+").Replace("\n", "").Replace("\r", "");
+                int mod = base64Data.Length % 4;
+                if (mod > 0) base64Data += new string('=', 4 - mod);
+
+                var bytes = Convert.FromBase64String(base64Data);
+                var fileName = $"{Guid.NewGuid()}.jpg";
+                var filePath = Path.Combine(uploadPath, fileName);
+                System.IO.File.WriteAllBytes(filePath, bytes);
+                return "/uploads/" + fileName;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("SaveBase64Image error: " + ex.Message);
+                return "/images/default.jpg";
+            }
         }
     }
 }
