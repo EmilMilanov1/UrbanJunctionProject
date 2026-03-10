@@ -1,4 +1,7 @@
-﻿@model IEnumerable<UrbanJunction.Data.Models.Post>
+﻿Here's the raw code:
+
+```cshtml
+@model IEnumerable<UrbanJunction.Data.Models.Post>
 
 @{
     ViewData["Title"] = "My Posts";
@@ -51,7 +54,7 @@
 
                 <div class="thread-row" data-subcat="@subcatName">
 
-                    <!-- Vote score (read-only on my posts page) -->
+                    <!-- Vote score (read-only) -->
                     <div class="thread-vote">
                         <i class="fa-solid fa-chevron-up" style="font-size:0.65rem;color:var(--text-dim);"></i>
                         <span class="vote-count @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")">
@@ -60,76 +63,76 @@
                         <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;color:var(--text-dim);"></i>
                     </div>
 
-                    <!-- Thread body -->
-                    <div class="thread-body">
+                    <!-- Thread content (text + thumbnail) -->
+                    <div class="thread-content">
 
-                        <!-- Tags -->
-                        <div class="thread-tags">
-                            <span class="thread-tag @tc">@tn</span>
-                            @if (!string.IsNullOrEmpty(subcatName))
+                        <!-- Text block -->
+                        <div class="thread-text">
+
+                            <!-- Tags -->
+                            <div class="thread-tags">
+                                <span class="thread-tag @tc">@tn</span>
+                                @if (!string.IsNullOrEmpty(subcatName))
+                                {
+                                    <span class="thread-tag custom">@subcatName</span>
+                                }
+                                <!-- Edit / Delete -->
+                                <div class="d-flex align-items-center gap-1 ms-auto">
+                                    <a asp-action="Edit" asp-controller="Posts" asp-route-id="@post.Id"
+                                       class="thread-tag custom"
+                                       style="text-decoration:none;color:var(--music);">
+                                        <i class="fa-solid fa-pen fa-xs me-1"></i>Edit
+                                    </a>
+                                    <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
+                                          method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="thread-tag custom"
+                                                style="border:none;cursor:pointer;color:var(--accent);
+                                                               background:rgba(232,93,74,0.08);"
+                                                onclick="return confirm('Delete this post?')">
+                                            <i class="fa-regular fa-trash-can fa-xs"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Title -->
+                            <div class="thread-title">
+                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                    @post.Title
+                                </a>
+                            </div>
+
+                            <!-- Preview -->
+                            @if (!string.IsNullOrEmpty(preview))
                             {
-                                <span class="thread-tag custom">@subcatName</span>
+                                <div class="thread-preview">@preview</div>
                             }
 
-                            <!-- Action buttons -->
-                            <div class="d-flex align-items-center gap-1 ms-auto">
-                                <a asp-action="Edit" asp-controller="Posts" asp-route-id="@post.Id"
-                                   class="thread-tag custom"
-                                   style="text-decoration:none;color:var(--music);">
-                                    <i class="fa-solid fa-pen fa-xs me-1"></i>Edit
-                                </a>
-                                <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
-                                      method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit"
-                                            class="thread-tag custom"
-                                            style="border:none;cursor:pointer;color:var(--accent);
-                                                           background:rgba(232,93,74,0.08);"
-                                            onclick="return confirm('Delete this post?')">
-                                        <i class="fa-regular fa-trash-can fa-xs"></i>
-                                    </button>
-                                </form>
+                            <!-- Meta -->
+                            <div class="thread-meta">
+                                <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
+                                <span class="thread-meta-stat">
+                                    <i class="fa-regular fa-comment fa-xs"></i>
+                                    @commentCount
+                                </span>
                             </div>
                         </div>
 
-                        <!-- Title -->
-                        <div class="thread-title">
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                @post.Title
-                            </a>
-                        </div>
-
-                        <!-- Preview -->
-                        @if (!string.IsNullOrEmpty(preview))
+                        <!-- Thumbnail -->
+                        @if (!string.IsNullOrEmpty(firstImage))
                         {
-                            <div class="thread-preview">@preview</div>
+                            <div class="thread-thumb">
+                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                    <img src="@firstImage"
+                                         onerror="this.style.display='none'"
+                                         alt="@post.Title" />
+                                </a>
+                            </div>
                         }
 
-                        <!-- Meta -->
-                        <div class="thread-meta">
-                            <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
-                            <span class="thread-meta-stat">
-                                <i class="fa-regular fa-heart fa-xs" style="color:var(--accent);"></i>
-                                @reactionCount
-                            </span>
-                            <span class="thread-meta-stat">
-                                <i class="fa-regular fa-comment fa-xs"></i>
-                                @commentCount
-                            </span>
-                        </div>
                     </div>
-
-                    <!-- Thumbnail -->
-                    @if (!string.IsNullOrEmpty(firstImage))
-                    {
-                        <div class="thread-thumbnail">
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                <img src="@firstImage"
-                                     onerror="this.style.display='none'"
-                                     alt="@post.Title" />
-                            </a>
-                        </div>
-                    }
 
                     <!-- Reply count -->
                     <div class="thread-replies">
@@ -142,3 +145,4 @@
         </div>
     }
 </div>
+```

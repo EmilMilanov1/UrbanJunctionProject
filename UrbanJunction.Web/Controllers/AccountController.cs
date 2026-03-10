@@ -263,16 +263,32 @@ namespace UrbanJunction.Web.Controllers
             var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
             Directory.CreateDirectory(uploadPath);
 
+            // Handle profile picture — base64 (cropper) OR plain file upload
             if (!string.IsNullOrEmpty(CroppedProfilePicture))
             {
-                var path = SaveBase64Image(CroppedProfilePicture, uploadPath);
-                user.ProfilePicturePath = path;
+                user.ProfilePicturePath = SaveBase64Image(CroppedProfilePicture, uploadPath);
+            }
+            else if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
+            {
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.ProfilePicture.FileName)}";
+                var filePath = Path.Combine(uploadPath, fileName);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await model.ProfilePicture.CopyToAsync(stream);
+                user.ProfilePicturePath = "/uploads/" + fileName;
             }
 
+            // Handle banner — base64 (cropper) OR plain file upload
             if (!string.IsNullOrEmpty(CroppedBannerImage))
             {
-                var path = SaveBase64Image(CroppedBannerImage, uploadPath);
-                user.BannerImagePath = path;
+                user.BannerImagePath = SaveBase64Image(CroppedBannerImage, uploadPath);
+            }
+            else if (model.BannerImage != null && model.BannerImage.Length > 0)
+            {
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.BannerImage.FileName)}";
+                var filePath = Path.Combine(uploadPath, fileName);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await model.BannerImage.CopyToAsync(stream);
+                user.BannerImagePath = "/uploads/" + fileName;
             }
 
             await _userManager.UpdateAsync(user);

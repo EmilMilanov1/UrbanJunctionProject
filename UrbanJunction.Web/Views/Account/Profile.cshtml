@@ -99,7 +99,6 @@
         </a>
     </div>
 
-    <!-- Posts / Likes content -->
     @{
         var activePosts = activeTab == "likes" ? Model.LikedPosts : Model.Posts;
         bool isLikesTab = activeTab == "likes";
@@ -135,7 +134,7 @@
 
                 <div class="thread-row" data-subcat="@subcatName">
 
-                    <!-- Vote column (read-only on profile) -->
+                    <!-- Vote (read-only) -->
                     <div class="thread-vote">
                         <i class="fa-solid fa-chevron-up" style="font-size:0.65rem;color:var(--text-dim);"></i>
                         <span class="vote-count @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")">
@@ -144,49 +143,50 @@
                         <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;color:var(--text-dim);"></i>
                     </div>
 
-                    <!-- Thread body -->
-                    <div class="thread-body">
-                        <div class="thread-tags">
-                            <span class="thread-tag @tc">@tn</span>
-                            @if (!string.IsNullOrEmpty(subcatName))
+                    <!-- Thread content -->
+                    <div class="thread-content">
+
+                        <div class="thread-text">
+                            <div class="thread-tags">
+                                <span class="thread-tag @tc">@tn</span>
+                                @if (!string.IsNullOrEmpty(subcatName))
+                                {
+                                    <span class="thread-tag custom">@subcatName</span>
+                                }
+                            </div>
+
+                            <div class="thread-title">
+                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                    @post.Title
+                                </a>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(preview))
                             {
-                                <span class="thread-tag custom">@subcatName</span>
+                                <div class="thread-preview">@preview</div>
                             }
+
+                            <div class="thread-meta">
+                                <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
+                                <span class="thread-meta-stat">
+                                    <i class="fa-regular fa-comment fa-xs"></i>
+                                    @commentCount
+                                </span>
+                            </div>
                         </div>
 
-                        <div class="thread-title">
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                @post.Title
-                            </a>
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(preview))
+                        @if (!string.IsNullOrEmpty(firstImage))
                         {
-                            <div class="thread-preview">@preview</div>
+                            <div class="thread-thumb">
+                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                    <img src="@firstImage"
+                                         onerror="this.style.display='none'"
+                                         alt="@post.Title" />
+                                </a>
+                            </div>
                         }
 
-                        <div class="thread-meta">
-                            <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
-                            <span class="thread-meta-stat">
-                                <i class="fa-regular fa-heart fa-xs" style="color:var(--accent);"></i>
-                                @reactionCount
-                            </span>
-                            <span class="thread-meta-stat">
-                                <i class="fa-regular fa-comment fa-xs"></i>
-                                @commentCount
-                            </span>
-                        </div>
                     </div>
-
-                    <!-- Thumbnail -->
-                    @if (!string.IsNullOrEmpty(firstImage))
-                    {
-                        <div class="thread-thumbnail">
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                <img src="@firstImage" onerror="this.style.display='none'" alt="@post.Title" />
-                            </a>
-                        </div>
-                    }
 
                     <!-- Reply count -->
                     <div class="thread-replies">

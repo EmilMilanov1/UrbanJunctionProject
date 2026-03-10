@@ -1,4 +1,4 @@
-﻿@model IEnumerable<UrbanJunction.Data.Models.Post>
+@model IEnumerable<UrbanJunction.Data.Models.Post>
 
 @{
     ViewData["Title"] = ViewBag.TopicName;
@@ -6,17 +6,17 @@
     string topicName = ViewBag.TopicName ?? "";
     string topicClass = topicName.ToLower() switch
     {
-        "art" => "art",
-        "music" => "music",
+        "art"     => "art",
+        "music"   => "music",
         "fashion" => "fashion",
-        _ => "default"
+        _         => "default"
     };
     string topicColor = topicClass switch
     {
-        "art" => "#4caf72",
-        "music" => "#7c6fff",
+        "art"     => "#4caf72",
+        "music"   => "#7c6fff",
         "fashion" => "#f0a04b",
-        _ => "#e85d4a"
+        _         => "#e85d4a"
     };
 }
 
@@ -31,6 +31,7 @@
                 @Model.Count() threads
             </span>
         </div>
+
         <div class="topic-search">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="thread-search" placeholder="Search threads…" autocomplete="off" />
@@ -49,7 +50,7 @@
         else if (topicClass == "music")
         {
             <span class="subcat-tab" data-subcat="HipHop">Hip-Hop</span>
-            <span class="subcat-tab" data-subcat="Electronic">Electronic</span>
+            <span class="subcat-tab" data-subcat="Techno">Techno</span>
             <span class="subcat-tab" data-subcat="Indie">Indie</span>
         }
         else if (topicClass == "fashion")
@@ -96,25 +97,25 @@
             @foreach (var post in Model)
             {
                 var isOwner = User.Identity?.IsAuthenticated == true &&
-                User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == post.UserId;
-                var isAdmin = User.IsInRole("Admin");
+                              User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == post.UserId;
+                var isAdmin    = User.IsInRole("Admin");
                 var subcatName = post.Subcategory?.Name ?? "";
                 var firstImage = post.Images?.FirstOrDefault()?.ImagePath;
-                var reactionCount = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0); var commentCount = post.Comments?.Count() ?? 0;
-                var isLiked = likedPostIds.Contains(post.Id);
+                var reactionCount = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0);
+                var commentCount  = post.Comments?.Count() ?? 0;
 
                 var preview = "";
                 if (!string.IsNullOrEmpty(post.Content))
                 {
                     preview = post.Content.Length > 120
-                    ? post.Content.Substring(0, 120).TrimEnd() + "…"
-                    : post.Content;
+                        ? post.Content.Substring(0, 120).TrimEnd() + "…"
+                        : post.Content;
                 }
 
                 <div class="thread-row @(post.IsPinned ? "pinned" : "") @(post.IsLocked ? "locked" : "")"
                      data-subcat="@subcatName">
 
-                    <!-- Vote column -->
+                    <!-- Vote strip -->
                     <div class="thread-vote">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
@@ -145,95 +146,90 @@
                         }
                     </div>
 
-                    <!-- Thread body -->
-                    <div class="thread-body">
+                    <!-- Thread content (text + thumbnail side by side) -->
+                    <div class="thread-content">
 
-                        <!-- Tags row -->
-                        <div class="thread-tags">
-                            <span class="thread-tag @topicClass">@topicName</span>
-                            @if (post.IsPinned)
-                            {
-                                <span class="thread-tag pinned"><i class="fa-solid fa-thumbtack fa-xs me-1"></i>Pinned</span>
-                            }
-                            @if (post.IsLocked)
-                            {
-                                <span class="thread-tag locked"><i class="fa-solid fa-lock fa-xs me-1"></i>Locked</span>
-                            }
-                            @if (!string.IsNullOrEmpty(subcatName))
-                            {
-                                <span class="thread-tag custom">@subcatName</span>
-                            }
-                            @if (isOwner || isAdmin)
-                            {
-                                <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
-                                      method="post" class="d-inline ms-auto">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit"
-                                            class="thread-tag custom"
-                                            style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
-                                            onclick="return confirm('Delete this thread?')">
-                                        <i class="fa-regular fa-trash-can fa-xs"></i>
-                                    </button>
-                                </form>
-                            }
-                        </div>
+                        <!-- Text block -->
+                        <div class="thread-text">
 
-                        <!-- Title -->
-                        <div class="thread-title">
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                @post.Title
-                            </a>
-                        </div>
-
-                        <!-- Preview text -->
-                        @if (!string.IsNullOrEmpty(preview))
-                        {
-                            <div class="thread-preview">@preview</div>
-                        }
-
-                        <!-- Meta row -->
-                        <div class="thread-meta">
-                            <a asp-controller="Account" asp-action="UserProfile"
-                               asp-route-username="@post.User?.UserName"
-                               class="thread-author text-decoration-none">
-                                @if (!string.IsNullOrEmpty(post.User?.ProfilePicturePath))
+                            <!-- Tags row -->
+                            <div class="thread-tags">
+                                <span class="thread-tag @topicClass">@topicName</span>
+                                @if (post.IsPinned)
                                 {
-                                    <img src="@post.User.ProfilePicturePath"
-                                         onerror="this.src='/images/default.jpg'"
-                                         class="thread-author-avatar" />
+                                    <span class="thread-tag pinned"><i class="fa-solid fa-thumbtack fa-xs me-1"></i>Pinned</span>
                                 }
-                                <span class="thread-author-name">@post.User?.UserName</span>
-                            </a>
+                                @if (post.IsLocked)
+                                {
+                                    <span class="thread-tag locked"><i class="fa-solid fa-lock fa-xs me-1"></i>Locked</span>
+                                }
+                                @if (!string.IsNullOrEmpty(subcatName))
+                                {
+                                    <span class="thread-tag custom">@subcatName</span>
+                                }
+                                @if (isOwner || isAdmin)
+                                {
+                                    <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
+                                          method="post" class="d-inline ms-auto">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="thread-tag custom"
+                                                style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
+                                                onclick="return confirm('Delete this thread?')">
+                                            <i class="fa-regular fa-trash-can fa-xs"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
 
-                            <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
+                            <!-- Title -->
+                            <div class="thread-title">
+                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                    @post.Title
+                                </a>
+                            </div>
 
-                            @if (User.Identity?.IsAuthenticated == true)
+                            <!-- Preview text -->
+                            @if (!string.IsNullOrEmpty(preview))
                             {
-                                <form asp-action="ToggleLike" asp-controller="Posts" asp-route-id="@post.Id"
-                                      method="post" class="d-inline like-form">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit"
-                                            class="thread-meta-stat @(isLiked ? "text-accent" : "")"
-                                            style="background:none;border:none;padding:0;cursor:pointer;font-family:var(--font-mono);">
-                                    </button>
-                                </form>
-                            }                           
+                                <div class="thread-preview">@preview</div>
+                            }
+
+                            <!-- Meta row -->
+                            <div class="thread-meta">
+                                <a asp-controller="Account" asp-action="UserProfile"
+                                   asp-route-username="@post.User?.UserName"
+                                   class="thread-author text-decoration-none">
+                                    @if (!string.IsNullOrEmpty(post.User?.ProfilePicturePath))
+                                    {
+                                        <img src="@post.User.ProfilePicturePath"
+                                             onerror="this.src='/images/default.jpg'"
+                                             class="thread-author-avatar" />
+                                    }
+                                    <span class="thread-author-name">@post.User?.UserName</span>
+                                </a>
+                                <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
+                                <span class="thread-meta-stat">
+                                    <i class="fa-regular fa-comment fa-xs"></i>
+                                    @commentCount
+                                </span>
+                            </div>
                         </div>
+
+                        <!-- Reddit-style thumbnail -->
+                        @if (!string.IsNullOrEmpty(firstImage))
+                        {
+                            <div class="thread-thumb">
+                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                    <img src="@firstImage"
+                                         onerror="this.style.display='none'"
+                                         alt="@post.Title" />
+                                </a>
+                            </div>
+                        }                      
                     </div>
 
-                    <!-- Thumbnail -->
-                    @if (!string.IsNullOrEmpty(firstImage))
-                    {
-                        <div class="thread-thumbnail">
-                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                <img src="@firstImage"
-                                     onerror="this.style.display='none'"
-                                     alt="@post.Title" />
-                            </a>
-                        </div>
-                    }
-
-                    <!-- Reply count -->
+                    <!-- Replies column -->
                     <div class="thread-replies">
                         <span class="thread-reply-count">@commentCount</span>
                         <span class="thread-reply-label">replies</span>
@@ -242,6 +238,8 @@
                 </div>
             }
         </div>
+
+        <!-- Infinite scroll sentinel -->
         <div id="scroll-sentinel"></div>
     }
 
@@ -249,44 +247,49 @@
 
 @section Scripts {
     <script>
-        document.querySelectorAll('.subcat-tab').forEach(tab => {
-            tab.addEventListener('click', function () {
-                document.querySelectorAll('.subcat-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                const subcat = this.dataset.subcat;
-                document.querySelectorAll('.thread-row').forEach(row => {
-                    row.style.display =
-                        subcat === 'all' || row.dataset.subcat === subcat ? '' : 'none';
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // ── Search ────────────────────────────────────────────────
+            const searchInput = document.getElementById('thread-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    const q = this.value.toLowerCase();
+                    document.querySelectorAll('.thread-row').forEach(row => {
+                        const title = row.querySelector('.thread-title')?.textContent.toLowerCase() ?? '';
+                        const preview = row.querySelector('.thread-preview')?.textContent.toLowerCase() ?? '';
+                        row.style.display = (title.includes(q) || preview.includes(q)) ? '' : 'none';
+                    });
+                });
+            }
+
+            // ── Subcat tabs ───────────────────────────────────────────
+            document.querySelectorAll('.subcat-tab').forEach(tab => {
+                tab.addEventListener('click', function () {
+                    document.querySelectorAll('.subcat-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    const subcat = this.dataset.subcat;
+                    document.querySelectorAll('.thread-row').forEach(row => {
+                        row.style.display = (subcat === 'all' || row.dataset.subcat === subcat) ? '' : 'none';
+                    });
                 });
             });
-        });
 
-        document.querySelectorAll('.sort-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
+            // ── Sort buttons ──────────────────────────────────────────
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
             });
-        });
 
-        document.getElementById('thread-search')?.addEventListener('input', function () {
-            const q = this.value.toLowerCase();
-            document.querySelectorAll('.thread-row').forEach(row => {
-                const title   = row.querySelector('.thread-title')?.textContent.toLowerCase() ?? '';
-                const preview = row.querySelector('.thread-preview')?.textContent.toLowerCase() ?? '';
-                row.style.display = (title.includes(q) || preview.includes(q)) ? '' : 'none';
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.like-form').forEach(form => {
-                form.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    const icon  = this.querySelector('.like-icon');
-                    const count = this.querySelector('.like-count');
-                    const btn   = this.querySelector('button');
-                    const token = this.querySelector('input[name="__RequestVerificationToken"]').value;
+            // ── Feed vote buttons ─────────────────────────────────────
+            document.querySelectorAll('.feed-vote-btn').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    const postId   = this.dataset.postId;
+                    const isUpvote = this.dataset.isUpvote === 'true';
+                    const token    = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
                     try {
-                        const response = await fetch(this.action, {
+                        const response = await fetch(`/Posts/Vote/${postId}?isUpvote=${isUpvote}`, {
                             method: 'POST',
                             headers: {
                                 'RequestVerificationToken': token,
@@ -297,47 +300,17 @@
                         });
                         if (response.ok) {
                             const data = await response.json();
-                            count.textContent = data.count;
-                            if (data.userLiked) {
-                                icon.classList.replace('fa-regular', 'fa-solid');
-                                btn.classList.add('text-accent');
-                            } else {
-                                icon.classList.replace('fa-solid', 'fa-regular');
-                                btn.classList.remove('text-accent');
+                            const scoreEl = document.querySelector(`.feed-vote-score[data-post-id="${postId}"]`);
+                            if (scoreEl) {
+                                scoreEl.textContent = data.score;
+                                scoreEl.className = 'vote-count feed-vote-score' +
+                                    (data.score > 0 ? ' positive' : data.score < 0 ? ' negative' : '');
                             }
                         }
-                    } catch (err) { console.error('Like failed', err); }
+                    } catch (err) { console.error('Vote failed', err); }
                 });
             });
-        });
-                // Feed vote buttons
-        const feedToken = document.querySelector('meta[name="csrf-token"]')?.content
-            ?? document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '';
 
-        document.querySelectorAll('.feed-vote-btn').forEach(btn => {
-            btn.addEventListener('click', async function () {
-                const postId   = this.dataset.postId;
-                const isUpvote = this.dataset.isUpvote === 'true';
-                const token    = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
-                try {
-                    const response = await fetch(`/Posts/Vote/${postId}?isUpvote=${isUpvote}`, {
-                        method: 'POST',
-                        headers: {
-                            'RequestVerificationToken': token,
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: `__RequestVerificationToken=${encodeURIComponent(token)}`
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        const scoreEl = document.querySelector(`.feed-vote-score[data-post-id="${postId}"]`);
-                        scoreEl.textContent = data.score;
-                        scoreEl.className = 'vote-count feed-vote-score' +
-                            (data.score > 0 ? ' positive' : data.score < 0 ? ' negative' : '');
-                    }
-                } catch (err) { console.error('Vote failed', err); }
-            });
         });
     </script>
 }

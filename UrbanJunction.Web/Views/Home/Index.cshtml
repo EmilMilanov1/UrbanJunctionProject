@@ -10,69 +10,181 @@
     .sidebar-left, .sidebar-right {
         display: none !important;
     }
+
+    .home-card {
+        position: relative;
+        display: block;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 460px;
+        border: 1px solid var(--border);
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .home-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease, filter 0.4s ease;
+        }
+
+    /* Dark overlay — always present, deepens on hover */
+    .home-card-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        transition: background 0.4s ease;
+    }
+
+    /* Text block — centered */
+    .home-card-text {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: opacity 0.4s ease;
+    }
+
+    .home-card-label {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: rgba(255,255,255,0.55);
+    }
+
+    .home-card-label {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: rgba(255,255,255,0.55);
+        text-shadow: 0 1px 6px rgba(0,0,0,1);
+    }
+
+    .home-card-title {
+        font-family: var(--font-head);
+        font-size: 2.6rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+        line-height: 1;
+        text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+    }
+
+    .home-card-sub {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
+        font-family: var(--font-body);
+        margin-top: 0.25rem;
+    }
+
+    .home-card-explore {
+        margin-top: 1rem;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 1.1rem;
+        border-radius: 4px;
+        border: 1px solid rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.7);
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    /* Hover state */
+    .home-card:hover img {
+        transform: scale(1.04);
+        filter: brightness(0.6);
+    }
+
+    .home-card:hover .home-card-overlay {
+        background: rgba(0, 0, 0, 0.55);
+    }
+
+    .home-card:hover .home-card-explore {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .home-card-title {
+        font-family: var(--font-head);
+        font-size: 2.6rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+        line-height: 1;
+        text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,1);
+    }
+
+    .home-card-sub {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
+        font-family: var(--font-body);
+        margin-top: 0.25rem;
+        text-shadow: 0 1px 6px rgba(0,0,0,1), 0 0 12px rgba(0,0,0,0.9);
+    }
 </style>
 
 <div style="padding: 3rem 2rem; max-width: 1100px; margin: 0 auto;">
 
-    <h1 style="font-family: var(--font-head); font-size: 2.5rem; font-weight: 800;
-               letter-spacing: -0.03em; text-align: center; margin-bottom: 2.5rem;
-               color: var(--text);">
+    <h1 style="font-family:var(--font-head);font-size:2.5rem;font-weight:800;
+               letter-spacing:-0.03em;text-align:center;margin-bottom:0.5rem;
+               color:var(--text);">
         Urban Junction
     </h1>
+    <p style="text-align:center;color:var(--text-dim);font-size:0.875rem;
+              margin-bottom:2.5rem;font-family:var(--font-body);">
+        Choose your corner of the culture
+    </p>
 
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
-        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
-           style="position:relative; display:block; border-radius:12px; overflow:hidden;
-                  height:460px; border:1px solid var(--border); text-decoration:none;
-                  transition: transform 0.3s ease, box-shadow 0.3s ease;"
-           onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 8px 40px rgba(0,0,0,0.6)'"
-           onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
-            <img src="~/images/art.jpg" alt="Art"
-                 style="width:100%;height:100%;object-fit:cover;display:block;" />
-            <div style="position:absolute;bottom:0;left:0;right:0;
-                        padding:60px 20px 24px;
-                        background:linear-gradient(to top, rgba(0,0,0,0.85), transparent);
-                        font-family:var(--font-head);font-size:2rem;font-weight:900;
-                        text-transform:uppercase;text-align:center;letter-spacing:2px;
-                        color:var(--art);text-shadow:0 2px 8px rgba(0,0,0,0.8);">
-                Art
+        <!-- Art -->
+        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" class="home-card">
+            <img src="~/images/art.jpg" alt="Art" />
+            <div class="home-card-overlay"></div>
+            <div class="home-card-text">
+                <span class="home-card-label">Explore</span>
+                <span class="home-card-title" style="color:var(--art);">Art</span>
+                <span class="home-card-sub">Graffiti · Photography · Digital</span>
+                <span class="home-card-explore" style="border-color:var(--art);color:var(--art);">Enter →</span>
             </div>
         </a>
 
-        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
-           style="position:relative; display:block; border-radius:12px; overflow:hidden;
-                  height:460px; border:1px solid var(--border); text-decoration:none;
-                  transition: transform 0.3s ease, box-shadow 0.3s ease;"
-           onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 8px 40px rgba(0,0,0,0.6)'"
-           onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
-            <img src="~/images/music.jpg" alt="Music"
-                 style="width:100%;height:100%;object-fit:cover;display:block;" />
-            <div style="position:absolute;bottom:0;left:0;right:0;
-                        padding:60px 20px 24px;
-                        background:linear-gradient(to top, rgba(0,0,0,0.85), transparent);
-                        font-family:var(--font-head);font-size:2rem;font-weight:900;
-                        text-transform:uppercase;text-align:center;letter-spacing:2px;
-                        color:var(--music);text-shadow:0 2px 8px rgba(0,0,0,0.8);">
-                Music
+        <!-- Music -->
+        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" class="home-card">
+            <img src="~/images/music.jpg" alt="Music" />
+            <div class="home-card-overlay"></div>
+            <div class="home-card-text">
+                <span class="home-card-label">Explore</span>
+                <span class="home-card-title" style="color:var(--music);">Music</span>
+                <span class="home-card-sub">Hip-Hop · Electronic · Indie</span>
+                <span class="home-card-explore" style="border-color:var(--music);color:var(--music);">Enter →</span>
             </div>
         </a>
 
-        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
-           style="position:relative; display:block; border-radius:12px; overflow:hidden;
-                  height:460px; border:1px solid var(--border); text-decoration:none;
-                  transition: transform 0.3s ease, box-shadow 0.3s ease;"
-           onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 8px 40px rgba(0,0,0,0.6)'"
-           onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
-            <img src="~/images/fashion.jpg" alt="Fashion"
-                 style="width:100%;height:100%;object-fit:cover;display:block;" />
-            <div style="position:absolute;bottom:0;left:0;right:0;
-                        padding:60px 20px 24px;
-                        background:linear-gradient(to top, rgba(0,0,0,0.85), transparent);
-                        font-family:var(--font-head);font-size:2rem;font-weight:900;
-                        text-transform:uppercase;text-align:center;letter-spacing:2px;
-                        color:var(--fashion);text-shadow:0 2px 8px rgba(0,0,0,0.8);">
-                Fashion
+        <!-- Fashion -->
+        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" class="home-card">
+            <img src="~/images/fashion.jpg" alt="Fashion" />
+            <div class="home-card-overlay"></div>
+            <div class="home-card-text">
+                <span class="home-card-label">Explore</span>
+                <span class="home-card-title" style="color:var(--fashion);">Fashion</span>
+                <span class="home-card-sub">Streetwear · Vintage · Designers</span>
+                <span class="home-card-explore" style="border-color:var(--fashion);color:var(--fashion);">Enter →</span>
             </div>
         </a>
 

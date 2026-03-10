@@ -161,8 +161,8 @@
                     <div class="sidebar-subcats">
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="HipHop"
                            class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "HipHop" ? "active" : "")">Hip-Hop</a>
-                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Electronic"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Electronic" ? "active" : "")">Electronic</a>
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Techno"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Techno" ? "active" : "")">Techno</a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Indie"
                            class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Indie" ? "active" : "")">Indie</a>
                     </div>
@@ -206,17 +206,16 @@
 
                 @if (User.Identity?.IsAuthenticated ?? false)
                 {
-                    <a asp-controller="Account" asp-action="Profile"
-                       class="sidebar-nav-item @(routeController == "Account" && routeAction == "Profile" ? "active" : "")">
-                        <i class="fa-solid fa-user fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
-                        My Profile
-                    </a>
-
                     <a asp-controller="Posts" asp-action="MyPosts"
                        class="sidebar-nav-item @(routeController == "Posts" && routeAction == "MyPosts" ? "active" : "")">
                         <i class="fa-solid fa-pen-to-square fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
                         My Posts
                     </a>
+                    <a asp-controller="Account" asp-action="Profile"
+                       class="sidebar-nav-item @(routeController == "Account" && routeAction == "Profile" ? "active" : "")">
+                        <i class="fa-solid fa-user fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
+                        My Profile
+                    </a>                  
                 }
             </div>
 
