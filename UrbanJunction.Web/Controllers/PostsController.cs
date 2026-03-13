@@ -33,6 +33,15 @@ public class PostsController : Controller
     public async Task<IActionResult> MyPosts()
     {
         var posts = await _postService.GetByUserAsync(UserId);
+
+        var userVotes = new Dictionary<int, string>();
+        foreach (var post in posts)
+        {
+            var vote = await _reactionService.GetUserVoteAsync(post.Id, UserId);
+            if (vote != null) userVotes[post.Id] = vote;
+        }
+        ViewBag.UserVotes = userVotes;
+
         return View(posts);
     }
 
@@ -129,19 +138,12 @@ public class PostsController : Controller
 
         ViewBag.Score = score;
         ViewBag.UserVote = userVote;
-        ViewBag.TopicName = post.Subcategory?.Topic?.Name ?? ""; 
+        ViewBag.TopicName = post.Subcategory?.Topic?.Name ?? "";
+        ViewBag.CurrentUserPic = User.Identity?.IsAuthenticated == true
+            ? (await _context.Users.FindAsync(UserId))?.ProfilePicturePath ?? "/images/default.jpg"
+            : "/images/default.jpg";
 
         return View(post);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ToggleLike(int id)
-    {
-        await _reactionService.ToggleAsync(id, UserId);
-        var count = await _reactionService.GetCountAsync(id);
-        var userLiked = await _reactionService.HasUserLikedAsync(id, UserId);
-        return Json(new { count, userLiked });
     }
 
     [HttpPost]
@@ -156,10 +158,10 @@ public class PostsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddComment(int id, string content)
+    public async Task<IActionResult> AddComment(int id, string content, int? parentCommentId)
     {
         if (!string.IsNullOrWhiteSpace(content))
-            await _commentService.AddAsync(id, content, UserId);
+            await _commentService.AddAsync(id, content, UserId, parentCommentId);
 
         return RedirectToAction(nameof(Details), new { id });
     }

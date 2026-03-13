@@ -7,44 +7,54 @@ using UrbanJunction.Services.Interfaces;
 public class TopicsController : Controller
 {
     private readonly IPostService _postService;
+    private readonly IReactionService _reactionService;
     private readonly UserManager<UrbanUser> _userManager;
 
-    public TopicsController(IPostService postService, UserManager<UrbanUser> userManager)
+    public TopicsController(
+        IPostService postService,
+        IReactionService reactionService,
+        UserManager<UrbanUser> userManager)
     {
         _postService = postService;
+        _reactionService = reactionService;
         _userManager = userManager;
     }
 
     [Route("Topics/{name}")]
-    public async Task<IActionResult> ByName(string name, string? query)
+    public async Task<IActionResult> ByName(string name, string? query, string? sort, string? subcat)
     {
         var posts = string.IsNullOrWhiteSpace(query)
-            ? await _postService.GetByTopicAsync(name)
+            ? await _postService.GetByTopicAsync(name, subcat)
             : await _postService.SearchAsync(name, query);
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var likedPostIds = new HashSet<int>();
-        if (userId != null)
+        posts = sort switch
         {
-            likedPostIds = posts
-                .Where(p => p.Reactions.Any(r => r.UserId == userId))
-                .Select(p => p.Id)
-                .ToHashSet();
-        }
+            "top" => posts.OrderByDescending(p => p.IsPinned)
+                          .ThenByDescending(p => p.Reactions?.Count() ?? 0),
+            "hot" => posts.OrderByDescending(p => p.IsPinned)
+                          .ThenByDescending(p => p.Comments?.Count() ?? 0),
+            _ => posts.OrderByDescending(p => p.IsPinned)
+                          .ThenByDescending(p => p.CreatedOn)
+        };
 
-        // Right sidebar — trending (top 4 by reaction count)
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userVotes = new Dictionary<int, string>();
+        if (User.Identity?.IsAuthenticated == true && userId != null)
+        {
+            foreach (var post in posts)
+            {
+                var vote = await _reactionService.GetUserVoteAsync(post.Id, userId);
+                if (vote != null) userVotes[post.Id] = vote;
+            }
+        }
+        ViewBag.UserVotes = userVotes;
+
         var trending = posts
             .OrderByDescending(p => p.Reactions?.Count() ?? 0)
             .Take(4)
-            .Select(p => new
-            {
-                p.Id,
-                p.Title,
-                CommentCount = p.Comments?.Count() ?? 0
-            })
+            .Select(p => new { p.Id, p.Title, CommentCount = p.Comments?.Count() ?? 0 })
             .ToList();
 
-        // Left sidebar — post counts per topic
         var artPosts = name.Equals("Art", StringComparison.OrdinalIgnoreCase) ? posts : await _postService.GetByTopicAsync("Art");
         var musicPosts = name.Equals("Music", StringComparison.OrdinalIgnoreCase) ? posts : await _postService.GetByTopicAsync("Music");
         var fashionPosts = name.Equals("Fashion", StringComparison.OrdinalIgnoreCase) ? posts : await _postService.GetByTopicAsync("Fashion");
@@ -52,17 +62,15 @@ public class TopicsController : Controller
         ViewBag.ArtCount = artPosts.Count();
         ViewBag.MusicCount = musicPosts.Count();
         ViewBag.FashionCount = fashionPosts.Count();
-
-        // Right sidebar — member + online counts
         ViewBag.TotalMembers = _userManager.Users.Count();
         ViewBag.OnlineCount = _userManager.Users.Count(u => u.LastActiveOn >= DateTime.UtcNow.AddMinutes(-15));
-
         ViewBag.TotalThreads = posts.Count();
         ViewBag.TotalReplies = posts.Sum(p => p.Comments?.Count() ?? 0);
         ViewBag.TrendingPosts = trending;
         ViewBag.TopicName = name;
         ViewBag.Query = query;
-        ViewBag.LikedPostIds = likedPostIds;
+        ViewBag.ActiveSort = sort ?? "new";
+        ViewBag.ActiveSubcat = subcat ?? "all";
 
         return View(posts);
     }

@@ -19,6 +19,7 @@ namespace UrbanJunction.Web.Controllers
         private readonly IRecaptchaService _recaptchaService;
         private readonly IConfiguration _config;
         private readonly ApplicationDbContext _context;
+        private readonly IReactionService _reactionService;
 
         public AccountController(
             UserManager<UrbanUser> userManager,
@@ -26,7 +27,8 @@ namespace UrbanJunction.Web.Controllers
             IWebHostEnvironment env,
             IRecaptchaService recaptchaService,
             IConfiguration config,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IReactionService reactionService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -34,6 +36,7 @@ namespace UrbanJunction.Web.Controllers
             _recaptchaService = recaptchaService;
             _config = config;
             _context = context;
+            _reactionService = reactionService;
         }
 
         [HttpGet]
@@ -124,7 +127,6 @@ namespace UrbanJunction.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // Own profile
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
@@ -134,7 +136,6 @@ namespace UrbanJunction.Web.Controllers
             return await BuildProfileViewModel(user.Id, user.Id);
         }
 
-        // Public profile by username
         [HttpGet]
         [Route("u/{username}")]
         public async Task<IActionResult> UserProfile(string username)
@@ -189,6 +190,19 @@ namespace UrbanJunction.Web.Controllers
 
             var isFollowed = currentUserId != null &&
                 await _context.UserFollows.AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == user.Id);
+
+            // Build userVotes for the viewing user (not the profile owner)
+            var userVotes = new Dictionary<int, string>();
+            if (currentUserId != null)
+            {
+                var allPosts = posts.Concat(likedPosts).DistinctBy(p => p.Id);
+                foreach (var post in allPosts)
+                {
+                    var vote = await _reactionService.GetUserVoteAsync(post.Id, currentUserId);
+                    if (vote != null) userVotes[post.Id] = vote;
+                }
+            }
+            ViewBag.UserVotes = userVotes;
 
             var vm = new ProfileViewModel
             {
@@ -263,7 +277,6 @@ namespace UrbanJunction.Web.Controllers
             var uploadPath = Path.Combine(_env.WebRootPath, "uploads");
             Directory.CreateDirectory(uploadPath);
 
-            // Handle profile picture — base64 (cropper) OR plain file upload
             if (!string.IsNullOrEmpty(CroppedProfilePicture))
             {
                 user.ProfilePicturePath = SaveBase64Image(CroppedProfilePicture, uploadPath);
@@ -277,7 +290,6 @@ namespace UrbanJunction.Web.Controllers
                 user.ProfilePicturePath = "/uploads/" + fileName;
             }
 
-            // Handle banner — base64 (cropper) OR plain file upload
             if (!string.IsNullOrEmpty(CroppedBannerImage))
             {
                 user.BannerImagePath = SaveBase64Image(CroppedBannerImage, uploadPath);

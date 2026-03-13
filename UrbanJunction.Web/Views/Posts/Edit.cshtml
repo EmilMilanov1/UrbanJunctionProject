@@ -4,36 +4,161 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5" style="max-width: 600px;">
-    <h2 class="text-center mb-4">Edit Post</h2>
+<div class="forum-main">
 
-    <form asp-action="Edit" method="post">
-        <input type="hidden" asp-for="Id" />
-
-        <div class="mb-3">
-            <label asp-for="Title" class="form-label"></label>
-            <input asp-for="Title" class="form-control bg-dark text-light border-secondary" />
-            <span asp-validation-for="Title" class="text-danger"></span>
+    <!-- Header -->
+    <div class="topic-header">
+        <div class="topic-title">
+            <i class="fa-solid fa-pen fa-sm" style="color:var(--text-dim);"></i>
+            Edit Thread
         </div>
+        <a onclick="history.back()" class="new-thread-ribbon" style="cursor:pointer;">
+            ← Back
+        </a>
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="Content" class="form-label"></label>
-            <textarea asp-for="Content" rows="6" class="form-control bg-dark text-light border-secondary"></textarea>
-            <span asp-validation-for="Content" class="text-danger"></span>
-        </div>
+    <!-- Card -->
+    <div style="background:var(--bg-card);border:1px solid var(--border-light);
+                border-radius:10px;padding:1.75rem 2rem;
+                box-shadow:0 4px 24px rgba(0,0,0,0.4);">
 
-        <div class="mb-3">
-            <label asp-for="SubcategoryId" class="form-label">Category</label>
-            <select asp-for="SubcategoryId" class="form-select bg-dark text-light border-secondary" asp-items="Model.Subcategories"></select>
-            <span asp-validation-for="SubcategoryId" class="text-danger"></span>
-        </div>
+        <form asp-action="Edit" method="post" id="editForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
 
-        <div class="d-flex justify-content-center gap-2 mt-3">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a onclick="history.back()" class="btn btn-outline-secondary">← Back</a>
-        </div>
-    </form>
+            <div asp-validation-summary="ModelOnly"
+                 style="margin-bottom:1rem;padding:0.65rem 1rem;border-radius:6px;
+                        font-size:0.83rem;border:1px solid rgba(232,93,74,0.3);
+                        background:rgba(232,93,74,0.1);color:#f0a090;"></div>
+
+            <!-- Title -->
+            <div class="create-field">
+                <label asp-for="Title" class="create-label">Title</label>
+                <input asp-for="Title" class="create-input"
+                       placeholder="Give your thread a title..." />
+                <span asp-validation-for="Title" class="validation-message"></span>
+            </div>
+
+            <!-- Subcategory -->
+            <select asp-for="SubcategoryId" class="create-input create-select">
+                <option value="">— Pick a category —</option>
+                <optgroup label="Art">
+                    @foreach (var item in Model.Subcategories.Where(s => s.Text.StartsWith("Art")))
+                    {
+                        <option value="@item.Value">@item.Text.Replace("Art / ", "")</option>
+                    }
+                </optgroup>
+                <optgroup label="Music">
+                    @foreach (var item in Model.Subcategories.Where(s => s.Text.StartsWith("Music")))
+                    {
+                        <option value="@item.Value">@item.Text.Replace("Music / ", "")</option>
+                    }
+                </optgroup>
+                <optgroup label="Fashion">
+                    @foreach (var item in Model.Subcategories.Where(s => s.Text.StartsWith("Fashion")))
+                    {
+                        <option value="@item.Value">@item.Text.Replace("Fashion / ", "")</option>
+                    }
+                </optgroup>
+            </select>
+
+            <!-- Content -->
+            <div class="create-field">
+                <label asp-for="Content" class="create-label">Body</label>
+                <textarea asp-for="Content" class="create-input create-textarea"
+                          rows="8" placeholder="What's on your mind?"></textarea>
+                <span asp-validation-for="Content" class="validation-message"></span>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;gap:0.75rem;margin-top:1.75rem;">
+                <button type="submit"
+                        style="flex:1;background:var(--accent);color:#fff;
+                               font-family:var(--font-head);font-size:0.95rem;font-weight:700;
+                               letter-spacing:0.02em;padding:0.8rem;border:none;
+                               border-radius:7px;cursor:pointer;
+                               transition:background 150ms,transform 150ms,box-shadow 150ms;"
+                        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(232,93,74,0.4)'"
+                        onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    Save Changes →
+                </button>
+                <a onclick="history.back()"
+                   style="padding:0.8rem 1.25rem;border-radius:7px;border:1px solid var(--border-light);
+                          color:var(--text-muted);font-size:0.88rem;cursor:pointer;
+                          display:inline-flex;align-items:center;text-decoration:none;
+                          transition:color 150ms,border-color 150ms;"
+                   onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--text-dim)'"
+                   onmouseout="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-light)'">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
 </div>
+
+<style>
+    .create-field {
+        margin-bottom: 1.25rem;
+    }
+
+    .create-label {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-bottom: 0.4rem;
+        transition: color 150ms;
+    }
+
+    .create-field:focus-within .create-label {
+        color: var(--accent);
+    }
+
+    .create-input {
+        width: 100%;
+        background: var(--bg) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 7px !important;
+        color: var(--text) !important;
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem !important;
+        outline: none;
+        transition: border-color 150ms, box-shadow 150ms !important;
+        resize: none;
+    }
+
+        .create-input:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px rgba(232,93,74,0.1) !important;
+        }
+
+        .create-input::placeholder {
+            color: var(--text-dim);
+        }
+
+    .create-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b72' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.9rem center !important;
+        padding-right: 2.5rem !important;
+        cursor: pointer;
+    }
+
+        .create-select option {
+            background: var(--bg-card);
+            color: var(--text);
+        }
+
+    .create-textarea {
+        line-height: 1.65;
+        min-height: 180px;
+    }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

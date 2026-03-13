@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = ViewBag.TopicName;
-    var likedPostIds = ViewBag.LikedPostIds as HashSet<int> ?? new HashSet<int>();
+    var userVotes  = ViewBag.UserVotes as Dictionary<int, string> ?? new Dictionary<int, string>();
     string topicName = ViewBag.TopicName ?? "";
     string topicClass = topicName.ToLower() switch
     {
@@ -31,7 +31,6 @@
                 @Model.Count() threads
             </span>
         </div>
-
         <div class="topic-search">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="thread-search" placeholder="Search threads…" autocomplete="off" />
@@ -40,24 +39,35 @@
 
     <!-- Subcategory tabs -->
     <div class="subcat-tabs">
-        <span class="subcat-tab active" data-subcat="all">All</span>
+        <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort"
+           class="subcat-tab @(ViewBag.ActiveSubcat == "all" ? "active" : "")">All</a>
+
         @if (topicClass == "art")
         {
-            <span class="subcat-tab" data-subcat="Graffiti">Graffiti</span>
-            <span class="subcat-tab" data-subcat="Photography">Photography</span>
-            <span class="subcat-tab" data-subcat="Digital">Digital Art</span>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="Graffiti"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "Graffiti" ? "active" : "")">Graffiti</a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="Photography"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "Photography" ? "active" : "")">Photography</a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="Digital"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "Digital" ? "active" : "")">Digital Art</a>
         }
         else if (topicClass == "music")
         {
-            <span class="subcat-tab" data-subcat="HipHop">Hip-Hop</span>
-            <span class="subcat-tab" data-subcat="Techno">Techno</span>
-            <span class="subcat-tab" data-subcat="Indie">Indie</span>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="HipHop"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "HipHop" ? "active" : "")">Hip-Hop</a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="Techno"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "Techno" ? "active" : "")">Techno</a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="Indie"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "Indie" ? "active" : "")">Indie</a>
         }
         else if (topicClass == "fashion")
         {
-            <span class="subcat-tab" data-subcat="Streetwear">Streetwear</span>
-            <span class="subcat-tab" data-subcat="Vintage">Vintage</span>
-            <span class="subcat-tab" data-subcat="Designers">Designers</span>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="Streetwear"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "Streetwear" ? "active" : "")">Streetwear</a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="Vintage"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "Vintage" ? "active" : "")">Vintage</a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="@ViewBag.ActiveSort" asp-route-subcat="Designers"
+               class="subcat-tab @(ViewBag.ActiveSubcat == "Designers" ? "active" : "")">Designers</a>
         }
     </div>
 
@@ -65,22 +75,13 @@
     <div class="feed-controls">
         <div class="feed-controls-left">
             <span style="font-size:0.75rem;color:var(--text-dim);font-family:var(--font-mono);margin-right:0.25rem;">Sort:</span>
-            <button class="sort-btn active" data-sort="new">New</button>
-            <button class="sort-btn" data-sort="top">Top</button>
-            <button class="sort-btn" data-sort="hot">Hot</button>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="new"
+               class="sort-btn @(ViewBag.ActiveSort == "new" ? "active" : "")">New</a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="top"
+               class="sort-btn @(ViewBag.ActiveSort == "top" ? "active" : "")">Top</a>
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="hot"
+               class="sort-btn @(ViewBag.ActiveSort == "hot" ? "active" : "")">Hot</a>
         </div>
-        @if (User.Identity?.IsAuthenticated ?? false)
-        {
-            <a asp-controller="Posts" asp-action="Create" class="new-thread-ribbon">
-                <i class="fa-solid fa-plus fa-xs"></i> New Thread
-            </a>
-        }
-        else
-        {
-            <a asp-controller="Account" asp-action="Login" class="new-thread-ribbon">
-                <i class="fa-solid fa-plus fa-xs"></i> New Thread
-            </a>
-        }
     </div>
 
     <!-- Thread list -->
@@ -98,11 +99,12 @@
             {
                 var isOwner = User.Identity?.IsAuthenticated == true &&
                               User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == post.UserId;
-                var isAdmin    = User.IsInRole("Admin");
-                var subcatName = post.Subcategory?.Name ?? "";
-                var firstImage = post.Images?.FirstOrDefault()?.ImagePath;
+                var isAdmin       = User.IsInRole("Admin");
+                var subcatName    = post.Subcategory?.Name ?? "";
+                var firstImage    = post.Images?.FirstOrDefault()?.ImagePath;
                 var reactionCount = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0);
                 var commentCount  = post.Comments?.Count() ?? 0;
+                var currentVote   = userVotes.GetValueOrDefault(post.Id, "");
 
                 var preview = "";
                 if (!string.IsNullOrEmpty(post.Content))
@@ -119,16 +121,18 @@
                     <div class="thread-vote">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <button class="vote-btn upvote feed-vote-btn"
-                                    data-post-id="@post.Id" data-is-upvote="true" title="Upvote">
+                            <button class="vote-btn upvote feed-vote-btn @(currentVote == "up" ? "vote-active-up" : "")"
+                                    data-post-id="@post.Id" data-is-upvote="true"
+                                    data-user-vote="@currentVote" title="Upvote">
                                 <i class="fa-solid fa-chevron-up"></i>
                             </button>
                             <span class="vote-count feed-vote-score @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")"
                                   data-post-id="@post.Id">
                                 @reactionCount
                             </span>
-                            <button class="vote-btn downvote feed-vote-btn"
-                                    data-post-id="@post.Id" data-is-upvote="false" title="Downvote">
+                            <button class="vote-btn downvote feed-vote-btn @(currentVote == "down" ? "vote-active-down" : "")"
+                                    data-post-id="@post.Id" data-is-upvote="false"
+                                    data-user-vote="@currentVote" title="Downvote">
                                 <i class="fa-solid fa-chevron-down"></i>
                             </button>
                         }
@@ -146,10 +150,8 @@
                         }
                     </div>
 
-                    <!-- Thread content (text + thumbnail side by side) -->
+                    <!-- Thread content -->
                     <div class="thread-content">
-
-                        <!-- Text block -->
                         <div class="thread-text">
 
                             <!-- Tags row -->
@@ -169,33 +171,60 @@
                                 }
                                 @if (isOwner || isAdmin)
                                 {
-                                    <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
-                                          method="post" class="d-inline ms-auto">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit"
-                                                class="thread-tag custom"
-                                                style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
-                                                onclick="return confirm('Delete this thread?')">
-                                            <i class="fa-regular fa-trash-can fa-xs"></i>
-                                        </button>
-                                    </form>
+                                    <div class="d-flex align-items-center gap-1 ms-auto">
+                                        @if (isAdmin)
+                                        {
+                                            <form asp-action="TogglePin" asp-controller="Admin" asp-route-id="@post.Id"
+                                                  method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                                <button type="submit" class="thread-tag custom"
+                                                        style="border:none;cursor:pointer;
+                                                               color:@(post.IsPinned ? "var(--accent)" : "var(--text-dim)");
+                                                               background:@(post.IsPinned ? "rgba(232,93,74,0.08)" : "transparent");"
+                                                        title="@(post.IsPinned ? "Unpin" : "Pin")">
+                                                    <i class="fa-solid fa-thumbtack fa-xs"></i>
+                                                </button>
+                                            </form>
+                                            <form asp-action="ToggleLock" asp-controller="Admin" asp-route-id="@post.Id"
+                                                  method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                                <button type="submit" class="thread-tag custom"
+                                                        style="border:none;cursor:pointer;
+                                                               color:@(post.IsLocked ? "var(--fashion)" : "var(--text-dim)");
+                                                               background:@(post.IsLocked ? "rgba(240,160,75,0.08)" : "transparent");"
+                                                        title="@(post.IsLocked ? "Unlock" : "Lock")">
+                                                    <i class="fa-solid fa-lock fa-xs"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
+                                              method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="thread-tag custom"
+                                                    style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
+                                                    onclick="return confirm('Delete this thread?')">
+                                                <i class="fa-regular fa-trash-can fa-xs"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 }
                             </div>
 
                             <!-- Title -->
-                            <div class="thread-title">
-                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                    @post.Title
-                                </a>
-                            </div>
+                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
+                               class="thread-title-link text-decoration-none">
+                                @post.Title
+                            </a>
 
-                            <!-- Preview text -->
+                            <!-- Preview -->
                             @if (!string.IsNullOrEmpty(preview))
                             {
                                 <div class="thread-preview">@preview</div>
                             }
 
-                            <!-- Meta row -->
+                            <!-- Meta -->
                             <div class="thread-meta">
                                 <a asp-controller="Account" asp-action="UserProfile"
                                    asp-route-username="@post.User?.UserName"
@@ -216,7 +245,7 @@
                             </div>
                         </div>
 
-                        <!-- Reddit-style thumbnail -->
+                        <!-- Thumbnail -->
                         @if (!string.IsNullOrEmpty(firstImage))
                         {
                             <div class="thread-thumb">
@@ -226,7 +255,7 @@
                                          alt="@post.Title" />
                                 </a>
                             </div>
-                        }                      
+                        }
                     </div>
 
                     <!-- Replies column -->
@@ -239,7 +268,6 @@
             }
         </div>
 
-        <!-- Infinite scroll sentinel -->
         <div id="scroll-sentinel"></div>
     }
 
@@ -249,30 +277,31 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
+            // ── Click-to-open thread rows ──────────────────────────────
+            document.querySelectorAll('.thread-row').forEach(row => {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', function (e) {
+                    if (e.target.closest('.thread-vote') ||
+                        e.target.closest('a') ||
+                        e.target.closest('button') ||
+                        e.target.closest('form')) return;
+                    const link = this.querySelector('.thread-title-link');
+                    if (link) window.location.href = link.href;
+                });
+            });
+
             // ── Search ────────────────────────────────────────────────
             const searchInput = document.getElementById('thread-search');
             if (searchInput) {
                 searchInput.addEventListener('input', function () {
                     const q = this.value.toLowerCase();
                     document.querySelectorAll('.thread-row').forEach(row => {
-                        const title = row.querySelector('.thread-title')?.textContent.toLowerCase() ?? '';
+                        const title   = row.querySelector('.thread-title-link')?.textContent.toLowerCase() ?? '';
                         const preview = row.querySelector('.thread-preview')?.textContent.toLowerCase() ?? '';
                         row.style.display = (title.includes(q) || preview.includes(q)) ? '' : 'none';
                     });
                 });
             }
-
-            // ── Subcat tabs ───────────────────────────────────────────
-            document.querySelectorAll('.subcat-tab').forEach(tab => {
-                tab.addEventListener('click', function () {
-                    document.querySelectorAll('.subcat-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    const subcat = this.dataset.subcat;
-                    document.querySelectorAll('.thread-row').forEach(row => {
-                        row.style.display = (subcat === 'all' || row.dataset.subcat === subcat) ? '' : 'none';
-                    });
-                });
-            });
 
             // ── Sort buttons ──────────────────────────────────────────
             document.querySelectorAll('.sort-btn').forEach(btn => {
@@ -305,6 +334,12 @@
                                 scoreEl.textContent = data.score;
                                 scoreEl.className = 'vote-count feed-vote-score' +
                                     (data.score > 0 ? ' positive' : data.score < 0 ? ' negative' : '');
+                            }
+                            const upBtn   = document.querySelector(`.feed-vote-btn.upvote[data-post-id="${postId}"]`);
+                            const downBtn = document.querySelector(`.feed-vote-btn.downvote[data-post-id="${postId}"]`);
+                            if (upBtn && downBtn) {
+                                upBtn.classList.toggle('vote-active-up',     data.userVote === 'up');
+                                downBtn.classList.toggle('vote-active-down', data.userVote === 'down');
                             }
                         }
                     } catch (err) { console.error('Vote failed', err); }

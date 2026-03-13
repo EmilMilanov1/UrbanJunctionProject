@@ -37,14 +37,27 @@
             </div>
 
             <!-- Subcategory -->
-            <div class="create-field">
-                <label asp-for="SubcategoryId" class="create-label">Category</label>
-                <select asp-for="SubcategoryId" asp-items="Model.Subcategories"
-                        class="create-input create-select">
-                    <option value="">— Pick a category —</option>
-                </select>
-                <span asp-validation-for="SubcategoryId" class="validation-message"></span>
-            </div>
+            <select asp-for="SubcategoryId" class="create-input create-select">
+                <option value="">— Pick a category —</option>
+                <optgroup label="Art">
+                    @foreach (var item in Model.Subcategories.Where(s => s.Text.StartsWith("Art")))
+                    {
+                        <option value="@item.Value">@item.Text.Replace("Art / ", "")</option>
+                    }
+                </optgroup>
+                <optgroup label="Music">
+                    @foreach (var item in Model.Subcategories.Where(s => s.Text.StartsWith("Music")))
+                    {
+                        <option value="@item.Value">@item.Text.Replace("Music / ", "")</option>
+                    }
+                </optgroup>
+                <optgroup label="Fashion">
+                    @foreach (var item in Model.Subcategories.Where(s => s.Text.StartsWith("Fashion")))
+                    {
+                        <option value="@item.Value">@item.Text.Replace("Fashion / ", "")</option>
+                    }
+                </optgroup>
+            </select>
 
             <!-- Content -->
             <div class="create-field">

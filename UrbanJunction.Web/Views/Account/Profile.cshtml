@@ -1,8 +1,12 @@
-﻿@model ProfileViewModel
+@model ProfileViewModel
+@using UrbanJunction.Data.Models
 @{
     ViewData["Title"] = Model.Username + "'s Profile";
     string activeTab = Context.Request.Query["tab"].ToString();
     if (string.IsNullOrEmpty(activeTab)) activeTab = "posts";
+    var userVotes = ViewBag.UserVotes as Dictionary<int, string> ?? new Dictionary<int, string>();
+    string currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+    bool canReportUser = User.Identity?.IsAuthenticated == true && currentUserId != Model.UserId;
 }
 
 <div style="max-width: 860px; margin: 0 auto; padding: 0 1rem 3rem;">
@@ -26,14 +30,14 @@
                  style="width:80px;height:80px;border-radius:50%;object-fit:cover;
                         border:3px solid var(--bg);display:block;" />
         </div>
-        <div style="margin-bottom:0.25rem;">
+        <div style="margin-bottom:0.25rem;display:flex;align-items:center;gap:0.5rem;">
             @if (Model.IsOwnProfile)
             {
                 <a asp-action="EditProfile"
                    style="display:inline-flex;align-items:center;gap:0.4rem;
-                              padding:0.4rem 1rem;border-radius:6px;font-size:0.82rem;
-                              font-weight:600;border:1px solid var(--border-light);
-                              color:var(--text-muted);transition:all 150ms;text-decoration:none;"
+                          padding:0.4rem 1rem;border-radius:6px;font-size:0.82rem;
+                          font-weight:600;border:1px solid var(--border-light);
+                          color:var(--text-muted);transition:all 150ms;text-decoration:none;"
                    onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--text-dim)'"
                    onmouseout="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-light)'">
                     <i class="fa-solid fa-pen fa-xs"></i> Edit Profile
@@ -49,6 +53,20 @@
                     </button>
                 </form>
             }
+
+            @if (canReportUser)
+            {
+                <button type="button"
+                        style="background:none;border:1px solid var(--border);cursor:pointer;
+                               font-size:0.72rem;color:var(--text-dim);padding:0.4rem 0.6rem;
+                               border-radius:6px;transition:all 150ms;"
+                        onmouseover="this.style.color='var(--accent)';this.style.borderColor='rgba(232,93,74,0.3)'"
+                        onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='var(--border)'"
+                        data-bs-toggle="modal" data-bs-target="#reportUserModal"
+                        title="Report user">
+                    <i class="fa-solid fa-flag fa-xs"></i>
+                </button>
+            }
         </div>
     </div>
 
@@ -58,14 +76,13 @@
                     letter-spacing:-0.02em;color:var(--text);margin-bottom:0.15rem;">
             @Model.Username
         </div>
-        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);
-                    margin-bottom:0.6rem;">
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);margin-bottom:0.6rem;">
             @@@Model.Username
         </div>
         @if (!string.IsNullOrEmpty(Model.Bio))
         {
             <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;
-                          margin-bottom:0.75rem;max-width:520px;">@Model.Bio</p>
+                      margin-bottom:0.75rem;max-width:520px;">@Model.Bio</p>
         }
         <div style="display:flex;gap:1.5rem;">
             <a href="#" data-bs-toggle="modal" data-bs-target="#followersModal"
@@ -119,33 +136,57 @@
                 string tn = post.Subcategory?.Topic?.Name ?? "";
                 string tc = tn.ToLower() switch
                 {
-                                "art" => "art",
-                                "music" => "music",
-                                "fashion" => "fashion",
-                    _ => "default"
+                    "art"     => "art",
+                    "music"   => "music",
+                    "fashion" => "fashion",
+                    _         => "default"
                 };
-                var subcatName = post.Subcategory?.Name ?? "";
-                var firstImage = post.Images?.FirstOrDefault()?.ImagePath;
+                var subcatName    = post.Subcategory?.Name ?? "";
+                var firstImage    = post.Images?.FirstOrDefault()?.ImagePath;
                 var reactionCount = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0);
-                var commentCount = post.Comments?.Count() ?? 0;
+                var commentCount  = post.Comments?.Count() ?? 0;
+                var currentVote   = userVotes.GetValueOrDefault(post.Id, "");
                 var preview = post.Content?.Length > 120
-                ? post.Content.Substring(0, 120) + "…"
-                : post.Content ?? "";
+                    ? post.Content.Substring(0, 120) + "…"
+                    : post.Content ?? "";
 
                 <div class="thread-row" data-subcat="@subcatName">
 
-                    <!-- Vote (read-only) -->
+                    <!-- Vote strip -->
                     <div class="thread-vote">
-                        <i class="fa-solid fa-chevron-up" style="font-size:0.65rem;color:var(--text-dim);"></i>
-                        <span class="vote-count @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")">
-                            @reactionCount
-                        </span>
-                        <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;color:var(--text-dim);"></i>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <button class="vote-btn upvote feed-vote-btn @(currentVote == "up" ? "vote-active-up" : "")"
+                                    data-post-id="@post.Id" data-is-upvote="true"
+                                    data-user-vote="@currentVote" title="Upvote">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </button>
+                            <span class="vote-count feed-vote-score @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")"
+                                  data-post-id="@post.Id">
+                                @reactionCount
+                            </span>
+                            <button class="vote-btn downvote feed-vote-btn @(currentVote == "down" ? "vote-active-down" : "")"
+                                    data-post-id="@post.Id" data-is-upvote="false"
+                                    data-user-vote="@currentVote" title="Downvote">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="vote-btn upvote" title="Login to vote">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </a>
+                            <span class="vote-count @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")">
+                                @reactionCount
+                            </span>
+                            <a asp-controller="Account" asp-action="Login" class="vote-btn downvote" title="Login to vote">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </a>
+                        }
                     </div>
 
                     <!-- Thread content -->
                     <div class="thread-content">
-
                         <div class="thread-text">
                             <div class="thread-tags">
                                 <span class="thread-tag @tc">@tn</span>
@@ -154,18 +195,14 @@
                                     <span class="thread-tag custom">@subcatName</span>
                                 }
                             </div>
-
-                            <div class="thread-title">
-                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                    @post.Title
-                                </a>
-                            </div>
-
+                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
+                               class="thread-title-link text-decoration-none">
+                                @post.Title
+                            </a>
                             @if (!string.IsNullOrEmpty(preview))
                             {
                                 <div class="thread-preview">@preview</div>
                             }
-
                             <div class="thread-meta">
                                 <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
                                 <span class="thread-meta-stat">
@@ -174,31 +211,87 @@
                                 </span>
                             </div>
                         </div>
-
                         @if (!string.IsNullOrEmpty(firstImage))
                         {
                             <div class="thread-thumb">
                                 <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
-                                    <img src="@firstImage"
-                                         onerror="this.style.display='none'"
-                                         alt="@post.Title" />
+                                    <img src="@firstImage" onerror="this.style.display='none'" alt="@post.Title" />
                                 </a>
                             </div>
                         }
-
                     </div>
 
-                    <!-- Reply count -->
                     <div class="thread-replies">
                         <span class="thread-reply-count">@commentCount</span>
                         <span class="thread-reply-label">replies</span>
                     </div>
-
                 </div>
             }
         </div>
     }
 </div>
+
+<!-- Report User Modal -->
+@if (canReportUser)
+{
+    <div class="modal fade" id="reportUserModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:380px;">
+            <div class="modal-content"
+                 style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:10px;">
+                <div class="modal-header" style="border-bottom:1px solid var(--border);">
+                    <h6 class="modal-title"
+                        style="font-family:var(--font-mono);font-size:0.7rem;
+                               letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">
+                        Report @Model.Username
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-controller="Reports" asp-action="Submit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="reportedUserId" value="@Model.UserId" />
+                    <input type="hidden" name="returnUrl" value="/u/@Model.Username" />
+                    <div class="modal-body" style="padding:1.25rem;">
+                        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">
+                            Why are you reporting this user?
+                        </p>
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                            @foreach (ReportReason r in Enum.GetValues(typeof(ReportReason)))
+                            {
+                                <label style="display:flex;align-items:center;gap:0.6rem;
+                                              padding:0.55rem 0.75rem;border-radius:6px;
+                                              border:1px solid var(--border);cursor:pointer;
+                                              font-size:0.83rem;color:var(--text-muted);
+                                              transition:border-color 150ms,color 150ms;"
+                                       onmouseover="this.style.borderColor='var(--border-light)';this.style.color='var(--text)'"
+                                       onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                    <input type="radio" name="reason" value="@((int)r)"
+                                           style="accent-color:var(--accent);" />
+                                    @(r switch {
+                                        ReportReason.Spam => "Spam",
+                                        ReportReason.Harassment => "Harassment",
+                                        ReportReason.HateSpeech => "Hate Speech",
+                                        ReportReason.Misinformation => "Misinformation",
+                                        ReportReason.InappropriateContent => "Inappropriate Content",
+                                        _ => r.ToString()
+                                    })
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid var(--border);padding:0.75rem 1.25rem;">
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit"
+                                style="background:var(--accent);color:#fff;border:none;
+                                       padding:0.4rem 1rem;border-radius:6px;font-size:0.82rem;cursor:pointer;">
+                            Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
 
 <!-- Followers Modal -->
 <div class="modal fade" id="followersModal" tabindex="-1">
@@ -261,3 +354,57 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('.thread-row').forEach(row => {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', function (e) {
+                    if (e.target.closest('.thread-vote') ||
+                        e.target.closest('a') ||
+                        e.target.closest('button') ||
+                        e.target.closest('form')) return;
+                    const link = this.querySelector('.thread-title-link');
+                    if (link) window.location.href = link.href;
+                });
+            });
+
+            document.querySelectorAll('.feed-vote-btn').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    const postId   = this.dataset.postId;
+                    const isUpvote = this.dataset.isUpvote === 'true';
+                    const token    = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+                    try {
+                        const response = await fetch(`/Posts/Vote/${postId}?isUpvote=${isUpvote}`, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token,
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: `__RequestVerificationToken=${encodeURIComponent(token)}`
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            const scoreEl = document.querySelector(`.feed-vote-score[data-post-id="${postId}"]`);
+                            if (scoreEl) {
+                                scoreEl.textContent = data.score;
+                                scoreEl.className = 'vote-count feed-vote-score' +
+                                    (data.score > 0 ? ' positive' : data.score < 0 ? ' negative' : '');
+                            }
+                            const upBtn   = document.querySelector(`.feed-vote-btn.upvote[data-post-id="${postId}"]`);
+                            const downBtn = document.querySelector(`.feed-vote-btn.downvote[data-post-id="${postId}"]`);
+                            if (upBtn && downBtn) {
+                                upBtn.classList.toggle('vote-active-up',     data.userVote === 'up');
+                                downBtn.classList.toggle('vote-active-down', data.userVote === 'down');
+                            }
+                        }
+                    } catch (err) { console.error('Vote failed', err); }
+                });
+            });
+
+        });
+    </script>
+}

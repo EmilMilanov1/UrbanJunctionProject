@@ -23,16 +23,18 @@ namespace UrbanJunction.Services.Implementations
             _env = env;
         }
 
-        public async Task<IEnumerable<Post>> GetByTopicAsync(string topicName)
+        public async Task<IEnumerable<Post>> GetByTopicAsync(string topicName, string? subcat = null)
         {
             return await _context.Posts
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
                 .Include(p => p.Images)
                 .Include(p => p.User)
-                .Include(p => p.Reactions)   
-                .Include(p => p.Comments)    
-                .Where(p => p.Subcategory.Topic.Name == topicName)
-                .OrderByDescending(p => p.CreatedOn)
+                .Include(p => p.Reactions)
+                .Include(p => p.Comments)
+                .Where(p => p.Subcategory.Topic.Name == topicName &&
+                            (subcat == null || p.Subcategory.Name == subcat))
+                .OrderByDescending(p => p.IsPinned)
+                .ThenByDescending(p => p.CreatedOn)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -66,6 +68,8 @@ namespace UrbanJunction.Services.Implementations
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
                 .Include(p => p.Images)
                 .Include(p => p.Comments).ThenInclude(c => c.User)
+                .Include(p => p.Comments).ThenInclude(c => c.Replies).ThenInclude(r => r.User)
+                .Include(p => p.Comments).ThenInclude(c => c.Replies).ThenInclude(r => r.Replies).ThenInclude(r => r.User)
                 .Include(p => p.Reactions)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }

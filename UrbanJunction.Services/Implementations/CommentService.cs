@@ -24,14 +24,15 @@ namespace UrbanJunction.Services.Implementations
                 .ToListAsync();
         }
 
-        public async Task AddAsync(int postId, string content, string userId)
+        public async Task AddAsync(int postId, string content, string userId, int? parentCommentId = null)
         {
             var comment = new Comment
             {
-                Content = content,
                 PostId = postId,
+                Content = content,
                 UserId = userId,
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = DateTime.UtcNow,
+                ParentCommentId = parentCommentId
             };
 
             _context.Comments.Add(comment);
@@ -48,5 +49,6 @@ namespace UrbanJunction.Services.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
+
     }
 }

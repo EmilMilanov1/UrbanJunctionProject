@@ -1,0 +1,92 @@
+﻿@using UrbanJunction.Data.Models
+@{
+    var modalId = ViewData["ModalId"] as string ?? "reportModal";
+    var postId = ViewData["PostId"] as int?;
+    var commentId = ViewData["CommentId"] as int?;
+    var reportedUserId = ViewData["ReportedUserId"] as string;
+}
+
+<!-- Trigger button -->
+<button type="button"
+        style="background:none;border:none;cursor:pointer;font-size:0.72rem;
+               color:var(--text-dim);padding:0.2rem 0.4rem;border-radius:4px;
+               transition:color 150ms;"
+        onmouseover="this.style.color='var(--accent)'"
+        onmouseout="this.style.color='var(--text-dim)'"
+        data-bs-toggle="modal" data-bs-target="#@modalId">
+    <i class="fa-solid fa-flag fa-xs"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="@modalId" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:380px;">
+        <div class="modal-content"
+             style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:10px;">
+            <div class="modal-header" style="border-bottom:1px solid var(--border);">
+                <h6 class="modal-title"
+                    style="font-family:var(--font-mono);font-size:0.7rem;
+                           letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">
+                    Report Content
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Reports" asp-action="Submit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                @if (postId.HasValue)
+                {
+                    <input type="hidden" name="postId" value="@postId" />
+                }
+                @if (commentId.HasValue)
+                {
+                    <input type="hidden" name="commentId" value="@commentId" />
+                }
+                @if (reportedUserId != null)
+                {
+                    <input type="hidden" name="reportedUserId" value="@reportedUserId" />
+                }
+
+                <div class="modal-body" style="padding:1.25rem;">
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">
+                        Why are you reporting this?
+                    </p>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                        @foreach (ReportReason r in Enum.GetValues(typeof(ReportReason)))
+                        {
+                            <label style="display:flex;align-items:center;gap:0.6rem;
+                                              padding:0.55rem 0.75rem;border-radius:6px;
+                                              border:1px solid var(--border);cursor:pointer;
+                                              font-size:0.83rem;color:var(--text-muted);
+                                              transition:border-color 150ms,color 150ms;"
+                                   onmouseover="this.style.borderColor='var(--border-light)';this.style.color='var(--text)'"
+                                   onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                <input type="radio" name="reason" value="@r"
+                                       style="accent-color:var(--accent);" />
+                                @r switch {
+                                ReportReason.Spam                => "Spam",
+                                ReportReason.Harassment          => "Harassment",
+                                ReportReason.HateSpeech          => "Hate Speech",
+                                ReportReason.Misinformation      => "Misinformation",
+                                ReportReason.InappropriateContent => "Inappropriate Content",
+                                _ => r.ToString()
+                                }
+                            </label>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid var(--border);padding:0.75rem 1.25rem;">
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            style="background:var(--accent);color:#fff;border:none;
+                                   padding:0.4rem 1rem;border-radius:6px;font-size:0.82rem;
+                                   cursor:pointer;">
+                        Submit Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

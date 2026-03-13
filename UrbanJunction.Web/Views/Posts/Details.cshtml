@@ -1,4 +1,5 @@
-﻿@model UrbanJunction.Data.Models.Post
+@model UrbanJunction.Data.Models.Post
+@using UrbanJunction.Data.Models
 @{
     ViewData["Title"] = Model.Title;
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -14,11 +15,16 @@
     };
     string topicColor = topicClass switch
     {
-        "art" => "#4caf72",
+        "art" => "#39FF14",
         "music" => "#7c6fff",
         "fashion" => "#f0a04b",
         _ => "#e85d4a"
     };
+
+    var topLevelComments = Model.Comments
+        .Where(c => c.ParentCommentId == null)
+        .OrderBy(c => c.CreatedOn)
+        .ToList();
 }
 
 <div style="max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem 3rem;">
@@ -55,28 +61,98 @@
             </h1>
 
             <!-- Author row -->
-            <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
                 @if (!string.IsNullOrEmpty(Model.User?.ProfilePicturePath))
                 {
                     <img src="@Model.User.ProfilePicturePath"
                          onerror="this.src='/images/default.jpg'"
                          style="width:28px;height:28px;border-radius:50%;object-fit:cover;
-                                    border:1px solid var(--border-light);" />
+                                border:1px solid var(--border-light);" />
                 }
                 <span style="font-size:0.82rem;color:var(--text-muted);">
-                    <strong style="color:var(--text);font-weight:600;">@Model.User?.UserName</strong>
+                    <a asp-controller="Account" asp-action="UserProfile"
+                       asp-route-username="@Model.User?.UserName"
+                       style="color:var(--text);font-weight:600;text-decoration:none;"
+                       onmouseover="this.style.textDecoration='underline'"
+                       onmouseout="this.style.textDecoration='none'">
+                        @Model.User?.UserName
+                    </a>
                     <span style="color:var(--text-dim);margin-left:0.4rem;font-family:var(--font-mono);font-size:0.75rem;">
                         @Model.CreatedOn.ToString("dd MMM yyyy")
                     </span>
                 </span>
+
+                <!-- Report post button (authenticated, non-owner) -->
+                @if (User.Identity?.IsAuthenticated == true &&
+                     User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value != Model.UserId)
+                {
+                    <button type="button"
+                            style="background:none;border:none;cursor:pointer;font-size:0.72rem;
+                                   color:var(--text-dim);padding:0.2rem 0.4rem;border-radius:4px;
+                                   transition:color 150ms;margin-left:0.25rem;"
+                            onmouseover="this.style.color='var(--accent)'"
+                            onmouseout="this.style.color='var(--text-dim)'"
+                            data-bs-toggle="modal" data-bs-target="#reportPostModal"
+                            title="Report post">
+                        <i class="fa-solid fa-flag fa-xs"></i>
+                    </button>
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="d-flex align-items-center gap-1 ms-auto">
+                        <form asp-action="TogglePin" asp-controller="Admin" asp-route-id="@Model.Id"
+                              method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="returnUrl" value="/Posts/Details/@Model.Id" />
+                            <button type="submit"
+                                    style="background:none;border:none;cursor:pointer;font-size:0.75rem;
+                                           padding:0.2rem 0.5rem;border-radius:var(--radius);
+                                           color:@(Model.IsPinned ? "var(--accent)" : "var(--text-dim)");"
+                                    title="@(Model.IsPinned ? "Unpin" : "Pin")">
+                                <i class="fa-solid fa-thumbtack fa-xs me-1"></i>@(Model.IsPinned ? "Unpin" : "Pin")
+                            </button>
+                        </form>
+                        <form asp-action="ToggleLock" asp-controller="Admin" asp-route-id="@Model.Id"
+                              method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="returnUrl" value="/Posts/Details/@Model.Id" />
+                            <button type="submit"
+                                    style="background:none;border:none;cursor:pointer;font-size:0.75rem;
+                                           padding:0.2rem 0.5rem;border-radius:var(--radius);
+                                           color:@(Model.IsLocked ? "var(--fashion)" : "var(--text-dim)");"
+                                    title="@(Model.IsLocked ? "Unlock" : "Lock")">
+                                <i class="fa-solid fa-lock fa-xs me-1"></i>@(Model.IsLocked ? "Unlock" : "Lock")
+                            </button>
+                        </form>
+                    </div>
+                }
+
+                @if (Model.IsPinned)
+                {
+                    <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:500;
+                                 padding:0.15rem 0.45rem;border-radius:3px;text-transform:uppercase;
+                                 letter-spacing:0.08em;background:rgba(232,93,74,0.12);
+                                 color:var(--accent);margin-left:0.25rem;">
+                        <i class="fa-solid fa-thumbtack fa-xs me-1"></i>Pinned
+                    </span>
+                }
+                @if (Model.IsLocked)
+                {
+                    <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:500;
+                                 padding:0.15rem 0.45rem;border-radius:3px;text-transform:uppercase;
+                                 letter-spacing:0.08em;background:rgba(107,107,114,0.15);
+                                 color:var(--text-dim);margin-left:0.25rem;">
+                        <i class="fa-solid fa-lock fa-xs me-1"></i>Locked
+                    </span>
+                }
             </div>
         </div>
 
         <div style="height:1px;background:var(--border);"></div>
 
         <!-- Body -->
-        <div style="padding:1.25rem 1.5rem;font-size:1.05rem;line-height:1.85;
-                    color:var(--text-muted);">
+        <div style="padding:1.25rem 1.5rem;font-size:1.05rem;line-height:1.85;color:var(--text-muted);">
             @Html.Raw(Model.Content?.Replace("\n", "<br/>") ?? "")
         </div>
 
@@ -116,8 +192,7 @@
             {
                 <button id="upvote-btn"
                         class="vote-btn upvote @(ViewBag.UserVote == "up" ? "active" : "")"
-                        data-post-id="@Model.Id" data-is-upvote="true"
-                        title="Upvote">
+                        data-post-id="@Model.Id" data-is-upvote="true" title="Upvote">
                     <i class="fa-solid fa-chevron-up"></i>
                 </button>
                 <span id="vote-score"
@@ -126,8 +201,7 @@
                 </span>
                 <button id="downvote-btn"
                         class="vote-btn downvote @(ViewBag.UserVote == "down" ? "active" : "")"
-                        data-post-id="@Model.Id" data-is-upvote="false"
-                        title="Downvote">
+                        data-post-id="@Model.Id" data-is-upvote="false" title="Downvote">
                     <i class="fa-solid fa-chevron-down"></i>
                 </button>
             }
@@ -141,7 +215,6 @@
                     <i class="fa-solid fa-chevron-down"></i>
                 </a>
             }
-
             <div class="reaction-btn" style="cursor:default;margin-left:0.5rem;">
                 <i class="fa-regular fa-comment fa-xs"></i>
                 <span>@Model.Comments.Count() @(Model.Comments.Count() == 1 ? "Comment" : "Comments")</span>
@@ -155,75 +228,51 @@
 
         <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;
                     color:var(--text-muted);margin-bottom:1rem;">
-            Comments
+            @Model.Comments.Count() @(Model.Comments.Count() == 1 ? "Comment" : "Comments")
         </div>
 
-        @if (!Model.Comments.Any())
+        @if (!topLevelComments.Any())
         {
             <p style="color:var(--text-dim);font-size:0.85rem;">No comments yet. Be the first!</p>
         }
         else
         {
-            @foreach (var comment in Model.Comments.OrderBy(c => c.CreatedOn))
+            foreach (var comment in topLevelComments)
             {
-                <div style="display:flex;gap:0.85rem;padding:0.85rem 0;
-                                    border-bottom:1px solid var(--border);">
-                    <img src="@(comment.User?.ProfilePicturePath ?? "/images/default.jpg")"
-                         onerror="this.src='/images/default.jpg'"
-                         style="width:34px;height:34px;border-radius:50%;object-fit:cover;
-                                        flex-shrink:0;border:1px solid var(--border-light);" />
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.3rem;">
-                            <span style="font-size:0.82rem;font-weight:600;color:var(--text);">
-                                @comment.User?.UserName
-                            </span>
-                            <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);">
-                                @comment.CreatedOn.ToString("dd MMM yyyy")
-                            </span>
-                        </div>
-                        <p style="margin:0;color:var(--text-muted);font-size:0.9rem;
-                                          line-height:1.6;">
-                            @Html.Raw(comment.Content?.Replace("\n", "<br/>") ?? "")
-                        </p>
-                        @if (User.Identity?.IsAuthenticated == true &&
-                                        (comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
-                                        || User.IsInRole("Admin")))
-                        {
-                            <form asp-action="DeleteComment" asp-controller="Posts" method="post"
-                                  style="margin-top:0.35rem;">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="commentId" value="@comment.Id" />
-                                <input type="hidden" name="postId" value="@Model.Id" />
-                                <button type="submit"
-                                        style="background:none;border:none;padding:0;font-size:0.72rem;
-                                                           color:var(--text-dim);cursor:pointer;font-family:var(--font-body);
-                                                           transition:color 150ms;"
-                                        onmouseover="this.style.color='var(--accent)'"
-                                        onmouseout="this.style.color='var(--text-dim)'"
-                                        onclick="return confirm('Delete this comment?')">
-                                    Delete
-                                </button>
-                            </form>
-                        }
-                    </div>
-                </div>
+                await Html.RenderPartialAsync("_Comment", comment);
             }
         }
 
         <!-- Comment form -->
-        @if (User.Identity?.IsAuthenticated == true)
+        @if (User.Identity?.IsAuthenticated == true && !Model.IsLocked)
         {
             <form asp-action="AddComment" asp-controller="Posts" asp-route-id="@Model.Id"
-                  method="post" style="margin-top:1rem;display:flex;gap:0.75rem;align-items:flex-start;">
+                  method="post" style="margin-top:1.25rem;display:flex;gap:0.75rem;align-items:flex-start;">
                 @Html.AntiForgeryToken()
-                <input type="text" name="content" class="form-control"
-                       placeholder="Write a comment..." maxlength="500" required />
-                <button type="submit" class="btn-primary"
-                        style="white-space:nowrap;padding:0.55rem 1rem;border:none;border-radius:6px;
-                                   cursor:pointer;">
-                    Post
-                </button>
+                <input type="hidden" name="parentCommentId" value="" />
+                <img src="@(ViewBag.CurrentUserPic ?? "/images/default.jpg")"
+                     onerror="this.src='/images/default.jpg'"
+                     style="width:34px;height:34px;border-radius:50%;object-fit:cover;
+                            flex-shrink:0;border:1px solid var(--border-light);" />
+                <div style="flex:1;display:flex;gap:0.5rem;">
+                    <input type="text" name="content" class="form-control"
+                           placeholder="Write a comment..." maxlength="500" required />
+                    <button type="submit" class="btn-primary"
+                            style="white-space:nowrap;padding:0.55rem 1rem;border:none;
+                                   border-radius:6px;cursor:pointer;">
+                        Post
+                    </button>
+                </div>
             </form>
+        }
+        else if (Model.IsLocked)
+        {
+            <div style="margin-top:1rem;padding:0.75rem 1rem;background:var(--bg-hover);
+                        border-radius:var(--radius);border:1px solid var(--border);
+                        color:var(--text-dim);font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-lock fa-xs"></i>
+                This thread is locked. No new comments can be posted.
+            </div>
         }
         else
         {
@@ -234,14 +283,73 @@
             </p>
         }
     </div>
-
 </div>
+
+<!-- Report Post Modal -->
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="modal fade" id="reportPostModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:380px;">
+            <div class="modal-content"
+                 style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:10px;">
+                <div class="modal-header" style="border-bottom:1px solid var(--border);">
+                    <h6 class="modal-title"
+                        style="font-family:var(--font-mono);font-size:0.7rem;
+                               letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">
+                        Report Post
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-controller="Reports" asp-action="Submit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="postId" value="@Model.Id" />
+                    <input type="hidden" name="returnUrl" value="/Posts/Details/@Model.Id" />
+                    <div class="modal-body" style="padding:1.25rem;">
+                        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">
+                            Why are you reporting this post?
+                        </p>
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                            @foreach (ReportReason r in Enum.GetValues(typeof(ReportReason)))
+                            {
+                                <label style="display:flex;align-items:center;gap:0.6rem;
+                                              padding:0.55rem 0.75rem;border-radius:6px;
+                                              border:1px solid var(--border);cursor:pointer;
+                                              font-size:0.83rem;color:var(--text-muted);
+                                              transition:border-color 150ms,color 150ms;"
+                                       onmouseover="this.style.borderColor='var(--border-light)';this.style.color='var(--text)'"
+                                       onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                    <input type="radio" name="reason" value="@((int)r)"
+                                           style="accent-color:var(--accent);" />
+                                    @(r switch {
+                                        ReportReason.Spam => "Spam",
+                                        ReportReason.Harassment => "Harassment",
+                                        ReportReason.HateSpeech => "Hate Speech",
+                                        ReportReason.Misinformation => "Misinformation",
+                                        ReportReason.InappropriateContent => "Inappropriate Content",
+                                        _ => r.ToString()
+                                    })
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid var(--border);padding:0.75rem 1.25rem;">
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit"
+                                style="background:var(--accent);color:#fff;border:none;
+                                       padding:0.4rem 1rem;border-radius:6px;font-size:0.82rem;cursor:pointer;">
+                            Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-
-            // Vote buttons
             document.querySelectorAll('#upvote-btn, #downvote-btn').forEach(btn => {
                 btn.addEventListener('click', async function () {
                     const postId   = this.dataset.postId;
@@ -269,7 +377,6 @@
                     } catch (err) { console.error('Vote failed', err); }
                 });
             });
-
         });
     </script>
 }

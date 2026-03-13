@@ -13,5 +13,8 @@ namespace UrbanJunction.Data.Models
 
         public string UserId { get; set; } = null!;
         public UrbanUser User { get; set; } = null!;
+        public int? ParentCommentId { get; set; }
+        public Comment? ParentComment { get; set; }
+        public ICollection<Comment> Replies { get; set; } = new List<Comment>();
     }
 }

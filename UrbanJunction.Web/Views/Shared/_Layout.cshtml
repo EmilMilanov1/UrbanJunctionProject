@@ -1,21 +1,28 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using UrbanJunction.Data.Models
 @inject UserManager<UrbanUser> UserManager
 
 @{
-    
     var currentUser = await UserManager.GetUserAsync(User);
     string profilePic = currentUser?.ProfilePicturePath ?? "/images/default.jpg";
     string username = User.Identity?.Name ?? "";
 
+    // Detect current topic for active state highlighting
     var routeController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
-    var routeAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
-    var routeTopic = ViewContext.RouteData.Values["name"]?.ToString() ?? ViewBag.TopicName as string ?? "";
-
-    bool isArt = routeTopic?.Equals("Art", StringComparison.OrdinalIgnoreCase) ?? false;
-    bool isMusic = routeTopic?.Equals("Music", StringComparison.OrdinalIgnoreCase) ?? false;
+    var routeAction    = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var routeTopic     = ViewContext.RouteData.Values["name"]?.ToString() ?? ViewBag.TopicName as string ?? "";
+    bool isArt     = routeTopic?.Equals("Art",     StringComparison.OrdinalIgnoreCase) ?? false;
+    bool isMusic   = routeTopic?.Equals("Music",   StringComparison.OrdinalIgnoreCase) ?? false;
     bool isFashion = routeTopic?.Equals("Fashion", StringComparison.OrdinalIgnoreCase) ?? false;
     bool isTopicPage = isArt || isMusic || isFashion;
+
+    string topicColor = isArt ? "var(--art)" : isMusic ? "var(--music)" : "var(--fashion)";
+    string topicIcon  = isArt ? "fa-palette"  : isMusic ? "fa-music"    : "fa-shirt";
+    string topicDesc  = isArt
+        ? "Share your work, discover artists, and talk about the culture of visual art — graffiti, photography, digital, and more."
+        : isMusic
+        ? "Deep dives into genres, scenes, and sounds. From underground techno to bedroom pop — all music lives here."
+        : "Streetwear, vintage, high fashion, and everything in between. Style is the message.";
 }
 
 <!DOCTYPE html>
@@ -26,12 +33,16 @@
     <title>@(ViewBag.Title != null ? ViewBag.Title + " — Urban Junction" : "Urban Junction")</title>
     <link rel="icon" type="image/x-icon" href="~/images/logo.png" />
 
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
+    <!-- Icons & Bootstrap -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Site styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UrbanJunction.Web.styles.css" asp-append-version="true" />
 
@@ -39,15 +50,19 @@
 </head>
 <body>
 
-    
+    <!-- ══════════════════════════════════════
+         NAVBAR
+         ══════════════════════════════════════ -->
     <header>
         <nav class="navbar">
 
+            <!-- Brand -->
             <a asp-controller="Home" asp-action="Index" class="navbar-brand">
                 <img src="~/images/logo.png" alt="Urban Junction" class="nav-logo-emblem" />
                 <span class="navbar-brand-name">Urban Junction</span>
             </a>
 
+           @*  <!-- Topic links (center) -->
             <div class="navbar-topics d-none d-md-flex">
                 <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
                    class="nav-topic-link art @(isArt ? "active" : "")">
@@ -61,17 +76,18 @@
                    class="nav-topic-link fashion @(isFashion ? "active" : "")">
                     <i class="fa-solid fa-shirt fa-xs me-1"></i>Fashion
                 </a>
-                <a asp-controller="Topics" asp-action="ByName" asp-route-name="QA"
+                <a asp-controller="QA" asp-action="Index"
                    class="nav-topic-link @(routeController == "QA" ? "active" : "")">
                     <i class="fa-solid fa-circle-question fa-xs me-1"></i>Q&amp;A
                 </a>
-            </div>
+            </div> *@
 
+            <!-- Right actions -->
             <div class="navbar-actions">
                 @if (User.Identity?.IsAuthenticated ?? false)
                 {
-                    
-                    @if (isTopicPage)
+                    <!-- New Thread button — only on topic pages -->
+                  @*   @if (isTopicPage)
                     {
                         <a asp-controller="Posts" asp-action="Create"
                            asp-route-topicName="@routeTopic"
@@ -79,8 +95,9 @@
                             <i class="fa-solid fa-plus fa-xs"></i>
                             <span>New Thread</span>
                         </a>
-                    }
+                    } *@
 
+                    <!-- Profile -->
                     <a asp-controller="Account" asp-action="Profile"
                        class="d-flex align-items-center gap-2 text-decoration-none">
                         <img src="@profilePic"
@@ -90,6 +107,7 @@
                         <span class="d-none d-lg-inline" style="font-size:0.82rem;color:var(--text-muted);">@username</span>
                     </a>
 
+                    <!-- Logout -->
                     <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="navbar-icon-btn" title="Logout">
@@ -99,12 +117,14 @@
                 }
                 else
                 {
-                    <a asp-controller="Account" asp-action="Login" class="btn-new-thread">
+                    <a asp-controller="Account" asp-action="Login"
+                       class="btn-new-thread">
                         <i class="fa-solid fa-right-to-bracket fa-xs"></i>
                         <span>Login</span>
                     </a>
                 }
 
+                <!-- Mobile hamburger -->
                 <button class="navbar-icon-btn d-md-none"
                         type="button"
                         data-bs-toggle="offcanvas"
@@ -117,18 +137,22 @@
         </nav>
     </header>
 
-   
+    <!-- ══════════════════════════════════════
+         3-COLUMN LAYOUT
+         ══════════════════════════════════════ -->
     <div class="forum-layout">
 
-        
+        <!-- ── LEFT SIDEBAR ──────────────────── -->
         <aside class="sidebar-left d-none d-lg-flex">
 
+            <!-- Logo block -->
             <div class="sidebar-logo-block">
                 <img src="~/images/logo.png" alt="Urban Junction" class="sidebar-logo-emblem" />
                 <div class="sidebar-logo-name">Urban Junction</div>
                 <div class="sidebar-logo-label">Forum</div>
             </div>
 
+            <!-- Topics -->
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Topics</div>
 
@@ -138,15 +162,22 @@
                     Art
                     <span class="sidebar-count">@(ViewBag.ArtCount ?? "")</span>
                 </a>
+
                 @if (isArt)
                 {
                     <div class="sidebar-subcats">
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Graffiti"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Graffiti" ? "active" : "")">Graffiti</a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Graffiti" ? "active" : "")">
+                            Graffiti
+                        </a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Photography"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Photography" ? "active" : "")">Photography</a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Photography" ? "active" : "")">
+                            Photography
+                        </a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Digital"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Digital" ? "active" : "")">Digital Art</a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Digital" ? "active" : "")">
+                            Digital Art
+                        </a>
                     </div>
                 }
 
@@ -156,15 +187,22 @@
                     Music
                     <span class="sidebar-count">@(ViewBag.MusicCount ?? "")</span>
                 </a>
+
                 @if (isMusic)
                 {
                     <div class="sidebar-subcats">
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="HipHop"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "HipHop" ? "active" : "")">Hip-Hop</a>
-                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Techno"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Techno" ? "active" : "")">Techno</a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "HipHop" ? "active" : "")">
+                            Hip-Hop
+                        </a>
+                        <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Electronic"
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Electronic" ? "active" : "")">
+                            Electronic
+                        </a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Indie"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Indie" ? "active" : "")">Indie</a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Indie" ? "active" : "")">
+                            Indie
+                        </a>
                     </div>
                 }
 
@@ -174,21 +212,29 @@
                     Fashion
                     <span class="sidebar-count">@(ViewBag.FashionCount ?? "")</span>
                 </a>
+
                 @if (isFashion)
                 {
                     <div class="sidebar-subcats">
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Streetwear"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Streetwear" ? "active" : "")">Streetwear</a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Streetwear" ? "active" : "")">
+                            Streetwear
+                        </a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Vintage"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Vintage" ? "active" : "")">Vintage</a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Vintage" ? "active" : "")">
+                            Vintage
+                        </a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Designers"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Designers" ? "active" : "")">Designers</a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Designers" ? "active" : "")">
+                            Designers
+                        </a>
                     </div>
                 }
             </div>
 
             <div class="sidebar-divider"></div>
 
+            <!-- Other sections -->
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Sections</div>
 
@@ -203,7 +249,6 @@
                     <i class="fa-solid fa-scroll fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
                     Credits
                 </a>
-
                 @if (User.Identity?.IsAuthenticated ?? false)
                 {
                     <a asp-controller="Posts" asp-action="MyPosts"
@@ -215,8 +260,8 @@
                        class="sidebar-nav-item @(routeController == "Account" && routeAction == "Profile" ? "active" : "")">
                         <i class="fa-solid fa-user fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
                         My Profile
-                    </a>                  
-                }
+                    </a>
+                }               
             </div>
 
             @if (User.IsInRole("Admin"))
@@ -234,19 +279,45 @@
 
         </aside>
 
-       
+        <!-- ── MAIN CONTENT ───────────────────── -->
         <main role="main" class="pb-5" style="min-width:0;">
             @RenderBody()
         </main>
 
-        
+        <!-- ── RIGHT SIDEBAR ─────────────────── -->
         <aside class="sidebar-right d-none d-xl-flex">
+            @* Pages can inject content here via ViewBag or a section *@
             @if (IsSectionDefined("RightSidebar"))
             {
                 @await RenderSectionAsync("RightSidebar", required: false)
             }
             else if (isTopicPage)
             {
+                <!-- About this topic -->
+                <div class="widget">
+                    <div class="widget-title" style="border-color:@topicColor;color:@topicColor;">
+                        <i class="fa-solid @topicIcon fa-xs me-1"></i>
+                        About @routeTopic
+                    </div>
+                    <p class="widget-desc">@topicDesc</p>
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <a asp-controller="Posts" asp-action="Create"
+                           asp-route-topicName="@routeTopic"
+                           class="widget-cta-btn" style="--btn-color:@topicColor;">
+                            <i class="fa-solid fa-plus fa-xs me-1"></i>New Thread
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login"
+                           class="widget-cta-btn" style="--btn-color:@topicColor;">
+                            <i class="fa-solid fa-right-to-bracket fa-xs me-1"></i>Login to Post
+                        </a>
+                    }
+                </div>
+
+                <!-- Forum Stats -->
                 <div class="widget">
                     <div class="widget-title">Forum Stats</div>
                     <div class="stats-grid">
@@ -263,21 +334,18 @@
                             <div class="stat-label">Members</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value">@(ViewBag.OnlineCount ?? "—")</div>
+                            <div class="stat-value" style="color:var(--art);">@(ViewBag.OnlineCount ?? "—")</div>
                             <div class="stat-label">Online</div>
                         </div>
                     </div>
                 </div>
 
-               
                 @if (ViewBag.TrendingPosts != null)
                 {
                     <div class="widget">
                         <div class="widget-title">Trending This Week</div>
                         <div class="trending-list">
-                            @{
-                                int rank = 1;
-                            }
+                            @{ int rank = 1; }
                             @foreach (var post in ViewBag.TrendingPosts)
                             {
                                 <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
@@ -291,12 +359,53 @@
                         </div>
                     </div>
                 }
+
+                @if (ViewBag.ActiveMembers != null)
+                {
+                    <div class="widget">
+                        <div class="widget-title">Active Members</div>
+                        <div class="members-list">
+                            @foreach (var member in ViewBag.ActiveMembers)
+                            {
+                                <a asp-controller="Account" asp-action="Profile" asp-route-username="@member.UserName"
+                                   class="member-item text-decoration-none">
+                                    <div class="member-avatar-wrap">
+                                        <img src="@(member.ProfilePicturePath ?? "/images/default.jpg")"
+                                             onerror="this.src='/images/default.jpg'"
+                                             class="member-avatar" alt="@member.UserName" />
+                                        @if (member.IsOnline)
+                                        {
+                                            <span class="member-online-dot"></span>
+                                        }
+                                    </div>
+                                    <span class="member-name">@member.UserName</span>
+                                    <span class="member-posts">@member.PostCount</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Community Rules -->
+                <div class="widget">
+                    <div class="widget-title">Community Rules</div>
+                    <ol class="widget-rules">
+                        <li>Be real. No spam, no bots.</li>
+                        <li>Respect the culture and each other.</li>
+                        <li>Stay on topic per subcategory.</li>
+                        <li>No self-promo without contributing.</li>
+                        <li>Tag NSFW content appropriately.</li>
+                    </ol>
+                </div>
             }
         </aside>
 
-    </div>
+    </div><!-- /forum-layout -->
 
-    
+
+    <!-- ══════════════════════════════════════
+         MOBILE OFFCANVAS
+         ══════════════════════════════════════ -->
     <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
         <div class="offcanvas-header">
             <div class="d-flex align-items-center gap-2">
@@ -307,21 +416,22 @@
         </div>
         <div class="offcanvas-body">
 
-            {{!-- Topics --}}
             <div class="sidebar-section-label mb-2">Topics</div>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" class="sidebar-nav-item mb-1">
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
+               class="sidebar-nav-item mb-1">
                 <span class="sidebar-topic-dot art"></span> Art
             </a>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" class="sidebar-nav-item mb-1">
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
+               class="sidebar-nav-item mb-1">
                 <span class="sidebar-topic-dot music"></span> Music
             </a>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" class="sidebar-nav-item mb-1">
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
+               class="sidebar-nav-item mb-1">
                 <span class="sidebar-topic-dot fashion"></span> Fashion
             </a>
 
             <div class="sidebar-divider"></div>
 
-            {{!-- Sections --}}
             <div class="sidebar-section-label mb-2">Sections</div>
             <a asp-controller="QA" asp-action="Index" class="sidebar-nav-item mb-1">
                 <i class="fa-solid fa-circle-question fa-xs me-2"></i>Q&amp;A
@@ -333,9 +443,6 @@
             {
                 <a asp-controller="Account" asp-action="Profile" class="sidebar-nav-item mb-1">
                     <i class="fa-solid fa-user fa-xs me-2"></i>My Profile
-                </a>
-                <a asp-controller="Posts" asp-action="MyPosts" class="sidebar-nav-item mb-1">
-                    <i class="fa-solid fa-pen-to-square fa-xs me-2"></i>My Posts
                 </a>
                 @if (User.IsInRole("Admin"))
                 {
@@ -361,7 +468,7 @@
         </div>
     </div>
 
-    
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

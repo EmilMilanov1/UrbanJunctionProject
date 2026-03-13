@@ -30,10 +30,39 @@ namespace UrbanJunction.Data.Seeding
 					Id = 3,
 					Name = "Streetwear",
 					TopicId = 3 // Fashion
-				}
-			};
-
-
+				},
+                new Subcategory 
+				{ 
+					Id = 4,
+					Name = "Photography",
+					TopicId = 1 
+				},
+				new Subcategory
+				{
+					Id = 5,
+					Name = "Digital",    
+					TopicId = 1 },
+				new Subcategory
+				{ 
+					Id = 6,
+					Name = "HipHop",     
+					TopicId = 2 },
+				new Subcategory
+				{ 
+					Id = 7,
+					Name = "Indie",      
+					TopicId = 2 },
+				new Subcategory
+				{
+					Id = 8,
+					Name = "Vintage",    
+					TopicId = 3 },
+				new Subcategory
+				{
+					Id = 9,
+					Name = "Designers", 
+					TopicId = 3 },
+				};
 			return subcategories;
 		}
 	}

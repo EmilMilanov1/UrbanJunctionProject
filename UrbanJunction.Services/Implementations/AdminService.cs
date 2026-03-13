@@ -19,12 +19,50 @@ namespace UrbanJunction.Services.Implementations
 
         public async Task<AdminStatsViewModel> GetStatsAsync()
         {
+            var recentPosts = await _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
+                .Include(p => p.Reactions)
+                .Include(p => p.Comments)
+                .OrderByDescending(p => p.CreatedOn)
+                .Take(10)
+                .ToListAsync();
+
+            var allUsers = await _context.Users
+                .Cast<UrbanUser>()
+                .ToListAsync();
+
+            var allTopics = await _context.Topics
+                .Include(t => t.Subcategories)
+                    .ThenInclude(s => s.Posts)
+                .ToListAsync();
+            var pendingReports = await _context.Reports
+                .Include(r => r.Reporter)
+                .Include(r => r.Post)
+                .Include(r => r.Comment)
+                .Include(r => r.ReportedUser)
+                .Where(r => r.Status == ReportStatus.Pending)
+                .OrderByDescending(r => r.CreatedOn)
+                .ToListAsync();
+            var contactMessages = await _context.ContactMessages
+                .Include(m => m.Sender)
+                .OrderByDescending(m => m.CreatedOn)
+                .ToListAsync();
+            
             return new AdminStatsViewModel
             {
-                TotalUsers    = await _context.Users.CountAsync(),
-                TotalPosts    = await _context.Posts.CountAsync(),
-                TotalTopics   = await _context.Topics.CountAsync(),
-                TotalComments = await _context.Comments.CountAsync()
+                TotalUsers = allUsers.Count,
+                TotalPosts = await _context.Posts.CountAsync(),
+                TotalTopics = await _context.Topics.CountAsync(),
+                TotalComments = await _context.Comments.CountAsync(),
+                OnlineUsers = allUsers.Count(u => u.LastActiveOn >= DateTime.UtcNow.AddMinutes(-15)),
+                RecentPosts = recentPosts,
+                AllUsers = allUsers,
+                AllTopics = allTopics,
+                PendingReports = pendingReports,
+                PendingReportCount = pendingReports.Count,
+                ContactMessages = contactMessages,
+                UnreadMessageCount = contactMessages.Count(m => !m.IsRead)
             };
         }
 
@@ -33,6 +71,8 @@ namespace UrbanJunction.Services.Implementations
             return await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
+                .Include(p => p.Reactions)
+                .Include(p => p.Comments)
                 .OrderByDescending(p => p.CreatedOn)
                 .ToListAsync();
         }

@@ -1,8 +1,9 @@
-﻿using UrbanJunction.Data.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 using UrbanJunction.Data.Configuration;
+using UrbanJunction.Data.Models;
 
 namespace UrbanJunction.Data
 {
@@ -34,6 +35,35 @@ namespace UrbanJunction.Data
                 .HasForeignKey(f => f.FollowingId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Report>()
+                .HasOne(r => r.Reporter)
+                .WithMany()
+                .HasForeignKey(r => r.ReporterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Report>()
+                .HasOne(r => r.ReportedUser)
+                .WithMany()
+                .HasForeignKey(r => r.ReportedUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Report>()
+                 .HasOne(r => r.Post)
+                 .WithMany()
+                 .HasForeignKey(r => r.PostId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Report>()
+                .HasOne(r => r.Comment)
+                .WithMany()
+                .HasForeignKey(r => r.CommentId)
+                .OnDelete(DeleteBehavior.NoAction);
+            builder.Entity<ContactMessage>()
+                .HasOne(c => c.Sender)
+                .WithMany()
+                .HasForeignKey(c => c.SenderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(builder);
         }
 
@@ -44,5 +74,7 @@ namespace UrbanJunction.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
         public DbSet<UserFollow> UserFollows { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<ContactMessage> ContactMessages { get; set; }
     }
 }
