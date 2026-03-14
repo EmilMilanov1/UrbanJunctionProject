@@ -1,0 +1,142 @@
+@{
+    ViewData["Title"] = "Contact Us";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="max-width:620px;margin:0 auto;padding:2rem 1rem 4rem;">
+
+    <!-- Header -->
+    <div style="margin-bottom:2rem;">
+        <h1 style="font-family:var(--font-head);font-size:1.6rem;font-weight:800;
+                   letter-spacing:-0.02em;color:var(--text);margin:0 0 0.4rem;">
+            Contact Us
+        </h1>
+        <p style="font-size:0.85rem;color:var(--text-dim);margin:0;">
+            Have an issue or feedback? Send us a message and we'll get back to you.
+        </p>
+    </div>
+
+    <!-- Success / Error -->
+    @if (TempData["Success"] != null)
+    {
+        <div style="padding:0.85rem 1rem;background:rgba(76,175,114,0.08);border:1px solid rgba(76,175,114,0.2);
+                    border-radius:8px;color:var(--art);font-size:0.85rem;margin-bottom:1.5rem;
+                    display:flex;align-items:center;gap:0.5rem;">
+            <i class="fa-solid fa-circle-check fa-xs"></i> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div style="padding:0.85rem 1rem;background:rgba(232,93,74,0.08);border:1px solid rgba(232,93,74,0.2);
+                    border-radius:8px;color:var(--accent);font-size:0.85rem;margin-bottom:1.5rem;
+                    display:flex;align-items:center;gap:0.5rem;">
+            <i class="fa-solid fa-circle-exclamation fa-xs"></i> @TempData["Error"]
+        </div>
+    }
+
+    <!-- Form -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1.75rem;">
+        <form asp-action="Submit" asp-controller="QA" method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- Name + Email row -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                <div>
+                    <label style="display:block;font-family:var(--font-mono);font-size:0.65rem;
+                                  text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);
+                                  margin-bottom:0.4rem;">
+                        Name
+                    </label>
+                    <input type="text" name="name" value="@ViewBag.Name"
+                           required maxlength="100"
+                           style="width:100%;background:var(--bg);border:1px solid var(--border);
+                                  border-radius:6px;padding:0.55rem 0.75rem;color:var(--text);
+                                  font-size:0.85rem;font-family:var(--font-body);outline:none;
+                                  transition:border-color 150ms;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='var(--accent)'"
+                           onblur="this.style.borderColor='var(--border)'" />
+                </div>
+                <div>
+                    <label style="display:block;font-family:var(--font-mono);font-size:0.65rem;
+                                  text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);
+                                  margin-bottom:0.4rem;">
+                        Email
+                    </label>
+                    <input type="email" name="email" value="@ViewBag.Email"
+                           required maxlength="200"
+                           style="width:100%;background:var(--bg);border:1px solid var(--border);
+                                  border-radius:6px;padding:0.55rem 0.75rem;color:var(--text);
+                                  font-size:0.85rem;font-family:var(--font-body);outline:none;
+                                  transition:border-color 150ms;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='var(--accent)'"
+                           onblur="this.style.borderColor='var(--border)'" />
+                </div>
+            </div>
+
+            <!-- Subject -->
+            <div style="margin-bottom:1rem;">
+                <label style="display:block;font-family:var(--font-mono);font-size:0.65rem;
+                              text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);
+                              margin-bottom:0.4rem;">
+                    Subject
+                </label>
+                <input type="text" name="subject" required maxlength="200"
+                       placeholder="What's this about?"
+                       style="width:100%;background:var(--bg);border:1px solid var(--border);
+                              border-radius:6px;padding:0.55rem 0.75rem;color:var(--text);
+                              font-size:0.85rem;font-family:var(--font-body);outline:none;
+                              transition:border-color 150ms;box-sizing:border-box;"
+                       onfocus="this.style.borderColor='var(--accent)'"
+                       onblur="this.style.borderColor='var(--border)'" />
+            </div>
+
+            <!-- Message -->
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;font-family:var(--font-mono);font-size:0.65rem;
+                              text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);
+                              margin-bottom:0.4rem;">
+                    Message
+                </label>
+                <textarea name="message" required maxlength="2000" rows="6"
+                          placeholder="Describe your issue or feedback..."
+                          style="width:100%;background:var(--bg);border:1px solid var(--border);
+                                 border-radius:6px;padding:0.55rem 0.75rem;color:var(--text);
+                                 font-size:0.85rem;font-family:var(--font-body);outline:none;
+                                 transition:border-color 150ms;resize:vertical;
+                                 box-sizing:border-box;line-height:1.6;"
+                          onfocus="this.style.borderColor='var(--accent)'"
+                          onblur="this.style.borderColor='var(--border)'"></textarea>
+                <div style="text-align:right;font-family:var(--font-mono);font-size:0.65rem;
+                            color:var(--text-dim);margin-top:0.3rem;" id="charCount">
+                    0 / 2000
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;">
+                <button type="submit"
+                        style="background:var(--accent);color:#fff;border:none;
+                               padding:0.6rem 1.5rem;border-radius:7px;font-size:0.85rem;
+                               font-weight:600;cursor:pointer;font-family:var(--font-body);
+                               transition:opacity 150ms;"
+                        onmouseover="this.style.opacity='0.85'"
+                        onmouseout="this.style.opacity='1'">
+                    <i class="fa-solid fa-paper-plane fa-xs" style="margin-right:0.4rem;"></i>
+                    Send Message
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const textarea = document.querySelector('textarea[name="message"]');
+        const counter  = document.getElementById('charCount');
+        if (textarea && counter) {
+            textarea.addEventListener('input', () => {
+                counter.textContent = `${textarea.value.length} / 2000`;
+                counter.style.color = textarea.value.length > 1800 ? 'var(--accent)' : 'var(--text-dim)';
+            });
+        }
+    </script>
+}

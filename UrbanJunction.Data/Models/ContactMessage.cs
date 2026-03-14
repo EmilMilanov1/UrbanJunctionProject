@@ -11,5 +11,7 @@
         public string Message { get; set; } = null!;
         public bool IsRead { get; set; } = false;
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+        public string? AdminReply { get; set; }
+        public DateTime? RepliedOn { get; set; }
     }
 }
