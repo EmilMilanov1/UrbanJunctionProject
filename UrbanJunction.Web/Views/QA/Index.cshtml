@@ -33,7 +33,69 @@
             <i class="fa-solid fa-circle-exclamation fa-xs"></i> @TempData["Error"]
         </div>
     }
+    @{
+        var myMessages = ViewBag.MyMessages as List<UrbanJunction.Data.Models.ContactMessage>;
+    }
 
+    @if (myMessages != null && myMessages.Any())
+    {
+        <div style="margin-bottom:2rem;">
+            <div style="font-family:var(--font-mono);font-size:0.65rem;text-transform:uppercase;
+                letter-spacing:0.1em;color:var(--text-dim);margin-bottom:0.75rem;">
+                Your Previous Messages
+            </div>
+            @foreach (var msg in myMessages)
+            {
+                <div style="background:var(--bg-card);border:1px solid var(--border);
+                    border-radius:10px;padding:1.25rem;margin-bottom:0.75rem;">
+
+                    <!-- Original message -->
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;
+                        margin-bottom:0.5rem;">
+                        <div style="font-weight:600;color:var(--text);font-size:0.88rem;">
+                            @msg.Subject
+                        </div>
+                        <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);">
+                            @msg.CreatedOn.ToString("dd MMM yyyy")
+                        </span>
+                    </div>
+                    <div style="font-size:0.83rem;color:var(--text-muted);line-height:1.6;
+                        white-space:pre-wrap;margin-bottom:0.75rem;">
+                        @msg.Message
+                    </div>
+
+                    <!-- Admin reply -->
+                    @if (!string.IsNullOrEmpty(msg.AdminReply))
+                    {
+                        <div style="border-top:1px solid var(--border);padding-top:0.75rem;margin-top:0.25rem;">
+                            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;">
+                                <span style="font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;
+                                    letter-spacing:0.08em;padding:0.15rem 0.45rem;border-radius:3px;
+                                    background:rgba(232,93,74,0.1);color:var(--accent);">
+                                    Admin
+                                </span>
+                                <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);">
+                                    @msg.RepliedOn?.ToString("dd MMM yyyy")
+                                </span>
+                            </div>
+                            <div style="font-size:0.83rem;color:var(--text-muted);line-height:1.6;
+                                white-space:pre-wrap;">
+                                @msg.AdminReply
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="border-top:1px solid var(--border);padding-top:0.75rem;
+                            font-family:var(--font-mono);font-size:0.68rem;color:var(--text-dim);">
+                            <i class="fa-regular fa-clock fa-xs" style="margin-right:0.3rem;"></i>
+                            Awaiting reply
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
     <!-- Form -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1.75rem;">
         <form asp-action="Submit" asp-controller="QA" method="post">

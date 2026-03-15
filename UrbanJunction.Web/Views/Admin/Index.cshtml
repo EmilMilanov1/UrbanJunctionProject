@@ -23,53 +23,31 @@
 
     .adm { max-width: 1120px; margin: 0 auto; padding: 0 1rem 4rem; }
 
-    .adm-header {
-        display: flex; align-items: flex-end; justify-content: space-between;
-        margin-bottom: 2rem; padding-top: 0.5rem;
-    }
+    .adm-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem; padding-top: 0.5rem; }
     .adm-title { font-family: var(--font-head); font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
     .adm-sub { font-size: 0.82rem; color: var(--text-dim); margin-top: 0.15rem; }
     .adm-actions { display: flex; gap: 0.5rem; }
 
-    .adm-btn {
-        display: inline-flex; align-items: center; gap: 0.45rem;
-        padding: 0.55rem 1rem; border-radius: 7px;
-        font-family: var(--font-body); font-size: 0.82rem; font-weight: 500;
-        border: 1px solid var(--border-light); background: var(--bg-card);
-        color: var(--text-muted); cursor: pointer; transition: all 120ms; text-decoration: none;
-    }
+    .adm-btn { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.55rem 1rem; border-radius: 7px; font-family: var(--font-body); font-size: 0.82rem; font-weight: 500; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-muted); cursor: pointer; transition: all 120ms; text-decoration: none; }
     .adm-btn:hover { color: var(--text); border-color: var(--text-dim); }
 
     .adm-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 2rem; gap: 0; }
-    .adm-tab {
-        font-size: 0.82rem; font-weight: 500; color: var(--text-muted);
-        padding: 0.65rem 1.1rem; cursor: pointer;
-        border-bottom: 2px solid transparent; margin-bottom: -1px;
-        background: none; border-top: none; border-left: none; border-right: none;
-        font-family: var(--font-body); transition: all 150ms;
-    }
+    .adm-tab { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); padding: 0.65rem 1.1rem; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font-body); transition: all 150ms; }
     .adm-tab:hover { color: var(--text); }
     .adm-tab.active { color: var(--text); border-bottom-color: var(--accent); }
-    .adm-tab-badge {
-        font-family: var(--font-mono); font-size: 0.62rem; margin-left: 0.35rem;
-        padding: 0.08rem 0.4rem; border-radius: 3px; background: var(--bg-hover); color: var(--text-dim);
-    }
+    .adm-tab-badge { font-family: var(--font-mono); font-size: 0.62rem; margin-left: 0.35rem; padding: 0.08rem 0.4rem; border-radius: 3px; background: var(--bg-hover); color: var(--text-dim); }
     .adm-tab-badge.urgent { background: rgba(232,93,74,0.15); color: var(--accent); }
     .adm-tab-content { display: none; }
     .adm-tab-content.active { display: block; }
 
     .adm-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-    .adm-stat {
-        background: var(--bg-card); border: 1px solid var(--border);
-        border-radius: 10px; padding: 1.25rem; position: relative; overflow: hidden; transition: border-color 200ms;
-    }
+    .adm-stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; position: relative; overflow: hidden; transition: border-color 200ms; }
     .adm-stat:hover { border-color: var(--border-light); }
     .adm-stat::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
     .adm-stat.s-red::after    { background: linear-gradient(90deg, var(--accent), transparent); }
     .adm-stat.s-green::after  { background: linear-gradient(90deg, var(--art), transparent); }
     .adm-stat.s-purple::after { background: linear-gradient(90deg, var(--music), transparent); }
     .adm-stat.s-orange::after { background: linear-gradient(90deg, var(--fashion), transparent); }
-
     .adm-stat-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
     .adm-stat-label { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
     .adm-stat-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
@@ -94,9 +72,7 @@
     .adm-bar-label { font-size: 0.8rem; font-weight: 500; width: 70px; flex-shrink: 0; }
     .adm-bar-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
     .adm-bar-fill { height: 100%; border-radius: 4px; transition: width 800ms cubic-bezier(0.22, 1, 0.36, 1); }
-    .adm-bar-fill.art     { background: var(--art); }
-    .adm-bar-fill.music   { background: var(--music); }
-    .adm-bar-fill.fashion { background: var(--fashion); }
+    .adm-bar-fill.art { background: var(--art); } .adm-bar-fill.music { background: var(--music); } .adm-bar-fill.fashion { background: var(--fashion); }
     .adm-bar-val { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); width: 32px; text-align: right; flex-shrink: 0; }
 
     .adm-inline-stats { display: flex; justify-content: space-between; padding: 1rem 1.25rem; border-top: 1px solid var(--border); }
@@ -106,20 +82,13 @@
     .adm-feed-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 1.25rem; transition: background 100ms; }
     .adm-feed-item:hover { background: var(--bg-hover); }
     .adm-feed-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 0.4rem; flex-shrink: 0; }
-    .adm-feed-dot.post    { background: var(--art); }
-    .adm-feed-dot.comment { background: var(--music); }
-    .adm-feed-dot.user    { background: var(--fashion); }
+    .adm-feed-dot.post { background: var(--art); } .adm-feed-dot.comment { background: var(--music); } .adm-feed-dot.user { background: var(--fashion); }
     .adm-feed-text { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; flex: 1; }
     .adm-feed-text strong { color: var(--text); font-weight: 600; }
     .adm-feed-time { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); flex-shrink: 0; white-space: nowrap; }
 
     .adm-table { width: 100%; border-collapse: collapse; }
-    .adm-table th {
-        font-family: var(--font-mono); font-size: 0.62rem; font-weight: 500;
-        letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim);
-        text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
-        background: rgba(0,0,0,0.15);
-    }
+    .adm-table th { font-family: var(--font-mono); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); }
     .adm-table td { padding: 0.7rem 1rem; font-size: 0.82rem; color: var(--text-muted); border-bottom: 1px solid var(--border); vertical-align: middle; }
     .adm-table tr:last-child td { border-bottom: none; }
     .adm-table tbody tr { transition: background 100ms; }
@@ -128,14 +97,10 @@
     .adm-table-user { display: flex; align-items: center; gap: 0.6rem; }
     .adm-table-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-light); flex-shrink: 0; background: var(--bg); }
     .adm-table-avatar-letter { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; font-weight: 700; color: #fff; }
-    .adm-table-name  { font-weight: 600; color: var(--text); font-size: 0.82rem; }
+    .adm-table-name { font-weight: 600; color: var(--text); font-size: 0.82rem; }
     .adm-table-email { font-size: 0.72rem; color: var(--text-dim); }
 
-    .adm-badge {
-        display: inline-flex; align-items: center; gap: 0.3rem;
-        padding: 0.15rem 0.55rem; border-radius: 4px;
-        font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.04em;
-    }
+    .adm-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.55rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.04em; }
     .adm-badge.art      { background: rgba(76,175,114,0.1);  color: var(--art); }
     .adm-badge.music    { background: rgba(124,111,255,0.1); color: var(--music); }
     .adm-badge.fashion  { background: rgba(240,160,75,0.1);  color: var(--fashion); }
@@ -153,22 +118,13 @@
     @@keyframes adm-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     .adm-tbl-actions { display: flex; gap: 0.35rem; }
-    .adm-tbl-btn {
-        width: 28px; height: 28px; border-radius: 5px;
-        border: 1px solid var(--border); background: transparent;
-        color: var(--text-dim); display: inline-flex; align-items: center;
-        justify-content: center; font-size: 0.65rem; cursor: pointer; transition: all 120ms;
-    }
+    .adm-tbl-btn { width: 28px; height: 28px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); display: inline-flex; align-items: center; justify-content: center; font-size: 0.65rem; cursor: pointer; transition: all 120ms; }
     .adm-tbl-btn:hover { border-color: var(--border-light); color: var(--text-muted); background: var(--bg-hover); }
     .adm-tbl-btn.danger:hover  { border-color: rgba(232,93,74,0.3); color: var(--accent); background: rgba(232,93,74,0.06); }
     .adm-tbl-btn.success:hover { border-color: rgba(76,175,114,0.3); color: var(--art); background: rgba(76,175,114,0.06); }
     .adm-tbl-btn.active-state  { border-color: rgba(240,160,75,0.3); color: var(--fashion); background: rgba(240,160,75,0.06); }
 
-    .adm-search {
-        display: flex; align-items: center; gap: 0.5rem;
-        background: var(--bg); border: 1px solid var(--border);
-        border-radius: 7px; padding: 0 0.85rem; transition: border-color 150ms;
-    }
+    .adm-search { display: flex; align-items: center; gap: 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 0 0.85rem; transition: border-color 150ms; }
     .adm-search:focus-within { border-color: var(--accent); }
     .adm-search i { color: var(--text-dim); font-size: 0.75rem; }
     .adm-search input { background: none; border: none; outline: none; color: var(--text); font-size: 0.82rem; font-family: var(--font-body); padding: 0.55rem 0; width: 200px; }
@@ -180,25 +136,9 @@
     .adm-topic-card-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
     .adm-topic-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
 
-    .adm-reason {
-        font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500;
-        padding: 0.15rem 0.5rem; border-radius: 3px; text-transform: uppercase;
-        letter-spacing: 0.04em; background: var(--bg-hover); color: var(--text-dim);
-    }
+    .adm-reason { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500; padding: 0.15rem 0.5rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; background: var(--bg-hover); color: var(--text-dim); }
 
-    /* Message expand */
-    .adm-msg-row { cursor: pointer; }
-    .adm-msg-body { display: none; padding: 0.75rem 1rem 1rem; background: var(--bg-hover); border-top: 1px solid var(--border); }
-    .adm-msg-body.open { display: block; }
-
-    .adm-toast {
-        position: fixed; top: 1rem; right: 1rem; z-index: 9999;
-        background: var(--bg-card); border: 1px solid var(--art);
-        border-radius: 8px; padding: 0.75rem 1.25rem;
-        font-size: 0.82rem; color: var(--art);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        animation: adm-toast-in 300ms ease forwards;
-    }
+    .adm-toast { position: fixed; top: 1rem; right: 1rem; z-index: 9999; background: var(--bg-card); border: 1px solid var(--art); border-radius: 8px; padding: 0.75rem 1.25rem; font-size: 0.82rem; color: var(--art); box-shadow: 0 8px 32px rgba(0,0,0,0.5); animation: adm-toast-in 300ms ease forwards; }
     @@keyframes adm-toast-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
     @@keyframes adm-fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -233,69 +173,38 @@
     </div>
 
     <div class="adm-tabs adm-anim adm-d2">
-        <button class="adm-tab active" data-tab="dashboard">
-            <i class="fa-solid fa-grid-2 fa-xs" style="margin-right:0.3rem;"></i>Dashboard
-        </button>
-        <button class="adm-tab" data-tab="posts">
-            <i class="fa-solid fa-pen-to-square fa-xs" style="margin-right:0.3rem;"></i>Posts
-            <span class="adm-tab-badge">@Model.TotalPosts</span>
-        </button>
-        <button class="adm-tab" data-tab="users">
-            <i class="fa-solid fa-users fa-xs" style="margin-right:0.3rem;"></i>Users
-            <span class="adm-tab-badge">@Model.TotalUsers</span>
-        </button>
-        <button class="adm-tab" data-tab="topics">
-            <i class="fa-solid fa-layer-group fa-xs" style="margin-right:0.3rem;"></i>Topics
-        </button>
+        <button class="adm-tab active" data-tab="dashboard"><i class="fa-solid fa-grid-2 fa-xs" style="margin-right:0.3rem;"></i>Dashboard</button>
+        <button class="adm-tab" data-tab="posts"><i class="fa-solid fa-pen-to-square fa-xs" style="margin-right:0.3rem;"></i>Posts<span class="adm-tab-badge">@Model.TotalPosts</span></button>
+        <button class="adm-tab" data-tab="users"><i class="fa-solid fa-users fa-xs" style="margin-right:0.3rem;"></i>Users<span class="adm-tab-badge">@Model.TotalUsers</span></button>
+        <button class="adm-tab" data-tab="topics"><i class="fa-solid fa-layer-group fa-xs" style="margin-right:0.3rem;"></i>Topics</button>
         <button class="adm-tab" data-tab="reports">
             <i class="fa-solid fa-flag fa-xs" style="margin-right:0.3rem;"></i>Reports
-            @if (Model.PendingReportCount > 0)
-            {
-                <span class="adm-tab-badge urgent">@Model.PendingReportCount</span>
-            }
+            @if (Model.PendingReportCount > 0) { <span class="adm-tab-badge urgent">@Model.PendingReportCount</span> }
         </button>
         <button class="adm-tab" data-tab="messages">
             <i class="fa-solid fa-envelope fa-xs" style="margin-right:0.3rem;"></i>Messages
-            @if (Model.UnreadMessageCount > 0)
-            {
-                <span class="adm-tab-badge urgent">@Model.UnreadMessageCount</span>
-            }
+            @if (Model.UnreadMessageCount > 0) { <span class="adm-tab-badge urgent">@Model.UnreadMessageCount</span> }
         </button>
     </div>
 
     @* ════ TAB: Dashboard ════ *@
     <div class="adm-tab-content active" id="tab-dashboard">
-
         <div class="adm-stats">
             <div class="adm-stat s-red adm-anim adm-d3">
-                <div class="adm-stat-head">
-                    <span class="adm-stat-label">Total Users</span>
-                    <div class="adm-stat-icon"><i class="fa-solid fa-users"></i></div>
-                </div>
+                <div class="adm-stat-head"><span class="adm-stat-label">Total Users</span><div class="adm-stat-icon"><i class="fa-solid fa-users"></i></div></div>
                 <div class="adm-stat-value">@Model.TotalUsers</div>
             </div>
             <div class="adm-stat s-green adm-anim adm-d3">
-                <div class="adm-stat-head">
-                    <span class="adm-stat-label">Total Posts</span>
-                    <div class="adm-stat-icon"><i class="fa-solid fa-pen-to-square"></i></div>
-                </div>
+                <div class="adm-stat-head"><span class="adm-stat-label">Total Posts</span><div class="adm-stat-icon"><i class="fa-solid fa-pen-to-square"></i></div></div>
                 <div class="adm-stat-value">@Model.TotalPosts</div>
             </div>
             <div class="adm-stat s-purple adm-anim adm-d4">
-                <div class="adm-stat-head">
-                    <span class="adm-stat-label">Comments</span>
-                    <div class="adm-stat-icon"><i class="fa-solid fa-comments"></i></div>
-                </div>
+                <div class="adm-stat-head"><span class="adm-stat-label">Comments</span><div class="adm-stat-icon"><i class="fa-solid fa-comments"></i></div></div>
                 <div class="adm-stat-value">@Model.TotalComments</div>
             </div>
             <div class="adm-stat s-orange adm-anim adm-d4">
-                <div class="adm-stat-head">
-                    <span class="adm-stat-label">Pending Reports</span>
-                    <div class="adm-stat-icon"><i class="fa-solid fa-flag"></i></div>
-                </div>
-                <div class="adm-stat-value" style="@(Model.PendingReportCount > 0 ? "color:var(--accent);" : "")">
-                    @Model.PendingReportCount
-                </div>
+                <div class="adm-stat-head"><span class="adm-stat-label">Pending Reports</span><div class="adm-stat-icon"><i class="fa-solid fa-flag"></i></div></div>
+                <div class="adm-stat-value" style="@(Model.PendingReportCount > 0 ? "color:var(--accent);" : "")">@Model.PendingReportCount</div>
             </div>
         </div>
 
@@ -303,38 +212,16 @@
             <div class="adm-panel">
                 <div class="adm-panel-head"><span class="adm-panel-title">Topic Distribution</span></div>
                 <div class="adm-topic-bars">
-                    <div class="adm-bar-row">
-                        <span class="adm-bar-label" style="color:var(--art);"><i class="fa-solid fa-palette fa-xs" style="margin-right:0.3rem;"></i>Art</span>
-                        <div class="adm-bar-track"><div class="adm-bar-fill art" style="width:0%;" data-width="@(maxTopicPosts > 0 ? (int)((double)artPosts / maxTopicPosts * 100) : 0)%"></div></div>
-                        <span class="adm-bar-val">@artPosts</span>
-                    </div>
-                    <div class="adm-bar-row">
-                        <span class="adm-bar-label" style="color:var(--music);"><i class="fa-solid fa-music fa-xs" style="margin-right:0.3rem;"></i>Music</span>
-                        <div class="adm-bar-track"><div class="adm-bar-fill music" style="width:0%;" data-width="@(maxTopicPosts > 0 ? (int)((double)musicPosts / maxTopicPosts * 100) : 0)%"></div></div>
-                        <span class="adm-bar-val">@musicPosts</span>
-                    </div>
-                    <div class="adm-bar-row">
-                        <span class="adm-bar-label" style="color:var(--fashion);"><i class="fa-solid fa-shirt fa-xs" style="margin-right:0.3rem;"></i>Fashion</span>
-                        <div class="adm-bar-track"><div class="adm-bar-fill fashion" style="width:0%;" data-width="@(maxTopicPosts > 0 ? (int)((double)fashionPosts / maxTopicPosts * 100) : 0)%"></div></div>
-                        <span class="adm-bar-val">@fashionPosts</span>
-                    </div>
+                    <div class="adm-bar-row"><span class="adm-bar-label" style="color:var(--art);"><i class="fa-solid fa-palette fa-xs" style="margin-right:0.3rem;"></i>Art</span><div class="adm-bar-track"><div class="adm-bar-fill art" style="width:0%;" data-width="@(maxTopicPosts > 0 ? (int)((double)artPosts / maxTopicPosts * 100) : 0)%"></div></div><span class="adm-bar-val">@artPosts</span></div>
+                    <div class="adm-bar-row"><span class="adm-bar-label" style="color:var(--music);"><i class="fa-solid fa-music fa-xs" style="margin-right:0.3rem;"></i>Music</span><div class="adm-bar-track"><div class="adm-bar-fill music" style="width:0%;" data-width="@(maxTopicPosts > 0 ? (int)((double)musicPosts / maxTopicPosts * 100) : 0)%"></div></div><span class="adm-bar-val">@musicPosts</span></div>
+                    <div class="adm-bar-row"><span class="adm-bar-label" style="color:var(--fashion);"><i class="fa-solid fa-shirt fa-xs" style="margin-right:0.3rem;"></i>Fashion</span><div class="adm-bar-track"><div class="adm-bar-fill fashion" style="width:0%;" data-width="@(maxTopicPosts > 0 ? (int)((double)fashionPosts / maxTopicPosts * 100) : 0)%"></div></div><span class="adm-bar-val">@fashionPosts</span></div>
                 </div>
                 <div class="adm-inline-stats">
-                    <div>
-                        <div class="adm-inline-stat-label">Online Now</div>
-                        <div class="adm-inline-stat-value">@Model.OnlineUsers <span style="font-size:0.7rem;color:var(--art);">●</span></div>
-                    </div>
-                    <div>
-                        <div class="adm-inline-stat-label">Subcategories</div>
-                        <div class="adm-inline-stat-value">@allTopics.Sum(t => t.Subcategories?.Count ?? 0)</div>
-                    </div>
-                    <div>
-                        <div class="adm-inline-stat-label">Total Reactions</div>
-                        <div class="adm-inline-stat-value">@allPosts.Sum(p => p.Reactions?.Count ?? 0)</div>
-                    </div>
+                    <div><div class="adm-inline-stat-label">Online Now</div><div class="adm-inline-stat-value">@Model.OnlineUsers <span style="font-size:0.7rem;color:var(--art);">●</span></div></div>
+                    <div><div class="adm-inline-stat-label">Subcategories</div><div class="adm-inline-stat-value">@allTopics.Sum(t => t.Subcategories?.Count ?? 0)</div></div>
+                    <div><div class="adm-inline-stat-label">Total Reactions</div><div class="adm-inline-stat-value">@allPosts.Sum(p => p.Reactions?.Count ?? 0)</div></div>
                 </div>
             </div>
-
             <div class="adm-panel">
                 <div class="adm-panel-head"><span class="adm-panel-title">Recent Activity</span></div>
                 <div>
@@ -346,28 +233,18 @@
                         var agoText = ago.TotalMinutes < 60 ? $"{(int)ago.TotalMinutes}m ago" : ago.TotalHours < 24 ? $"{(int)ago.TotalHours}h ago" : $"{(int)ago.TotalDays}d ago";
                         <div class="adm-feed-item">
                             <div class="adm-feed-dot @dotClass"></div>
-                            <div class="adm-feed-text">
-                                <strong>@post.User?.UserName</strong> posted
-                                "<strong>@(post.Title.Length > 40 ? post.Title.Substring(0, 40) + "…" : post.Title)</strong>"
-                                in <strong>@topicName</strong>
-                            </div>
+                            <div class="adm-feed-text"><strong>@post.User?.UserName</strong> posted "<strong>@(post.Title.Length > 40 ? post.Title.Substring(0, 40) + "…" : post.Title)</strong>" in <strong>@topicName</strong></div>
                             <div class="adm-feed-time">@agoText</div>
                         </div>
                     }
-                    @if (!allPosts.Any())
-                    {
-                        <div style="text-align:center;padding:2rem;color:var(--text-dim);font-size:0.85rem;">No posts yet.</div>
-                    }
+                    @if (!allPosts.Any()) { <div style="text-align:center;padding:2rem;color:var(--text-dim);font-size:0.85rem;">No posts yet.</div> }
                 </div>
             </div>
         </div>
 
         <div class="adm-grid full adm-anim adm-d6">
             <div class="adm-panel">
-                <div class="adm-panel-head">
-                    <span class="adm-panel-title">Latest Posts</span>
-                    <span class="adm-panel-link" onclick="document.querySelector('[data-tab=posts]').click()">View All →</span>
-                </div>
+                <div class="adm-panel-head"><span class="adm-panel-title">Latest Posts</span><span class="adm-panel-link" onclick="document.querySelector('[data-tab=posts]').click()">View All →</span></div>
                 <table class="adm-table">
                     <thead><tr><th>Post</th><th>Topic</th><th>Score</th><th>Comments</th><th></th></tr></thead>
                     <tbody>
@@ -378,22 +255,11 @@
                             var score = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0);
                             var topicColor = tc switch { "art" => "var(--art)", "music" => "var(--music)", "fashion" => "var(--fashion)", _ => "var(--text-dim)" };
                             <tr>
-                                <td>
-                                    <div style="font-weight:600;color:var(--text);margin-bottom:0.1rem;">@post.Title</div>
-                                    <div style="font-size:0.72rem;color:var(--text-dim);">by @post.User?.UserName · @post.CreatedOn.ToString("dd MMM yyyy")</div>
-                                </td>
+                                <td><div style="font-weight:600;color:var(--text);margin-bottom:0.1rem;">@post.Title</div><div style="font-size:0.72rem;color:var(--text-dim);">by @post.User?.UserName · @post.CreatedOn.ToString("dd MMM yyyy")</div></td>
                                 <td><span class="adm-badge @tc">@tn</span></td>
                                 <td style="font-family:var(--font-mono);font-size:0.8rem;color:@topicColor;">@(score >= 0 ? "+" : "")@score</td>
                                 <td style="font-family:var(--font-mono);">@(post.Comments?.Count ?? 0)</td>
-                                <td>
-                                    <div class="adm-tbl-actions">
-                                        <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id" class="adm-tbl-btn" title="View"><i class="fa-solid fa-eye"></i></a>
-                                        <form asp-action="DeletePost" asp-route-id="@post.Id" method="post" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="adm-tbl-btn danger" title="Delete" onclick="return confirm('Delete this post?')"><i class="fa-solid fa-trash"></i></button>
-                                        </form>
-                                    </div>
-                                </td>
+                                <td><div class="adm-tbl-actions"><a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id" class="adm-tbl-btn" title="View"><i class="fa-solid fa-eye"></i></a><form asp-action="DeletePost" asp-route-id="@post.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button type="submit" class="adm-tbl-btn danger" title="Delete" onclick="return confirm('Delete this post?')"><i class="fa-solid fa-trash"></i></button></form></div></td>
                             </tr>
                         }
                     </tbody>
@@ -404,18 +270,14 @@
 
     @* ════ TAB: Posts ════ *@
     <div class="adm-tab-content" id="tab-posts">
-        <div class="adm-header adm-anim adm-d1" style="padding-top:0;">
-            <div><div class="adm-title">All Posts</div><div class="adm-sub">Manage all community threads</div></div>
-            <div class="adm-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Search posts..." id="postSearchInput" /></div>
-        </div>
+        <div class="adm-header adm-anim adm-d1" style="padding-top:0;"><div><div class="adm-title">All Posts</div><div class="adm-sub">Manage all community threads</div></div><div class="adm-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Search posts..." id="postSearchInput" /></div></div>
         <div class="adm-panel adm-anim adm-d2">
             <table class="adm-table" id="postsTableBody">
                 <thead><tr><th style="width:40px;">ID</th><th>Title</th><th>Author</th><th>Topic</th><th>Score</th><th>Comments</th><th>Date</th><th>Status</th><th style="width:110px;"></th></tr></thead>
                 <tbody>
                     @foreach (var post in allPosts)
                     {
-                        var tn = post.Subcategory?.Topic?.Name ?? "";
-                        var sn = post.Subcategory?.Name ?? "";
+                        var tn = post.Subcategory?.Topic?.Name ?? ""; var sn = post.Subcategory?.Name ?? "";
                         var tc = tn.ToLower() switch { "art" => "art", "music" => "music", "fashion" => "fashion", _ => "art" };
                         var score = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0);
                         var topicColor = tc switch { "art" => "var(--art)", "music" => "var(--music)", "fashion" => "var(--fashion)", _ => "var(--text-dim)" };
@@ -424,41 +286,13 @@
                         <tr>
                             <td style="font-family:var(--font-mono);color:var(--text-dim);">#@post.Id</td>
                             <td style="font-weight:600;color:var(--text);">@post.Title</td>
-                            <td>
-                                <div class="adm-table-user">
-                                    @if (!string.IsNullOrEmpty(post.User?.ProfilePicturePath) && post.User.ProfilePicturePath != "/images/default.jpg")
-                                    { <img src="@post.User.ProfilePicturePath" class="adm-table-avatar" onerror="this.style.display='none'" /> }
-                                    else
-                                    { <div class="adm-table-avatar-letter" style="background:@avatarBg;">@initial</div> }
-                                    <span class="adm-table-name">@post.User?.UserName</span>
-                                </div>
-                            </td>
+                            <td><div class="adm-table-user">@if (!string.IsNullOrEmpty(post.User?.ProfilePicturePath) && post.User.ProfilePicturePath != "/images/default.jpg") { <img src="@post.User.ProfilePicturePath" class="adm-table-avatar" onerror="this.style.display='none'" /> } else { <div class="adm-table-avatar-letter" style="background:@avatarBg;">@initial</div> }<span class="adm-table-name">@post.User?.UserName</span></div></td>
                             <td><span class="adm-badge @tc">@tn / @sn</span></td>
                             <td style="font-family:var(--font-mono);color:@topicColor;">@(score >= 0 ? "+" : "")@score</td>
                             <td style="font-family:var(--font-mono);">@(post.Comments?.Count ?? 0)</td>
                             <td style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);">@post.CreatedOn.ToString("dd MMM yyyy")</td>
-                            <td>
-                                @if (post.IsPinned) { <span class="adm-badge pinned"><i class="fa-solid fa-thumbtack fa-xs"></i> Pinned</span> }
-                                @if (post.IsLocked) { <span class="adm-badge locked"><i class="fa-solid fa-lock fa-xs"></i> Locked</span> }
-                                @if (!post.IsPinned && !post.IsLocked) { <span class="adm-badge active">Active</span> }
-                            </td>
-                            <td>
-                                <div class="adm-tbl-actions">
-                                    <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id" class="adm-tbl-btn" title="View"><i class="fa-solid fa-eye"></i></a>
-                                    <form asp-action="TogglePin" asp-route-id="@post.Id" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="adm-tbl-btn @(post.IsPinned ? "active-state" : "")" title="@(post.IsPinned ? "Unpin" : "Pin")"><i class="fa-solid fa-thumbtack"></i></button>
-                                    </form>
-                                    <form asp-action="ToggleLock" asp-route-id="@post.Id" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="adm-tbl-btn @(post.IsLocked ? "active-state" : "")" title="@(post.IsLocked ? "Unlock" : "Lock")"><i class="fa-solid fa-lock"></i></button>
-                                    </form>
-                                    <form asp-action="DeletePost" asp-route-id="@post.Id" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="adm-tbl-btn danger" title="Delete" onclick="return confirm('Delete this post?')"><i class="fa-solid fa-trash"></i></button>
-                                    </form>
-                                </div>
-                            </td>
+                            <td>@if (post.IsPinned) { <span class="adm-badge pinned"><i class="fa-solid fa-thumbtack fa-xs"></i> Pinned</span> }@if (post.IsLocked) { <span class="adm-badge locked"><i class="fa-solid fa-lock fa-xs"></i> Locked</span> }@if (!post.IsPinned && !post.IsLocked) { <span class="adm-badge active">Active</span> }</td>
+                            <td><div class="adm-tbl-actions"><a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id" class="adm-tbl-btn" title="View"><i class="fa-solid fa-eye"></i></a><form asp-action="TogglePin" asp-route-id="@post.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button type="submit" class="adm-tbl-btn @(post.IsPinned ? "active-state" : "")" title="@(post.IsPinned ? "Unpin" : "Pin")"><i class="fa-solid fa-thumbtack"></i></button></form><form asp-action="ToggleLock" asp-route-id="@post.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button type="submit" class="adm-tbl-btn @(post.IsLocked ? "active-state" : "")" title="@(post.IsLocked ? "Unlock" : "Lock")"><i class="fa-solid fa-lock"></i></button></form><form asp-action="DeletePost" asp-route-id="@post.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button type="submit" class="adm-tbl-btn danger" title="Delete" onclick="return confirm('Delete this post?')"><i class="fa-solid fa-trash"></i></button></form></div></td>
                         </tr>
                     }
                 </tbody>
@@ -468,10 +302,7 @@
 
     @* ════ TAB: Users ════ *@
     <div class="adm-tab-content" id="tab-users">
-        <div class="adm-header adm-anim adm-d1" style="padding-top:0;">
-            <div><div class="adm-title">Users</div><div class="adm-sub">Manage community members</div></div>
-            <div class="adm-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Search users..." id="userSearchInput" /></div>
-        </div>
+        <div class="adm-header adm-anim adm-d1" style="padding-top:0;"><div><div class="adm-title">Users</div><div class="adm-sub">Manage community members</div></div><div class="adm-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Search users..." id="userSearchInput" /></div></div>
         <div class="adm-panel adm-anim adm-d2">
             <table class="adm-table" id="usersTableBody">
                 <thead><tr><th>User</th><th>Posts</th><th>Last Active</th><th>Status</th><th style="width:80px;"></th></tr></thead>
@@ -485,44 +316,11 @@
                         var colors = new[] { "var(--accent)", "var(--art)", "var(--music)", "var(--fashion)" };
                         var colorIdx = Math.Abs((user.UserName ?? "").GetHashCode()) % colors.Length;
                         <tr>
-                            <td>
-                                <div class="adm-table-user">
-                                    @if (!string.IsNullOrEmpty(user.ProfilePicturePath) && user.ProfilePicturePath != "/images/default.jpg")
-                                    { <img src="@user.ProfilePicturePath" class="adm-table-avatar" onerror="this.style.display='none'" /> }
-                                    else
-                                    { <div class="adm-table-avatar-letter" style="background:@colors[colorIdx];">@initial</div> }
-                                    <div>
-                                        <div class="adm-table-name">@user.UserName</div>
-                                        <div class="adm-table-email">@user.Email</div>
-                                    </div>
-                                </div>
-                            </td>
+                            <td><div class="adm-table-user">@if (!string.IsNullOrEmpty(user.ProfilePicturePath) && user.ProfilePicturePath != "/images/default.jpg") { <img src="@user.ProfilePicturePath" class="adm-table-avatar" onerror="this.style.display='none'" /> } else { <div class="adm-table-avatar-letter" style="background:@colors[colorIdx];">@initial</div> }<div><div class="adm-table-name">@user.UserName</div><div class="adm-table-email">@user.Email</div></div></div></td>
                             <td style="font-family:var(--font-mono);">@userPostCount</td>
                             <td style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);">@user.LastActiveOn.ToString("dd MMM yyyy HH:mm")</td>
-                            <td>
-                                @if (isBanned) { <span class="adm-badge banned"><i class="fa-solid fa-ban fa-xs"></i> Banned</span> }
-                                else if (isOnline) { <span class="adm-badge online">Online</span> }
-                                else { <span class="adm-badge" style="color:var(--text-dim);background:var(--bg);">Offline</span> }
-                            </td>
-                            <td>
-                                <div class="adm-tbl-actions">
-                                    <a asp-controller="Account" asp-action="UserProfile" asp-route-username="@user.UserName" class="adm-tbl-btn" title="View Profile"><i class="fa-solid fa-eye"></i></a>
-                                    @if (isBanned)
-                                    {
-                                        <form asp-action="UnbanUser" asp-route-userId="@user.Id" method="post" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="adm-tbl-btn success" title="Unban" onclick="return confirm('Unban this user?')"><i class="fa-solid fa-check"></i></button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <form asp-action="BanUser" asp-route-userId="@user.Id" method="post" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="adm-tbl-btn danger" title="Ban" onclick="return confirm('Ban this user?')"><i class="fa-solid fa-ban"></i></button>
-                                        </form>
-                                    }
-                                </div>
-                            </td>
+                            <td>@if (isBanned) { <span class="adm-badge banned"><i class="fa-solid fa-ban fa-xs"></i> Banned</span> } else if (isOnline) { <span class="adm-badge online">Online</span> } else { <span class="adm-badge" style="color:var(--text-dim);background:var(--bg);">Offline</span> }</td>
+                            <td><div class="adm-tbl-actions"><a asp-controller="Account" asp-action="UserProfile" asp-route-username="@user.UserName" class="adm-tbl-btn" title="View Profile"><i class="fa-solid fa-eye"></i></a>@if (isBanned) { <form asp-action="UnbanUser" asp-route-userId="@user.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button type="submit" class="adm-tbl-btn success" title="Unban" onclick="return confirm('Unban this user?')"><i class="fa-solid fa-check"></i></button></form> } else { <form asp-action="BanUser" asp-route-userId="@user.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button type="submit" class="adm-tbl-btn danger" title="Ban" onclick="return confirm('Ban this user?')"><i class="fa-solid fa-ban"></i></button></form> }</div></td>
                         </tr>
                     }
                 </tbody>
@@ -532,9 +330,7 @@
 
     @* ════ TAB: Topics ════ *@
     <div class="adm-tab-content" id="tab-topics">
-        <div class="adm-header adm-anim adm-d1" style="padding-top:0;">
-            <div><div class="adm-title">Topics & Subcategories</div><div class="adm-sub">Manage forum structure</div></div>
-        </div>
+        <div class="adm-header adm-anim adm-d1" style="padding-top:0;"><div><div class="adm-title">Topics & Subcategories</div><div class="adm-sub">Manage forum structure</div></div></div>
         <div class="adm-topic-cards adm-anim adm-d2">
             @foreach (var topic in allTopics)
             {
@@ -543,22 +339,7 @@
                 var topicColor = tc switch { "art" => "var(--art)", "music" => "var(--music)", "fashion" => "var(--fashion)", _ => "var(--accent)" };
                 var bgColor = tc switch { "art" => "rgba(76,175,114,0.1)", "music" => "rgba(124,111,255,0.1)", "fashion" => "rgba(240,160,75,0.1)", _ => "rgba(232,93,74,0.1)" };
                 var postCount = topic.Subcategories?.Sum(s => s.Posts?.Count ?? 0) ?? 0;
-                <div class="adm-topic-card">
-                    <div class="adm-topic-card-head">
-                        <div class="adm-topic-icon" style="background:@bgColor;color:@topicColor;"><i class="fa-solid @iconClass"></i></div>
-                        <div>
-                            <div style="font-family:var(--font-head);font-weight:700;font-size:1.05rem;">@topic.Name</div>
-                            <div style="font-size:0.72rem;color:var(--text-dim);">@topic.Description</div>
-                        </div>
-                    </div>
-                    <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem;">
-                        @if (topic.Subcategories != null)
-                        { @foreach (var sub in topic.Subcategories) { <span class="adm-badge @tc">@sub.Name</span> } }
-                    </div>
-                    <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);">
-                        @postCount posts · @(topic.Subcategories?.Count ?? 0) subcategories
-                    </div>
-                </div>
+                <div class="adm-topic-card"><div class="adm-topic-card-head"><div class="adm-topic-icon" style="background:@bgColor;color:@topicColor;"><i class="fa-solid @iconClass"></i></div><div><div style="font-family:var(--font-head);font-weight:700;font-size:1.05rem;">@topic.Name</div><div style="font-size:0.72rem;color:var(--text-dim);">@topic.Description</div></div></div><div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem;">@if (topic.Subcategories != null) { @foreach (var sub in topic.Subcategories) { <span class="adm-badge @tc">@sub.Name</span> } }</div><div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);">@postCount posts · @(topic.Subcategories?.Count ?? 0) subcategories</div></div>
             }
         </div>
     </div>
@@ -566,21 +347,11 @@
     @* ════ TAB: Reports ════ *@
     <div class="adm-tab-content" id="tab-reports">
         <div class="adm-header adm-anim adm-d1" style="padding-top:0;">
-            <div>
-                <div class="adm-title">Reports</div>
-                <div class="adm-sub">
-                    @if (Model.PendingReportCount > 0)
-                    { <span style="color:var(--accent);">@Model.PendingReportCount pending report@(Model.PendingReportCount == 1 ? "" : "s") require attention</span> }
-                    else { <span>No pending reports</span> }
-                </div>
-            </div>
+            <div><div class="adm-title">Reports</div><div class="adm-sub">@if (Model.PendingReportCount > 0) { <span style="color:var(--accent);">@Model.PendingReportCount pending report@(Model.PendingReportCount == 1 ? "" : "s") require attention</span> } else { <span>No pending reports</span> }</div></div>
         </div>
         @if (!pendingReports.Any())
         {
-            <div class="adm-panel adm-anim adm-d2" style="text-align:center;padding:4rem;color:var(--text-dim);">
-                <i class="fa-solid fa-shield-check fa-2x" style="display:block;margin-bottom:0.75rem;color:var(--art);"></i>
-                All clear — no pending reports.
-            </div>
+            <div class="adm-panel adm-anim adm-d2" style="text-align:center;padding:4rem;color:var(--text-dim);"><i class="fa-solid fa-shield-check fa-2x" style="display:block;margin-bottom:0.75rem;color:var(--art);"></i>All clear — no pending reports.</div>
         }
         else
         {
@@ -591,38 +362,20 @@
                         @foreach (var report in pendingReports)
                         {
                             string typeLabel; string typeClass; string contentLabel; string? contentLink = null;
-                            if (report.PostId.HasValue)
-                            { typeLabel = "Post"; typeClass = "report-post"; contentLabel = report.Post?.Title ?? $"Post #{report.PostId}"; contentLink = $"/Posts/Details/{report.PostId}"; }
-                            else if (report.CommentId.HasValue)
-                            { typeLabel = "Comment"; typeClass = "report-comment"; var preview = report.Comment?.Content ?? ""; contentLabel = preview.Length > 50 ? preview.Substring(0, 50) + "…" : preview; contentLink = report.Comment != null ? $"/Posts/Details/{report.Comment.PostId}#comment-{report.CommentId}" : null; }
-                            else
-                            { typeLabel = "User"; typeClass = "report-user"; contentLabel = report.ReportedUser?.UserName ?? "Unknown user"; contentLink = report.ReportedUser != null ? $"/u/{report.ReportedUser.UserName}" : null; }
+                            if (report.PostId.HasValue) { typeLabel = "Post"; typeClass = "report-post"; contentLabel = report.Post?.Title ?? $"Post #{report.PostId}"; contentLink = $"/Posts/Details/{report.PostId}"; }
+                            else if (report.CommentId.HasValue) { typeLabel = "Comment"; typeClass = "report-comment"; var preview = report.Comment?.Content ?? ""; contentLabel = preview.Length > 50 ? preview.Substring(0, 50) + "…" : preview; contentLink = report.Comment != null ? $"/Posts/Details/{report.Comment.PostId}#comment-{report.CommentId}" : null; }
+                            else { typeLabel = "User"; typeClass = "report-user"; contentLabel = report.ReportedUser?.UserName ?? "Unknown user"; contentLink = report.ReportedUser != null ? $"/u/{report.ReportedUser.UserName}" : null; }
                             var reasonLabel = report.Reason switch { ReportReason.Spam => "Spam", ReportReason.Harassment => "Harassment", ReportReason.HateSpeech => "Hate Speech", ReportReason.Misinformation => "Misinformation", ReportReason.InappropriateContent => "Inappropriate", _ => report.Reason.ToString() };
                             var ago = DateTime.UtcNow - report.CreatedOn;
                             var agoText = ago.TotalMinutes < 60 ? $"{(int)ago.TotalMinutes}m ago" : ago.TotalHours < 24 ? $"{(int)ago.TotalHours}h ago" : $"{(int)ago.TotalDays}d ago";
                             <tr>
                                 <td style="font-family:var(--font-mono);color:var(--text-dim);">#@report.Id</td>
                                 <td><span class="adm-badge @typeClass">@typeLabel</span></td>
-                                <td>
-                                    @if (contentLink != null)
-                                    { <a href="@contentLink" target="_blank" style="color:var(--text);font-weight:600;text-decoration:none;font-size:0.82rem;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@contentLabel <i class="fa-solid fa-arrow-up-right-from-square fa-xs" style="color:var(--text-dim);margin-left:0.25rem;"></i></a> }
-                                    else { <span style="color:var(--text);font-weight:600;font-size:0.82rem;">@contentLabel</span> }
-                                </td>
+                                <td>@if (contentLink != null) { <a href="@contentLink" target="_blank" style="color:var(--text);font-weight:600;text-decoration:none;font-size:0.82rem;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@contentLabel <i class="fa-solid fa-arrow-up-right-from-square fa-xs" style="color:var(--text-dim);margin-left:0.25rem;"></i></a> } else { <span style="color:var(--text);font-weight:600;font-size:0.82rem;">@contentLabel</span> }</td>
                                 <td><span class="adm-reason">@reasonLabel</span></td>
                                 <td><span style="font-size:0.8rem;color:var(--text-muted);">@report.Reporter?.UserName</span></td>
                                 <td style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);">@agoText</td>
-                                <td>
-                                    <div class="adm-tbl-actions">
-                                        <form asp-controller="Reports" asp-action="Resolve" asp-route-id="@report.Id" method="post" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="adm-tbl-btn success" title="Resolve" onclick="return confirm('Mark as resolved?')"><i class="fa-solid fa-check"></i></button>
-                                        </form>
-                                        <form asp-controller="Reports" asp-action="Dismiss" asp-route-id="@report.Id" method="post" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="adm-tbl-btn danger" title="Dismiss" onclick="return confirm('Dismiss this report?')"><i class="fa-solid fa-xmark"></i></button>
-                                        </form>
-                                    </div>
-                                </td>
+                                <td><div class="adm-tbl-actions"><form asp-controller="Reports" asp-action="Resolve" asp-route-id="@report.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button type="submit" class="adm-tbl-btn success" title="Resolve" onclick="return confirm('Mark as resolved?')"><i class="fa-solid fa-check"></i></button></form><form asp-controller="Reports" asp-action="Dismiss" asp-route-id="@report.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button type="submit" class="adm-tbl-btn danger" title="Dismiss" onclick="return confirm('Dismiss this report?')"><i class="fa-solid fa-xmark"></i></button></form></div></td>
                             </tr>
                         }
                     </tbody>
@@ -637,8 +390,7 @@
             <div>
                 <div class="adm-title">Messages</div>
                 <div class="adm-sub">
-                    @if (Model.UnreadMessageCount > 0)
-                    { <span style="color:var(--music);">@Model.UnreadMessageCount unread message@(Model.UnreadMessageCount == 1 ? "" : "s")</span> }
+                    @if (Model.UnreadMessageCount > 0) { <span style="color:var(--music);">@Model.UnreadMessageCount unread message@(Model.UnreadMessageCount == 1 ? "" : "s")</span> }
                     else { <span>All messages read</span> }
                 </div>
             </div>
@@ -662,7 +414,7 @@
                             <th>Subject</th>
                             <th>Date</th>
                             <th>Status</th>
-                            <th style="width:80px;"></th>
+                            <th style="width:90px;"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -680,48 +432,78 @@
                                 </td>
                                 <td>
                                     <div style="font-size:0.82rem;color:var(--text-muted);">@msg.Subject</div>
-                                    <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.2rem;max-width:320px;
-                                                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                        @msg.Message
-                                    </div>
+                                    <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.2rem;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@msg.Message</div>
                                 </td>
                                 <td style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);white-space:nowrap;">@msgAgoText</td>
                                 <td>
-                                    @if (!msg.IsRead)
-                                    { <span class="adm-badge unread"><i class="fa-solid fa-circle fa-xs"></i> Unread</span> }
-                                    else
-                                    { <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);">Read</span> }
+                                    @if (!msg.IsRead) { <span class="adm-badge unread"><i class="fa-solid fa-circle fa-xs"></i> Unread</span> }
+                                    else if (!string.IsNullOrEmpty(msg.AdminReply)) { <span class="adm-badge active"><i class="fa-solid fa-reply fa-xs"></i> Replied</span> }
+                                    else { <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);">Read</span> }
                                 </td>
                                 <td>
                                     <div class="adm-tbl-actions">
-                                        <button type="button" class="adm-tbl-btn" title="Expand"
-                                                onclick="toggleMessage(@msg.Id)">
+                                        <button type="button" class="adm-tbl-btn" title="Expand/Reply" onclick="toggleMessage(@msg.Id)">
                                             <i class="fa-solid fa-chevron-down fa-xs" id="chevron-@msg.Id"></i>
                                         </button>
                                         @if (!msg.IsRead)
                                         {
                                             <form asp-controller="QA" asp-action="MarkRead" asp-route-id="@msg.Id" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="adm-tbl-btn success" title="Mark as read">
-                                                    <i class="fa-solid fa-check"></i>
-                                                </button>
+                                                <button type="submit" class="adm-tbl-btn success" title="Mark as read"><i class="fa-solid fa-check"></i></button>
                                             </form>
                                         }
                                         <form asp-controller="QA" asp-action="Delete" asp-route-id="@msg.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="adm-tbl-btn danger" title="Delete"
-                                                    onclick="return confirm('Delete this message?')">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
+                                            <button type="submit" class="adm-tbl-btn danger" title="Delete" onclick="return confirm('Delete this message?')"><i class="fa-solid fa-trash"></i></button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                             <tr id="msg-body-@msg.Id" style="display:none;">
                                 <td colspan="6" style="padding:0;">
-                                    <div style="padding:1rem 1.25rem;background:var(--bg-hover);
-                                                border-top:1px solid var(--border);font-size:0.85rem;
-                                                color:var(--text-muted);line-height:1.7;white-space:pre-wrap;">@msg.Message</div>
+                                    <div style="padding:1rem 1.25rem;background:var(--bg-hover);border-top:1px solid var(--border);">
+
+                                        <!-- Original message body -->
+                                        <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;
+                                                    white-space:pre-wrap;margin-bottom:1rem;">@msg.Message</div>
+
+                                        <!-- Existing reply display -->
+                                        @if (!string.IsNullOrEmpty(msg.AdminReply))
+                                        {
+                                            <div style="padding:0.75rem;background:rgba(232,93,74,0.06);
+                                                        border:1px solid rgba(232,93,74,0.15);border-radius:6px;
+                                                        margin-bottom:0.75rem;">
+                                                <div style="font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;
+                                                            letter-spacing:0.08em;color:var(--accent);margin-bottom:0.4rem;">
+                                                    Your reply · @msg.RepliedOn?.ToString("dd MMM yyyy")
+                                                </div>
+                                                <div style="font-size:0.82rem;color:var(--text-muted);white-space:pre-wrap;">@msg.AdminReply</div>
+                                            </div>
+                                        }
+
+                                        <!-- Reply form -->
+                                        <form asp-controller="QA" asp-action="Reply" asp-route-id="@msg.Id" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <textarea name="adminReply" rows="3"
+                                                      placeholder="@(string.IsNullOrEmpty(msg.AdminReply) ? "Write a reply..." : "Update your reply...")"
+                                                      style="width:100%;background:var(--bg);border:1px solid var(--border);
+                                                             border-radius:6px;padding:0.55rem 0.75rem;color:var(--text);
+                                                             font-size:0.82rem;font-family:var(--font-body);outline:none;
+                                                             resize:vertical;box-sizing:border-box;line-height:1.6;"
+                                                      onfocus="this.style.borderColor='var(--accent)'"
+                                                      onblur="this.style.borderColor='var(--border)'">@msg.AdminReply</textarea>
+                                            <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;">
+                                                <button type="submit"
+                                                        style="background:var(--accent);color:#fff;border:none;
+                                                               padding:0.4rem 1rem;border-radius:6px;font-size:0.8rem;
+                                                               font-weight:600;cursor:pointer;">
+                                                    <i class="fa-solid fa-paper-plane fa-xs" style="margin-right:0.3rem;"></i>
+                                                    @(string.IsNullOrEmpty(msg.AdminReply) ? "Send Reply" : "Update Reply")
+                                                </button>
+                                            </div>
+                                        </form>
+
+                                    </div>
                                 </td>
                             </tr>
                         }

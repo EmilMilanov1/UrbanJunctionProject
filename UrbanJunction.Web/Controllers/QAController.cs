@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UrbanJunction.Data;
 using UrbanJunction.Data.Models;
@@ -24,6 +25,13 @@ namespace UrbanJunction.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             ViewBag.Name = user?.UserName ?? "";
             ViewBag.Email = user?.Email ?? "";
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            ViewBag.MyMessages = await _context.ContactMessages
+                .Where(m => m.SenderId == userId)
+                .OrderByDescending(m => m.CreatedOn)
+                .ToListAsync();
+
             return View();
         }
 
@@ -82,5 +90,29 @@ namespace UrbanJunction.Web.Controllers
             TempData["Success"] = "Message deleted.";
             return RedirectToAction("Index", "Admin");
         }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reply(int id, string adminReply)
+        {
+            if (string.IsNullOrWhiteSpace(adminReply))
+            {
+                TempData["Error"] = "Reply cannot be empty.";
+                return RedirectToAction("Index", "Admin");
+            }
+
+            var msg = await _context.ContactMessages.FindAsync(id);
+            if (msg == null) return NotFound();
+
+            msg.AdminReply = adminReply;
+            msg.RepliedOn = DateTime.UtcNow;
+            msg.IsRead = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Reply sent.";
+            return RedirectToAction("Index", "Admin");
+        }
+
     }
 }
