@@ -135,5 +135,40 @@ namespace UrbanJunction.Services.Implementations
                 .OrderByDescending(p => p.CreatedOn)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Post>> SearchAllAsync(string? query, string? topic, string? sort)
+        {
+            var posts = _context.Posts
+                .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
+                .Include(p => p.Images)
+                .Include(p => p.User)
+                .Include(p => p.Reactions)
+                .Include(p => p.Comments)
+                .Include(p => p.PostTags).ThenInclude(pt => pt.Tag)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                posts = posts.Where(p =>
+                    p.Title.Contains(query) ||
+                    p.Content.Contains(query) ||
+                    p.User.UserName.Contains(query));
+            }
+
+            if (!string.IsNullOrWhiteSpace(topic) && topic != "all")
+            {
+                posts = posts.Where(p => p.Subcategory.Topic.Name == topic);
+            }
+
+            var result = await posts.AsNoTracking().ToListAsync();
+
+            result = sort switch
+            {
+                "top" => result.OrderByDescending(p => (p.Reactions?.Count(r => r.IsUpvote) ?? 0) - (p.Reactions?.Count(r => !r.IsUpvote) ?? 0)).ToList(),
+                "replies" => result.OrderByDescending(p => p.Comments?.Count() ?? 0).ToList(),
+                _ => result.OrderByDescending(p => p.CreatedOn).ToList()
+            };
+
+            return result;
+        }
     }
 }

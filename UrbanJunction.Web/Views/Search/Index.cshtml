@@ -1,0 +1,345 @@
+@model IEnumerable<UrbanJunction.Data.Models.Post>
+@{
+    ViewData["Title"] = "Search";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userVotes = ViewBag.UserVotes as Dictionary<int, string> ?? new Dictionary<int, string>();
+    string query = ViewBag.Query ?? "";
+    string activeTopic = ViewBag.ActiveTopic ?? "all";
+    string activeSort = ViewBag.ActiveSort ?? "new";
+    int resultCount = ViewBag.ResultCount ?? 0;
+}
+<style>
+    .thread-list {
+        animation: search-fade-in 200ms cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    @@keyframes search-fade-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
+<div class="forum-main">
+
+    <div class="topic-header">
+        <div class="topic-title">
+            <i class="fa-solid fa-magnifying-glass fa-sm" style="color:var(--text-dim);margin-right:0.5rem;"></i>
+            Search
+        </div>
+    </div>
+
+    <form asp-controller="Search" asp-action="Index" method="get" style="margin-bottom:1rem;">
+        <input type="hidden" name="topic" value="@activeTopic" />
+        <input type="hidden" name="sort" value="@activeSort" />
+        <div style="display:flex;align-items:center;gap:0.75rem;background:var(--bg-card);
+            border:1px solid var(--border);border-radius:8px;padding:0.65rem 1rem;
+            transition:border-color 150ms;"
+             onfocusin="this.style.borderColor='var(--accent)'"
+             onfocusout="this.style.borderColor='var(--border)'">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--text-dim);font-size:0.85rem;"></i>
+            <input type="text" name="query" value="@query"
+                   placeholder="Search all topics…"
+                   autofocus
+                   style="background:none;border:none;outline:none;color:var(--text);
+            font-size:0.9rem;font-family:var(--font-body);flex:1;" />
+            @if (!string.IsNullOrEmpty(query))
+            {
+                <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);">
+                    @resultCount result@(resultCount == 1 ? "" : "s")
+                </span>
+            }
+            <button type="submit"
+                    style="background:var(--accent);color:#fff;border:none;
+                padding:0.35rem 0.9rem;border-radius:5px;font-size:0.8rem;
+                cursor:pointer;font-family:var(--font-body);">
+                Search
+            </button>
+        </div>
+    </form>
+
+    <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1rem;">
+        <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+            <span style="font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;
+            letter-spacing:0.1em;color:var(--text-dim);margin-right:0.15rem;">Topic</span>
+            @foreach (var (t, color) in new[] { ("all", "var(--text-dim)"), ("Art", "#4caf72"), ("Music", "#7c6fff"), ("Fashion", "#f0a04b") })
+            {
+                bool isActive = activeTopic == t;
+                <a asp-controller="Search" asp-action="Index"
+                       asp-route-query="@query" asp-route-topic="@t" asp-route-sort="@activeSort"
+                       style="font-family:var(--font-mono);font-size:0.65rem;padding:0.25rem 0.65rem;
+                    border-radius:20px;text-decoration:none;transition:all 120ms;
+                    border:1px solid @(isActive ? color : "var(--border)");
+                    background:@(isActive ? $"rgba({(t == "Art" ? "76,175,114" : t == "Music" ? "124,111,255" : t == "Fashion" ? "240,160,75" : "255,255,255")},{(isActive ? "0.12" : "0")})": "transparent");
+                    color:@(isActive ? color : "var(--text-dim)");">
+                    @(t == "all" ? "All" : t)
+                </a>
+            }
+        </div>
+
+        <div style="width:1px;height:18px;background:var(--border);"></div>
+
+        <div style="display:flex;align-items:center;gap:0.35rem;">
+            <span style="font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;
+            letter-spacing:0.1em;color:var(--text-dim);margin-right:0.15rem;">Sort</span>
+            @foreach (var (s, label) in new[] { ("new", "Newest"), ("top", "Top"), ("replies", "Most replied") })
+            {
+                bool isActive = activeSort == s;
+                <a asp-controller="Search" asp-action="Index"
+                       asp-route-query="@query" asp-route-topic="@activeTopic" asp-route-sort="@s"
+                       style="font-family:var(--font-mono);font-size:0.65rem;padding:0.25rem 0.65rem;
+                    border-radius:20px;text-decoration:none;transition:all 120ms;
+                    border:1px solid @(isActive ? "var(--accent)" : "var(--border)");
+                    background:@(isActive ? "rgba(232,93,74,0.1)" : "transparent");
+                    color:@(isActive ? "var(--accent)" : "var(--text-dim)");">
+                    @label
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(query))
+    {
+        <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-dim);margin-bottom:0.75rem;">
+            @resultCount result@(resultCount == 1 ? "" : "s") for
+            <span style="color:var(--text-muted);">"@query"</span>
+            @if (activeTopic != "all")
+            {
+                <span> in <span style="color:var(--text-muted);">@activeTopic</span></span>
+            }
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(query) && !Model.Any())
+    {
+        <div style="text-align:center;padding:4rem 0;color:var(--text-dim);">
+            <i class="fa-regular fa-face-sad-tear fa-2x" style="display:block;margin-bottom:0.75rem;"></i>
+            No results found for "@query".
+        </div>
+    }
+    else if (string.IsNullOrEmpty(query))
+    {
+        <div style="text-align:center;padding:4rem 0;color:var(--text-dim);">
+            <i class="fa-solid fa-magnifying-glass fa-2x" style="display:block;margin-bottom:0.75rem;opacity:0.3;"></i>
+            Type something to search across all topics.
+        </div>
+    }
+    else
+    {
+        <div class="thread-list">
+            @foreach (var post in Model)
+            {
+                var tn = post.Subcategory?.Topic?.Name ?? "";
+                var tc = tn.ToLower() switch { "art" => "art", "music" => "music", "fashion" => "fashion", _ => "default" };
+                var topicColor = tc switch { "art" => "#4caf72", "music" => "#7c6fff", "fashion" => "#f0a04b", _ => "#e85d4a" };
+                var rgbStr = tc switch { "art" => "76,175,114", "music" => "124,111,255", "fashion" => "240,160,75", _ => "232,93,74" };
+                var subcatName = post.Subcategory?.Name ?? "";
+                var firstImage = post.Images?.FirstOrDefault()?.ImagePath;
+                var reactionCount = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0);
+                var commentCount = post.Comments?.Count() ?? 0;
+                var currentVote = userVotes.GetValueOrDefault(post.Id, "");
+                var postTags = post.PostTags?.Select(pt => pt.Tag.Name).ToList() ?? new List<string>();
+                var preview = post.Content?.Length > 150 ? post.Content.Substring(0, 150) + "…" : post.Content ?? "";
+                var isOwner = User.Identity?.IsAuthenticated == true &&
+                                    User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == post.UserId;
+                var isAdmin = User.IsInRole("Admin");
+
+                <div class="thread-row @(post.IsPinned ? "pinned" : "") @(post.IsLocked ? "locked" : "")"
+                     data-subcat="@subcatName">
+
+                    <div class="thread-vote">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <button class="vote-btn upvote feed-vote-btn @(currentVote == "up" ? "vote-active-up" : "")"
+                                    data-post-id="@post.Id" data-is-upvote="true"
+                                    data-user-vote="@currentVote" title="Upvote">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </button>
+                            <span class="vote-count feed-vote-score @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")"
+                                  data-post-id="@post.Id">
+                                @reactionCount
+                            </span>
+                            <button class="vote-btn downvote feed-vote-btn @(currentVote == "down" ? "vote-active-down" : "")"
+                                    data-post-id="@post.Id" data-is-upvote="false"
+                                    data-user-vote="@currentVote" title="Downvote">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="vote-btn upvote" title="Login to vote">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </a>
+                            <span class="vote-count @(reactionCount > 0 ? "positive" : reactionCount < 0 ? "negative" : "")">
+                                @reactionCount
+                            </span>
+                            <a asp-controller="Account" asp-action="Login" class="vote-btn downvote" title="Login to vote">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </a>
+                        }
+                    </div>
+
+                    <div class="thread-content">
+                        <div class="thread-text">
+
+                            <div class="thread-tags">
+                                <span class="thread-tag @tc">@tn</span>
+                                @if (post.IsPinned)
+                                {
+                                    <span class="thread-tag pinned"><i class="fa-solid fa-thumbtack fa-xs me-1"></i>Pinned</span>
+                                }
+                                @if (post.IsLocked)
+                                {
+                                    <span class="thread-tag locked"><i class="fa-solid fa-lock fa-xs me-1"></i>Locked</span>
+                                }
+                                @if (!string.IsNullOrEmpty(subcatName))
+                                {
+                                    <span class="thread-tag custom">@subcatName</span>
+                                }
+                                @foreach (var tagName in postTags.Take(3))
+                                {
+                                    <a asp-controller="Topics" asp-action="ByName"
+                                           asp-route-name="@tn"
+                                           asp-route-tag="@tagName"
+                                           onclick="event.stopPropagation()"
+                                           style="display:inline-flex;align-items:center;
+                                        font-family:var(--font-mono);font-size:0.62rem;
+                                        padding:0.1rem 0.5rem;border-radius:20px;
+                                        border:1px solid rgba(@(rgbStr),0.25);
+                                        background:rgba(@(rgbStr),0.07);
+                                        color:@topicColor;text-decoration:none;transition:all 120ms;"
+                                           onmouseover="this.style.opacity='0.75'"
+                                           onmouseout="this.style.opacity='1'">
+                                        #@tagName
+                                    </a>
+                                }
+                                @if (isOwner || isAdmin)
+                                {
+                                    <div class="d-flex align-items-center gap-1 ms-auto">
+                                        <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
+                                              method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="thread-tag custom"
+                                                    style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
+                                                    onclick="return confirm('Delete this thread?')">
+                                                <i class="fa-regular fa-trash-can fa-xs"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+
+                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id"
+                                   class="thread-title-link text-decoration-none">
+                                @post.Title
+                            </a>
+
+                            @if (!string.IsNullOrEmpty(preview))
+                            {
+                                <div class="thread-preview">@preview</div>
+                            }
+
+                            <div class="thread-meta">
+                                <a asp-controller="Account" asp-action="UserProfile"
+                                       asp-route-username="@post.User?.UserName"
+                                       class="thread-author text-decoration-none">
+                                    @if (!string.IsNullOrEmpty(post.User?.ProfilePicturePath))
+                                    {
+                                        <img src="@post.User.ProfilePicturePath"
+                                             onerror="this.src='/images/default.jpg'"
+                                             class="thread-author-avatar" />
+                                    }
+                                    <span class="thread-author-name">@post.User?.UserName</span>
+                                </a>
+                                <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
+                                <span class="thread-meta-stat">
+                                    <i class="fa-regular fa-comment fa-xs"></i>
+                                    @commentCount
+                                </span>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(firstImage))
+                        {
+                            <div class="thread-thumb">
+                                <a asp-controller="Posts" asp-action="Details" asp-route-id="@post.Id">
+                                    <img src="@firstImage"
+                                         onerror="this.style.display='none'"
+                                         alt="@post.Title" />
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="thread-replies">
+                        <span class="thread-reply-count">@commentCount</span>
+                        <span class="thread-reply-label">replies</span>
+                    </div>
+
+                </div>
+            }
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('.thread-row').forEach(row => {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', function (e) {
+                    if (e.target.closest('.thread-vote') ||
+                        e.target.closest('a') ||
+                        e.target.closest('button') ||
+                        e.target.closest('form')) return;
+                    const link = this.querySelector('.thread-title-link');
+                    if (link) window.location.href = link.href;
+                });
+            });
+                    // Topic/sort filter fade animation
+        document.querySelectorAll('a[asp-controller="Search"]').forEach(link => {
+            link.addEventListener('click', function () {
+                const list = document.querySelector('.thread-list');
+                if (list) {
+                    list.style.transition = 'opacity 150ms, transform 150ms';
+                    list.style.opacity = '0';
+                    list.style.transform = 'translateY(6px)';
+                }
+            });
+        });
+            document.querySelectorAll('.feed-vote-btn').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    const postId   = this.dataset.postId;
+                    const isUpvote = this.dataset.isUpvote === 'true';
+                    const token    = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+                    try {
+                        const response = await fetch(`/Posts/Vote/${postId}?isUpvote=${isUpvote}`, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token,
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: `__RequestVerificationToken=${encodeURIComponent(token)}`
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            const scoreEl = document.querySelector(`.feed-vote-score[data-post-id="${postId}"]`);
+                            if (scoreEl) {
+                                scoreEl.textContent = data.score;
+                                scoreEl.className = 'vote-count feed-vote-score' +
+                                    (data.score > 0 ? ' positive' : data.score < 0 ? ' negative' : '');
+                            }
+                            const upBtn   = document.querySelector(`.feed-vote-btn.upvote[data-post-id="${postId}"]`);
+                            const downBtn = document.querySelector(`.feed-vote-btn.downvote[data-post-id="${postId}"]`);
+                            if (upBtn && downBtn) {
+                                upBtn.classList.toggle('vote-active-up',     data.userVote === 'up');
+                                downBtn.classList.toggle('vote-active-down', data.userVote === 'down');
+                            }
+                        }
+                    } catch (err) { console.error('Vote failed', err); }
+                });
+            });
+
+        });
+    </script>
+}

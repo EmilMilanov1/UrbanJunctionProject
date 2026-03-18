@@ -10,6 +10,7 @@ namespace UrbanJunction.Services.Interfaces
         Task<Post> CreateAsync(PostFormViewModel model, string userId);
         Task<bool> EditAsync(int id, PostFormViewModel model, string userId);
         Task<bool> DeleteAsync(int id, string userId, bool isAdmin);
+        Task<IEnumerable<Post>> SearchAllAsync(string? query, string? topic, string? sort);
         Task<IEnumerable<Post>> GetByUserAsync(string userId);
 
     }

@@ -7,7 +7,6 @@
     string profilePic = currentUser?.ProfilePicturePath ?? "/images/default.jpg";
     string username = User.Identity?.Name ?? "";
 
-    // Detect current topic for active state highlighting
     var routeController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var routeAction    = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     var routeTopic     = ViewContext.RouteData.Values["name"]?.ToString() ?? ViewBag.TopicName as string ?? "";
@@ -33,126 +32,196 @@
     <title>@(ViewBag.Title != null ? ViewBag.Title + " — Urban Junction" : "Urban Junction")</title>
     <link rel="icon" type="image/x-icon" href="~/images/logo.png" />
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-    <!-- Icons & Bootstrap -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <!-- Site styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UrbanJunction.Web.styles.css" asp-append-version="true" />
+
+    <style>
+        .navbar {
+        height: 48px !important;
+        min-height: 48px !important;
+        padding: 0 1.25rem !important;
+        }
+        .search-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: rgba(0,0,0,0.7);
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 80px;
+        }
+        .search-overlay.open { display: flex; }
+        .search-overlay-box {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 1rem;
+            animation: search-drop 180ms cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        @@keyframes search-drop {
+            from { opacity: 0; transform: translateY(-12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .search-overlay-inner {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .search-overlay-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .search-overlay-bar input {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: var(--font-body);
+            flex: 1;
+        }
+        .search-overlay-bar input::placeholder { color: var(--text-dim); }
+        .search-overlay-hint {
+            padding: 0.6rem 1.1rem;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-overlay-hint kbd {
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.1rem 0.4rem;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            color: var(--text-dim);
+        }
+    </style>
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
 
-    <!-- ══════════════════════════════════════
-         NAVBAR
-         ══════════════════════════════════════ -->
-    <header>
-        <nav class="navbar">
-
-            <!-- Brand -->
-            <a asp-controller="Home" asp-action="Index" class="navbar-brand">
-                <img src="~/images/logo.png" alt="Urban Junction" class="nav-logo-emblem" />
-                <span class="navbar-brand-name">Urban Junction</span>
-            </a>
-
-           @*  <!-- Topic links (center) -->
-            <div class="navbar-topics d-none d-md-flex">
-                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
-                   class="nav-topic-link art @(isArt ? "active" : "")">
-                    <i class="fa-solid fa-palette fa-xs me-1"></i>Art
-                </a>
-                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
-                   class="nav-topic-link music @(isMusic ? "active" : "")">
-                    <i class="fa-solid fa-music fa-xs me-1"></i>Music
-                </a>
-                <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
-                   class="nav-topic-link fashion @(isFashion ? "active" : "")">
-                    <i class="fa-solid fa-shirt fa-xs me-1"></i>Fashion
-                </a>
-                <a asp-controller="QA" asp-action="Index"
-                   class="nav-topic-link @(routeController == "QA" ? "active" : "")">
-                    <i class="fa-solid fa-circle-question fa-xs me-1"></i>Q&amp;A
-                </a>
-            </div> *@
-
-            <!-- Right actions -->
-            <div class="navbar-actions">
-                @if (User.Identity?.IsAuthenticated ?? false)
-                {
-                    <!-- New Thread button — only on topic pages -->
-                  @*   @if (isTopicPage)
-                    {
-                        <a asp-controller="Posts" asp-action="Create"
-                           asp-route-topicName="@routeTopic"
-                           class="btn-new-thread d-none d-sm-flex">
-                            <i class="fa-solid fa-plus fa-xs"></i>
-                            <span>New Thread</span>
-                        </a>
-                    } *@
-
-                    <!-- Profile -->
-                    <a asp-controller="Account" asp-action="Profile"
-                       class="d-flex align-items-center gap-2 text-decoration-none">
-                        <img src="@profilePic"
-                             onerror="this.src='/images/default.jpg'"
-                             class="navbar-avatar"
-                             alt="@username" />
-                        <span class="d-none d-lg-inline" style="font-size:0.82rem;color:var(--text-muted);">@username</span>
-                    </a>
-
-                    <!-- Logout -->
-                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="navbar-icon-btn" title="Logout">
-                            <i class="fa-solid fa-right-from-bracket fa-sm"></i>
+    <!-- Search overlay -->
+    <div class="search-overlay" id="searchOverlay" onclick="closeSearch(event)">
+        <div class="search-overlay-box">
+            <div class="search-overlay-inner">
+                <form asp-controller="Search" asp-action="Index" method="get">
+                    <div class="search-overlay-bar">
+                        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-dim);font-size:0.9rem;"></i>
+                        <input type="text" name="query" id="searchOverlayInput"
+                               placeholder="Search all topics…" autocomplete="" />
+                        <button type="submit"
+                            style="background:var(--accent);color:#fff;border:none;border-radius:5px;
+                                   font-size:0.78rem;cursor:pointer;font-family:var(--font-body);
+                                   white-space:nowrap;padding:0.35rem 0.85rem;">
+                             Search
                         </button>
-                    </form>
-                }
-                else
-                {
-                    <a asp-controller="Account" asp-action="Login"
-                       class="btn-new-thread">
-                        <i class="fa-solid fa-right-to-bracket fa-xs"></i>
-                        <span>Login</span>
-                    </a>
-                }
-
-                <!-- Mobile hamburger -->
-                <button class="navbar-icon-btn d-md-none"
-                        type="button"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#mobileMenu"
-                        aria-label="Menu">
-                    <i class="fa-solid fa-bars fa-sm"></i>
-                </button>
+                    </div>
+                </form>
+                <div class="search-overlay-hint">
+                    <span>Search across Art, Music and Fashion</span>
+                    <span><kbd>Esc</kbd> to close &nbsp;·&nbsp; <kbd>Ctrl K</kbd> to open</span>
+                </div>
             </div>
+        </div>
+    </div>
 
-        </nav>
-    </header>
+    <!-- NAVBAR -->
+    <header>
+<nav class="navbar" style="display:flex;align-items:center;gap:1rem;">
+        <!-- Brand -->
+        <a asp-controller="Home" asp-action="Index" class="navbar-brand" style="flex-shrink:0;">
+            <img src="~/images/logo.png" alt="Urban Junction" class="nav-logo-emblem" />
+            <span class="navbar-brand-name">Urban Junction</span>
+        </a>
 
-    <!-- ══════════════════════════════════════
-         3-COLUMN LAYOUT
-         ══════════════════════════════════════ -->
+        <!-- Search pill (center) -->
+        <button onclick="openSearch()" type="button"
+        style="display:inline-flex;align-items:center;gap:0.6rem;
+               background:rgba(232,93,74,0.12);border:1px solid rgba(232,93,74,0.25);
+               border-radius:999px;padding:0.4rem 1.25rem;cursor:pointer;
+               transition:all 150ms;
+               position:absolute;left:50%;transform:translateX(-50%);
+               width:340px;"
+        onmouseover="this.style.background='rgba(232,93,74,0.18)';this.style.borderColor='rgba(232,93,74,0.45)'"
+        onmouseout="this.style.background='rgba(232,93,74,0.12)';this.style.borderColor='rgba(232,93,74,0.25)'">
+            <i class="fa-solid fa-magnifying-glass" style="color:#e85d4a;font-size:0.8rem;flex-shrink:0;"></i>
+            <span style="font-size:0.82rem;color:#a06060;font-family:var(--font-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                Search Urban Junction…
+            </span>
+            <span style="margin-left:auto;font-family:var(--font-mono);font-size:0.6rem;
+                         color:#7a4a42;border:1px solid rgba(232,93,74,0.2);
+                         border-radius:4px;padding:0.1rem 0.35rem;flex-shrink:0;">
+                Ctrl K
+            </span>
+        </button>
+
+        <!-- Right actions -->
+        <div class="navbar-actions" style="flex-shrink:0;">
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <a asp-controller="Account" asp-action="Profile"
+                   class="d-flex align-items-center gap-2 text-decoration-none">
+                    <img src="@profilePic"
+                         onerror="this.src='/images/default.jpg'"
+                         class="navbar-avatar"
+                         alt="@username" />
+                    <span class="d-none d-lg-inline" style="font-size:0.82rem;color:var(--text-muted);">@username</span>
+                </a>
+
+                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="navbar-icon-btn" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket fa-sm"></i>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn-new-thread">
+                    <i class="fa-solid fa-right-to-bracket fa-xs"></i>
+                    <span>Login</span>
+                </a>
+            }
+
+            <button class="navbar-icon-btn d-md-none"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#mobileMenu"
+                    aria-label="Menu">
+                <i class="fa-solid fa-bars fa-sm"></i>
+            </button>
+        </div>
+
+    </nav>
+</header>
+
+    <!-- 3-COLUMN LAYOUT -->
     <div class="forum-layout">
 
-        <!-- ── LEFT SIDEBAR ──────────────────── -->
+        <!-- LEFT SIDEBAR -->
         <aside class="sidebar-left d-none d-lg-flex">
 
-            <!-- Logo block -->
             <div class="sidebar-logo-block">
                 <img src="~/images/logo.png" alt="Urban Junction" class="sidebar-logo-emblem" />
                 <div class="sidebar-logo-name">Urban Junction</div>
                 <div class="sidebar-logo-label">Forum</div>
             </div>
 
-            <!-- Topics -->
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Topics</div>
 
@@ -162,22 +231,15 @@
                     Art
                     <span class="sidebar-count">@(ViewBag.ArtCount ?? "")</span>
                 </a>
-
                 @if (isArt)
                 {
                     <div class="sidebar-subcats">
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Graffiti"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Graffiti" ? "active" : "")">
-                            Graffiti
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Graffiti" ? "active" : "")">Graffiti</a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Photography"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Photography" ? "active" : "")">
-                            Photography
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Photography" ? "active" : "")">Photography</a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" asp-route-subcat="Digital"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Digital" ? "active" : "")">
-                            Digital Art
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Digital" ? "active" : "")">Digital Art</a>
                     </div>
                 }
 
@@ -187,22 +249,15 @@
                     Music
                     <span class="sidebar-count">@(ViewBag.MusicCount ?? "")</span>
                 </a>
-
                 @if (isMusic)
                 {
                     <div class="sidebar-subcats">
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="HipHop"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "HipHop" ? "active" : "")">
-                            Hip-Hop
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "HipHop" ? "active" : "")">Hip-Hop</a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Electronic"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Electronic" ? "active" : "")">
-                            Electronic
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Electronic" ? "active" : "")">Electronic</a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" asp-route-subcat="Indie"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Indie" ? "active" : "")">
-                            Indie
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Indie" ? "active" : "")">Indie</a>
                     </div>
                 }
 
@@ -212,29 +267,21 @@
                     Fashion
                     <span class="sidebar-count">@(ViewBag.FashionCount ?? "")</span>
                 </a>
-
                 @if (isFashion)
                 {
                     <div class="sidebar-subcats">
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Streetwear"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Streetwear" ? "active" : "")">
-                            Streetwear
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Streetwear" ? "active" : "")">Streetwear</a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Vintage"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Vintage" ? "active" : "")">
-                            Vintage
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Vintage" ? "active" : "")">Vintage</a>
                         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" asp-route-subcat="Designers"
-                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Designers" ? "active" : "")">
-                            Designers
-                        </a>
+                           class="sidebar-subcat-item @(ViewBag.ActiveSubcat == "Designers" ? "active" : "")">Designers</a>
                     </div>
                 }
             </div>
 
             <div class="sidebar-divider"></div>
 
-            <!-- Other sections -->
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Sections</div>
 
@@ -249,6 +296,7 @@
                     <i class="fa-solid fa-scroll fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
                     Credits
                 </a>
+
                 @if (User.Identity?.IsAuthenticated ?? false)
                 {
                     <a asp-controller="Posts" asp-action="MyPosts"
@@ -261,7 +309,7 @@
                         <i class="fa-solid fa-user fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
                         My Profile
                     </a>
-                }               
+                }
             </div>
 
             @if (User.IsInRole("Admin"))
@@ -279,21 +327,19 @@
 
         </aside>
 
-        <!-- ── MAIN CONTENT ───────────────────── -->
+        <!-- MAIN CONTENT -->
         <main role="main" class="pb-5" style="min-width:0;">
             @RenderBody()
         </main>
 
-        <!-- ── RIGHT SIDEBAR ─────────────────── -->
+        <!-- RIGHT SIDEBAR -->
         <aside class="sidebar-right d-none d-xl-flex">
-            @* Pages can inject content here via ViewBag or a section *@
             @if (IsSectionDefined("RightSidebar"))
             {
                 @await RenderSectionAsync("RightSidebar", required: false)
             }
             else if (isTopicPage)
             {
-                <!-- About this topic -->
                 <div class="widget">
                     <div class="widget-title" style="border-color:@topicColor;color:@topicColor;">
                         <i class="fa-solid @topicIcon fa-xs me-1"></i>
@@ -317,7 +363,6 @@
                     }
                 </div>
 
-                <!-- Forum Stats -->
                 <div class="widget">
                     <div class="widget-title">Forum Stats</div>
                     <div class="stats-grid">
@@ -388,7 +433,6 @@
                     </div>
                 }
 
-                <!-- Community Rules -->
                 <div class="widget">
                     <div class="widget-title">Community Rules</div>
                     <ol class="widget-rules">
@@ -402,12 +446,9 @@
             }
         </aside>
 
-    </div><!-- /forum-layout -->
+    </div>
 
-
-    <!-- ══════════════════════════════════════
-         MOBILE OFFCANVAS
-         ══════════════════════════════════════ -->
+    <!-- MOBILE OFFCANVAS -->
     <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
         <div class="offcanvas-header">
             <div class="d-flex align-items-center gap-2">
@@ -419,16 +460,13 @@
         <div class="offcanvas-body">
 
             <div class="sidebar-section-label mb-2">Topics</div>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art"
-               class="sidebar-nav-item mb-1">
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" class="sidebar-nav-item mb-1">
                 <span class="sidebar-topic-dot art"></span> Art
             </a>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music"
-               class="sidebar-nav-item mb-1">
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" class="sidebar-nav-item mb-1">
                 <span class="sidebar-topic-dot music"></span> Music
             </a>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion"
-               class="sidebar-nav-item mb-1">
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" class="sidebar-nav-item mb-1">
                 <span class="sidebar-topic-dot fashion"></span> Fashion
             </a>
 
@@ -436,7 +474,10 @@
 
             <div class="sidebar-section-label mb-2">Sections</div>
             <a asp-controller="QA" asp-action="Index" class="sidebar-nav-item mb-1">
-                <i class="fa-solid fa-circle-question fa-xs me-2"></i>Q&amp;A
+                <i class="fa-solid fa-circle-question fa-xs me-2"></i>Contact us
+            </a>
+            <a asp-controller="Search" asp-action="Index" class="sidebar-nav-item mb-1">
+                <i class="fa-solid fa-magnifying-glass fa-xs me-2"></i>Search
             </a>
 
             <div class="sidebar-divider"></div>
@@ -470,10 +511,32 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        function openSearch() {
+            document.getElementById('searchOverlay').classList.add('open');
+            setTimeout(() => document.getElementById('searchOverlayInput').focus(), 50);
+        }
+
+        function closeSearch(e) {
+            if (e.target === document.getElementById('searchOverlay')) {
+                document.getElementById('searchOverlay').classList.remove('open');
+            }
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                document.getElementById('searchOverlay').classList.remove('open');
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                openSearch();
+            }
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 
