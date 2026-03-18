@@ -66,7 +66,18 @@
                           rows="8" placeholder="What's on your mind?"></textarea>
                 <span asp-validation-for="Content" class="validation-message"></span>
             </div>
-
+            <!-- Tags -->
+            <div class="create-field">
+                <label class="create-label">
+                    Tags <span style="color:var(--text-dim);font-weight:400;">(optional)</span>
+                </label>
+                <input asp-for="Tags" class="create-input"
+                       placeholder="vinyl, techno, underground..."
+                       maxlength="100" />
+                <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--text-dim);margin-top:0.35rem;">
+                    Separate with commas · max 5 tags · no spaces needed
+                </div>
+            </div>
             <!-- Images -->
             <div class="create-field">
                 <label class="create-label">Images <span style="color:var(--text-dim);font-weight:400;">(optional)</span></label>

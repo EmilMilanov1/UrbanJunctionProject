@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UrbanJunction.Data;
+using UrbanJunction.Data.Models;
 using UrbanJunction.Data.ViewModels;
 using UrbanJunction.Services.Interfaces;
 
@@ -14,17 +15,20 @@ public class PostsController : Controller
     private readonly IReactionService _reactionService;
     private readonly ICommentService _commentService;
     private readonly ApplicationDbContext _context;
+    private readonly ITagService _tagService;
 
     public PostsController(
-        IPostService postService,
-        IReactionService reactionService,
-        ICommentService commentService,
-        ApplicationDbContext context)
+    IPostService postService,
+    IReactionService reactionService,
+    ICommentService commentService,
+    ApplicationDbContext context,
+    ITagService tagService)
     {
         _postService = postService;
         _reactionService = reactionService;
         _commentService = commentService;
         _context = context;
+        _tagService = tagService;
     }
 
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -67,6 +71,23 @@ public class PostsController : Controller
 
         var post = await _postService.CreateAsync(model, UserId);
 
+        // Handle tags
+        if (!string.IsNullOrWhiteSpace(model.Tags))
+        {
+            var tagNames = model.Tags
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Take(5);
+
+            foreach (var name in tagNames)
+            {
+                var tag = await _tagService.GetOrCreateAsync(name);
+                _context.PostTags.Add(new PostTag { PostId = post.Id, TagId = tag.Id });
+            }
+            await _context.SaveChangesAsync();
+        }
+
         var subcategory = await _context.Subcategories
             .Include(s => s.Topic)
             .FirstOrDefaultAsync(s => s.Id == model.SubcategoryId);
@@ -89,12 +110,14 @@ public class PostsController : Controller
             Title = post.Title,
             Content = post.Content,
             SubcategoryId = post.SubcategoryId,
-            Subcategories = GetSubcategoryList()
+            Subcategories = GetSubcategoryList(),
+            Tags = string.Join(", ", post.PostTags.Select(pt => pt.Tag.Name))
         };
 
         return View(model);
     }
 
+    [HttpPost]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, PostFormViewModel model)
@@ -109,6 +132,26 @@ public class PostsController : Controller
 
         var success = await _postService.EditAsync(id, model, UserId);
         if (!success) return NotFound();
+
+        // Replace tags
+        var existingTags = _context.PostTags.Where(pt => pt.PostId == id);
+        _context.PostTags.RemoveRange(existingTags);
+
+        if (!string.IsNullOrWhiteSpace(model.Tags))
+        {
+            var tagNames = model.Tags
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Take(5);
+
+            foreach (var name in tagNames)
+            {
+                var tag = await _tagService.GetOrCreateAsync(name);
+                _context.PostTags.Add(new PostTag { PostId = id, TagId = tag.Id });
+            }
+        }
+        await _context.SaveChangesAsync();
 
         TempData["Success"] = "Post updated successfully!";
         return RedirectToAction(nameof(MyPosts));
@@ -184,4 +227,6 @@ public class PostsController : Controller
                 Text = $"{s.Topic.Name} / {s.Name}"
             }).ToList();
     }
+
+
 }

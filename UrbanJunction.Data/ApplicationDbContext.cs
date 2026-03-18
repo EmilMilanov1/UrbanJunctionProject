@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using System.Reflection.Emit;
 using UrbanJunction.Data.Configuration;
 using UrbanJunction.Data.Models;
@@ -63,6 +64,20 @@ namespace UrbanJunction.Data
                 .WithMany()
                 .HasForeignKey(c => c.SenderId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<PostTag>()
+                .HasKey(pt => new { pt.PostId, pt.TagId });
+
+            builder.Entity<PostTag>()
+                .HasOne(pt => pt.Post)
+                .WithMany(p => p.PostTags)
+                .HasForeignKey(pt => pt.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<PostTag>()
+                .HasOne(pt => pt.Tag)
+                .WithMany(t => t.PostTags)
+                .HasForeignKey(pt => pt.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(builder);
         }
@@ -76,5 +91,7 @@ namespace UrbanJunction.Data
         public DbSet<UserFollow> UserFollows { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<ContactMessage> ContactMessages { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<PostTag> PostTags { get; set; }
     }
 }

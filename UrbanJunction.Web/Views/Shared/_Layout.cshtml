@@ -352,7 +352,9 @@
                                    class="trending-item text-decoration-none">
                                     <span class="trending-rank @(rank == 1 ? "top" : "")">@rank</span>
                                     <span class="trending-title">@post.Title</span>
-                                    <span class="trending-replies">@post.CommentCount</span>
+                                    <span class="trending-replies" style="color:@(post.Score > 0 ? "var(--art)" : post.Score < 0 ? "var(--accent)" : "var(--text-dim)");">
+                                        @(post.Score > 0 ? "+" : "")@post.Score
+                                    </span>
                                 </a>
                                 rank++;
                             }

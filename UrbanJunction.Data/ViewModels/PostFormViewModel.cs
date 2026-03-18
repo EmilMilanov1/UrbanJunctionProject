@@ -24,5 +24,7 @@ namespace UrbanJunction.Data.ViewModels
 
         [Display(Name = "Upload Images")]
         public List<IFormFile>? ImageFiles { get; set; }
+
+        public string? Tags { get; set; }
     }
 }

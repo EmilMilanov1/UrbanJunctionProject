@@ -20,17 +20,21 @@ namespace UrbanJunction.Web.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? msgId)
         {
             var user = await _userManager.GetUserAsync(User);
             ViewBag.Name = user?.UserName ?? "";
             ViewBag.Email = user?.Email ?? "";
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            ViewBag.MyMessages = await _context.ContactMessages
+            var messages = await _context.ContactMessages
                 .Where(m => m.SenderId == userId)
                 .OrderByDescending(m => m.CreatedOn)
                 .ToListAsync();
+
+            ViewBag.MyMessages = messages;
+            ViewBag.SelectedMsgId = msgId ?? messages.FirstOrDefault()?.Id;
+            ViewBag.UserPic = user?.ProfilePicturePath ?? "/images/default.jpg";
 
             return View();
         }
@@ -113,6 +117,6 @@ namespace UrbanJunction.Web.Controllers
             TempData["Success"] = "Reply sent.";
             return RedirectToAction("Index", "Admin");
         }
-
+        
     }
 }

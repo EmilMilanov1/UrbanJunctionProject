@@ -48,7 +48,7 @@ namespace UrbanJunction.Web
             builder.Services.AddScoped<IRecaptchaService, RecaptchaService>();
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<ITopicService, TopicService>();
-
+            builder.Services.AddScoped<ITagService, TagService>();
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();

@@ -31,6 +31,7 @@ namespace UrbanJunction.Services.Implementations
                 .Include(p => p.User)
                 .Include(p => p.Reactions)
                 .Include(p => p.Comments)
+                .Include(p => p.PostTags).ThenInclude(pt => pt.Tag)
                 .Where(p => p.Subcategory.Topic.Name == topicName &&
                             (subcat == null || p.Subcategory.Name == subcat))
                 .OrderByDescending(p => p.IsPinned)
@@ -71,6 +72,7 @@ namespace UrbanJunction.Services.Implementations
                 .Include(p => p.Comments).ThenInclude(c => c.Replies).ThenInclude(r => r.User)
                 .Include(p => p.Comments).ThenInclude(c => c.Replies).ThenInclude(r => r.Replies).ThenInclude(r => r.User)
                 .Include(p => p.Reactions)
+                .Include(p => p.PostTags).ThenInclude(pt => pt.Tag)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 

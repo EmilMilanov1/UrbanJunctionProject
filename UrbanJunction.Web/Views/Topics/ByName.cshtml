@@ -18,6 +18,8 @@
         "fashion" => "#f0a04b",
         _         => "#e85d4a"
     };
+    var topicTags = ViewBag.TopicTags as List<string> ?? new List<string>();
+    string activeTag = ViewBag.ActiveTag ?? "";
 }
 
 <div class="forum-main">
@@ -71,25 +73,74 @@
         }
     </div>
 
-    <!-- Sort + New Thread bar -->
+    <!-- Sort bar -->
     <div class="feed-controls">
         <div class="feed-controls-left">
             <span style="font-size:0.75rem;color:var(--text-dim);font-family:var(--font-mono);margin-right:0.25rem;">Sort:</span>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="new"
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="new" asp-route-tag="@(string.IsNullOrEmpty(activeTag) ? null : activeTag)"
                class="sort-btn @(ViewBag.ActiveSort == "new" ? "active" : "")">New</a>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="top"
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="top" asp-route-tag="@(string.IsNullOrEmpty(activeTag) ? null : activeTag)"
                class="sort-btn @(ViewBag.ActiveSort == "top" ? "active" : "")">Top</a>
-            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="hot"
+            <a asp-controller="Topics" asp-action="ByName" asp-route-name="@topicName" asp-route-sort="hot" asp-route-tag="@(string.IsNullOrEmpty(activeTag) ? null : activeTag)"
                class="sort-btn @(ViewBag.ActiveSort == "hot" ? "active" : "")">Hot</a>
         </div>
     </div>
+
+    <!-- Tag filter bar -->
+    @if (topicTags.Any())
+    {
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;padding:0.25rem 0 0.85rem;">
+            @if (!string.IsNullOrEmpty(activeTag))
+            {
+                <a asp-controller="Topics" asp-action="ByName"
+                   asp-route-name="@topicName"
+                   asp-route-sort="@ViewBag.ActiveSort"
+                   asp-route-subcat="@(ViewBag.ActiveSubcat == "all" ? null : ViewBag.ActiveSubcat)"
+                   style="display:inline-flex;align-items:center;gap:0.3rem;
+                          font-family:var(--font-mono);font-size:0.65rem;padding:0.25rem 0.6rem;
+                          border-radius:20px;border:1px solid var(--border);
+                          background:var(--bg-hover);color:var(--text-dim);
+                          text-decoration:none;transition:all 120ms;"
+                   onmouseover="this.style.color='var(--text)'"
+                   onmouseout="this.style.color='var(--text-dim)'">
+                    <i class="fa-solid fa-xmark fa-xs"></i> Clear
+                </a>
+            }
+            @foreach (var t in topicTags)
+            {
+                bool isActive = t == activeTag;
+                <a asp-controller="Topics" asp-action="ByName"
+                   asp-route-name="@topicName"
+                   asp-route-sort="@ViewBag.ActiveSort"
+                   asp-route-subcat="@(ViewBag.ActiveSubcat == "all" ? null : ViewBag.ActiveSubcat)"
+                   asp-route-tag="@t"
+                   style="display:inline-flex;align-items:center;gap:0.3rem;
+                          font-family:var(--font-mono);font-size:0.65rem;padding:0.25rem 0.6rem;
+                          border-radius:20px;cursor:pointer;text-decoration:none;transition:all 120ms;
+                          border:1px solid @(isActive ? topicColor : "var(--border)");
+                          background:@(isActive ? $"rgba({(topicClass == "art" ? "76,175,114" : topicClass == "music" ? "124,111,255" : topicClass == "fashion" ? "240,160,75" : "232,93,74")},0.12)" : "transparent");
+                          color:@(isActive ? topicColor : "var(--text-dim)");"
+                   onmouseover="this.style.color='@topicColor';this.style.borderColor='@topicColor'"
+                   onmouseout="if('@isActive' !== 'True'){this.style.color='var(--text-dim)';this.style.borderColor='var(--border)'}">
+                    #@t
+                </a>
+            }
+        </div>
+    }
 
     <!-- Thread list -->
     @if (!Model.Any())
     {
         <div style="text-align:center;padding:4rem 0;color:var(--text-dim);">
             <i class="fa-regular fa-face-sad-tear fa-2x" style="display:block;margin-bottom:0.75rem;"></i>
-            No threads yet. Be the first to post.
+            @if (!string.IsNullOrEmpty(activeTag))
+            {
+                <span>No threads tagged <strong style="color:@topicColor;">#@activeTag</strong>.</span>
+            }
+            else
+            {
+                <span>No threads yet. Be the first to post.</span>
+            }
         </div>
     }
     else
@@ -105,6 +156,7 @@
                 var reactionCount = (post.Reactions?.Count(r => r.IsUpvote) ?? 0) - (post.Reactions?.Count(r => !r.IsUpvote) ?? 0);
                 var commentCount  = post.Comments?.Count() ?? 0;
                 var currentVote   = userVotes.GetValueOrDefault(post.Id, "");
+                var postTags      = post.PostTags?.Select(pt => pt.Tag.Name).ToList() ?? new List<string>();
 
                 var preview = "";
                 if (!string.IsNullOrEmpty(post.Content))
@@ -169,6 +221,27 @@
                                 {
                                     <span class="thread-tag custom">@subcatName</span>
                                 }
+
+                                @* Post tag pills *@
+                                @foreach (var tagName in postTags.Take(3))
+                                {
+                                    <a asp-controller="Topics" asp-action="ByName"
+                                       asp-route-name="@topicName"
+                                       asp-route-sort="@ViewBag.ActiveSort"
+                                       asp-route-tag="@tagName"
+                                       onclick="event.stopPropagation()"
+                                       style="display:inline-flex;align-items:center;
+                                              font-family:var(--font-mono);font-size:0.62rem;
+                                              padding:0.1rem 0.5rem;border-radius:20px;
+                                              border:1px solid @(tagName == activeTag ? topicColor : $"rgba({(topicClass == "art" ? "76,175,114" : topicClass == "music" ? "124,111,255" : topicClass == "fashion" ? "240,160,75" : "232,93,74")},0.25)");
+                                              background:@(tagName == activeTag ? $"rgba({(topicClass == "art" ? "76,175,114" : topicClass == "music" ? "124,111,255" : topicClass == "fashion" ? "240,160,75" : "232,93,74")},0.15)" : $"rgba({(topicClass == "art" ? "76,175,114" : topicClass == "music" ? "124,111,255" : topicClass == "fashion" ? "240,160,75" : "232,93,74")},0.07)");
+                                              color:@topicColor;text-decoration:none;transition:all 120ms;"
+                                       onmouseover="this.style.opacity='0.75'"
+                                       onmouseout="this.style.opacity='1'">
+                                        #@tagName
+                                    </a>
+                                }
+
                                 @if (isOwner || isAdmin)
                                 {
                                     <div class="d-flex align-items-center gap-1 ms-auto">
@@ -199,15 +272,7 @@
                                                 </button>
                                             </form>
                                         }
-                                        <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
-                                              method="post" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="thread-tag custom"
-                                                    style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
-                                                    onclick="return confirm('Delete this thread?')">
-                                                <i class="fa-regular fa-trash-can fa-xs"></i>
-                                            </button>
-                                        </form>
+                                        
                                     </div>
                                 }
                             </div>
@@ -237,11 +302,20 @@
                                     }
                                     <span class="thread-author-name">@post.User?.UserName</span>
                                 </a>
-                                <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>
-                                <span class="thread-meta-stat">
-                                    <i class="fa-regular fa-comment fa-xs"></i>
-                                    @commentCount
-                                </span>
+                                <span class="thread-time">@post.CreatedOn.ToString("dd MMM yyyy")</span>     
+
+                                @if (isOwner || isAdmin)
+                                {
+                                <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
+                                      method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="thread-tag custom"
+                                            style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
+                                            onclick="return confirm('Delete this thread?')">
+                                        <i class="fa-regular fa-trash-can fa-xs"></i>
+                                    </button>
+                                </form>
+                                }
                             </div>
                         </div>
 
@@ -277,7 +351,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            // ── Click-to-open thread rows ──────────────────────────────
             document.querySelectorAll('.thread-row').forEach(row => {
                 row.style.cursor = 'pointer';
                 row.addEventListener('click', function (e) {
@@ -290,7 +363,6 @@
                 });
             });
 
-            // ── Search ────────────────────────────────────────────────
             const searchInput = document.getElementById('thread-search');
             if (searchInput) {
                 searchInput.addEventListener('input', function () {
@@ -303,7 +375,6 @@
                 });
             }
 
-            // ── Sort buttons ──────────────────────────────────────────
             document.querySelectorAll('.sort-btn').forEach(btn => {
                 btn.addEventListener('click', function () {
                     document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
@@ -311,7 +382,6 @@
                 });
             });
 
-            // ── Feed vote buttons ─────────────────────────────────────
             document.querySelectorAll('.feed-vote-btn').forEach(btn => {
                 btn.addEventListener('click', async function () {
                     const postId   = this.dataset.postId;
