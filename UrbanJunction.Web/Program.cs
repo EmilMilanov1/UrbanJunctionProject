@@ -81,7 +81,7 @@ namespace UrbanJunction.Web
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                db.Database.Migrate();
+                db.Database.EnsureCreated(); // instead of Migrate()
             }
 
             await app.SeedUsersAsync();
