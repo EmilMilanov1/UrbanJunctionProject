@@ -15,13 +15,21 @@ namespace UrbanJunction.Web
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            var connectionString = Environment.GetEnvironmentVariable("postgresql://postgres:LuFFNDNGNCLlIsqzRXxpzRgxMuwuPcmN@centerbeam.proxy.rlwy.net:53170/railway")
-                ?? builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string not found.");
+            var rawUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(connectionString));
+            string connectionString;
 
+            if (rawUrl != null && rawUrl.StartsWith("postgresql://"))
+            {
+                var uri = new Uri(rawUrl);
+                var userInfo = uri.UserInfo.Split(':');
+                connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+            }
+            else
+            {
+                connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                    ?? throw new InvalidOperationException("Connection string not found.");
+            }
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<UrbanUser>(options =>
