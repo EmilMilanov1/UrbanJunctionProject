@@ -30,6 +30,10 @@ namespace UrbanJunction.Web
                 connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                     ?? throw new InvalidOperationException("Connection string not found.");
             }
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(connectionString));
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<UrbanUser>(options =>
@@ -74,6 +78,12 @@ namespace UrbanJunction.Web
                 app.UseHsts();
             }
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                db.Database.Migrate();
+            }
+
             await app.SeedUsersAsync();
             await app.SeedPostsAsync();
             await app.SeedAdminAsync();
@@ -91,11 +101,6 @@ namespace UrbanJunction.Web
 
             app.MapRazorPages();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                db.Database.Migrate();
-            }
             await app.RunAsync();
         }
     }
