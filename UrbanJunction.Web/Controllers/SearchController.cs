@@ -36,4 +36,24 @@ public class SearchController : Controller
 
         return View(posts);
     }
+    [HttpGet]
+    public async Task<IActionResult> Live(string? query)
+    {
+        if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+            return Json(Array.Empty<object>());
+
+        var posts = await _postService.SearchAllAsync(query, null, "new");
+
+        var results = posts.Take(6).Select(p => new
+        {
+            id = p.Id,
+            title = p.Title,
+            topicName = p.Subcategory?.Topic?.Name ?? "",
+            preview = p.Content?.Length > 60
+                            ? p.Content.Substring(0, 60) + "…"
+                            : p.Content ?? ""
+        });
+
+        return Json(results);
+    }
 }

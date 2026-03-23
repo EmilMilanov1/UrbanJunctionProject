@@ -20,7 +20,9 @@ namespace UrbanJunction.Web.Controllers
         private readonly IConfiguration _config;
         private readonly ApplicationDbContext _context;
         private readonly IReactionService _reactionService;
+        private readonly INotificationService _notificationService;
 
+            
         public AccountController(
             UserManager<UrbanUser> userManager,
             SignInManager<UrbanUser> signInManager,
@@ -28,6 +30,7 @@ namespace UrbanJunction.Web.Controllers
             IRecaptchaService recaptchaService,
             IConfiguration config,
             ApplicationDbContext context,
+            INotificationService notificationService,
             IReactionService reactionService)
         {
             _userManager = userManager;
@@ -36,6 +39,7 @@ namespace UrbanJunction.Web.Controllers
             _recaptchaService = recaptchaService;
             _config = config;
             _context = context;
+            _notificationService = notificationService;
             _reactionService = reactionService;
         }
 
@@ -237,9 +241,22 @@ namespace UrbanJunction.Web.Controllers
                 .FirstOrDefaultAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId);
 
             if (existing != null)
+            {
                 _context.UserFollows.Remove(existing);
+            }
             else
-                _context.UserFollows.Add(new UserFollow { FollowerId = currentUserId, FollowingId = targetUserId });
+            {
+                _context.UserFollows.Add(new UserFollow
+                {
+                    FollowerId = currentUserId,
+                    FollowingId = targetUserId
+                });
+
+                await _notificationService.CreateAsync(
+                    userId: targetUserId,
+                    actorId: currentUserId,
+                    type: NotificationType.Follow);
+            }
 
             await _context.SaveChangesAsync();
 

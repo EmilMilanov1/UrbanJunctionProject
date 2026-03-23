@@ -13,11 +13,14 @@ namespace UrbanJunction.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<UrbanUser> _userManager;
+        private readonly INotificationService _notificationService;
 
-        public QAController(ApplicationDbContext context, UserManager<UrbanUser> userManager)
+
+        public QAController(ApplicationDbContext context, UserManager<UrbanUser> userManager, INotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         public async Task<IActionResult> Index(int? msgId)
@@ -114,9 +117,15 @@ namespace UrbanJunction.Web.Controllers
             msg.IsRead = true;
             await _context.SaveChangesAsync();
 
+            await _notificationService.CreateAsync(
+                userId: msg.SenderId,
+                actorId: null,
+                type: NotificationType.AdminReply,
+                contactMessageId: msg.Id);
+
             TempData["Success"] = "Reply sent.";
             return RedirectToAction("Index", "Admin");
         }
-        
+
     }
 }

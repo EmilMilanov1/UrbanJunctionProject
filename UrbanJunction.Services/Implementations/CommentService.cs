@@ -8,10 +8,12 @@ namespace UrbanJunction.Services.Implementations
     public class CommentService : ICommentService
     {
         private readonly ApplicationDbContext _context;
+        private readonly INotificationService _notificationService;
 
-        public CommentService(ApplicationDbContext context)
+        public CommentService(ApplicationDbContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<IEnumerable<Comment>> GetByPostAsync(int postId)
@@ -37,6 +39,37 @@ namespace UrbanJunction.Services.Implementations
 
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
+
+            if (parentCommentId.HasValue)
+            {
+                var parentComment = await _context.Comments
+                    .FirstOrDefaultAsync(c => c.Id == parentCommentId.Value);
+
+                if (parentComment != null && parentComment.UserId != userId)
+                {
+                    await _notificationService.CreateAsync(
+                        userId: parentComment.UserId,
+                        actorId: userId,
+                        type: NotificationType.Reply,
+                        postId: postId,
+                        commentId: comment.Id);
+                }
+            }
+            else
+            {
+                var post = await _context.Posts
+                    .FirstOrDefaultAsync(p => p.Id == postId);
+
+                if (post != null && post.UserId != userId)
+                {
+                    await _notificationService.CreateAsync(
+                        userId: post.UserId,
+                        actorId: userId,
+                        type: NotificationType.Comment,
+                        postId: postId,
+                        commentId: comment.Id);
+                }
+            }
         }
 
         public async Task<bool> DeleteAsync(int commentId, string userId, bool isAdmin)
@@ -49,6 +82,5 @@ namespace UrbanJunction.Services.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
-
     }
 }

@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
-using System.Reflection.Emit;
 using UrbanJunction.Data.Configuration;
 using UrbanJunction.Data.Models;
 
@@ -49,21 +46,23 @@ namespace UrbanJunction.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Report>()
-                 .HasOne(r => r.Post)
-                 .WithMany()
-                 .HasForeignKey(r => r.PostId)
-                 .OnDelete(DeleteBehavior.NoAction);
+                .HasOne(r => r.Post)
+                .WithMany()
+                .HasForeignKey(r => r.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Report>()
                 .HasOne(r => r.Comment)
                 .WithMany()
                 .HasForeignKey(r => r.CommentId)
                 .OnDelete(DeleteBehavior.NoAction);
+
             builder.Entity<ContactMessage>()
                 .HasOne(c => c.Sender)
                 .WithMany()
                 .HasForeignKey(c => c.SenderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<PostTag>()
                 .HasKey(pt => new { pt.PostId, pt.TagId });
 
@@ -79,6 +78,36 @@ namespace UrbanJunction.Data
                 .HasForeignKey(pt => pt.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Notification>()
+                .HasOne(n => n.Actor)
+                .WithMany()
+                .HasForeignKey(n => n.ActorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Notification>()
+                .HasOne(n => n.Post)
+                .WithMany()
+                .HasForeignKey(n => n.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Notification>()
+                .HasOne(n => n.Comment)
+                .WithMany()
+                .HasForeignKey(n => n.CommentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Notification>()
+                .HasOne(n => n.ContactMessage)
+                .WithMany()
+                .HasForeignKey(n => n.ContactMessageId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             base.OnModelCreating(builder);
         }
 
@@ -93,5 +122,6 @@ namespace UrbanJunction.Data
         public DbSet<ContactMessage> ContactMessages { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTag> PostTags { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
     }
 }

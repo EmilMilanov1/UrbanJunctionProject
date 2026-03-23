@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Identity
 @using UrbanJunction.Data.Models
 @inject UserManager<UrbanUser> UserManager
+@inject INotificationService NotificationService
 
 @{
     var currentUser = await UserManager.GetUserAsync(User);
@@ -22,6 +23,13 @@
         : isMusic
         ? "Deep dives into genres, scenes, and sounds. From underground techno to bedroom pop — all music lives here."
         : "Streetwear, vintage, high fashion, and everything in between. Style is the message.";
+
+    int notifUnreadCount = 0;
+    if (User.Identity?.IsAuthenticated == true && currentUser != null)
+    {
+        notifUnreadCount = await NotificationService.GetUnreadCountAsync(currentUser.Id);
+    }
+    ViewBag.NotifUnreadCount = notifUnreadCount;
 }
 
 <!DOCTYPE html>
@@ -119,20 +127,29 @@
     <div class="search-overlay" id="searchOverlay" onclick="closeSearch(event)">
         <div class="search-overlay-box">
             <div class="search-overlay-inner">
-                <form asp-controller="Search" asp-action="Index" method="get">
+                <form asp-controller="Search" asp-action="Index" method="get" id="searchOverlayForm">
                     <div class="search-overlay-bar">
-                        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-dim);font-size:0.9rem;"></i>
+                        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-dim);font-size:0.9rem;flex-shrink:0;"></i>
                         <input type="text" name="query" id="searchOverlayInput"
-                               placeholder="Search all topics…" autocomplete="" />
-                        <button type="submit"
-                            style="background:var(--accent);color:#fff;border:none;border-radius:5px;
-                                   font-size:0.78rem;cursor:pointer;font-family:var(--font-body);
-                                   white-space:nowrap;padding:0.35rem 0.85rem;">
-                             Search
+                               placeholder="Search Urban Junction…"
+                               autocomplete="off" />
+                        <button type="button"
+                                onclick="document.getElementById('searchOverlayInput').value='';document.getElementById('searchLiveResults').innerHTML='';document.getElementById('searchLiveResults').style.display='none';document.getElementById('searchOverlayInput').focus();"
+                                id="searchClearBtn"
+                                style="display:none;background:none;border:none;cursor:pointer;
+                                       color:var(--text-dim);padding:0 4px;font-size:0.85rem;
+                                       transition:color 150ms;"
+                                onmouseover="this.style.color='var(--text-muted)'"
+                                onmouseout="this.style.color='var(--text-dim)'">
+                            <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                 </form>
-                <div class="search-overlay-hint">
+
+                <!-- Live results -->
+                <div id="searchLiveResults" style="display:none;border-top:1px solid var(--border);"></div>
+
+                <div class="search-overlay-hint" id="searchHint">
                     <span>Search across Art, Music and Fashion</span>
                     <span><kbd>Esc</kbd> to close &nbsp;·&nbsp; <kbd>Ctrl K</kbd> to open</span>
                 </div>
@@ -174,6 +191,8 @@
         <div class="navbar-actions" style="flex-shrink:0;">
             @if (User.Identity?.IsAuthenticated ?? false)
             {
+                <partial name="_NotificationBell" />
+
                 <a asp-controller="Account" asp-action="Profile"
                    class="d-flex align-items-center gap-2 text-decoration-none">
                     <img src="@profilePic"
@@ -182,6 +201,7 @@
                          alt="@username" />
                     <span class="d-none d-lg-inline" style="font-size:0.82rem;color:var(--text-muted);">@username</span>
                 </a>
+
 
                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                     @Html.AntiForgeryToken()
@@ -192,7 +212,11 @@
             }
             else
             {
-                <a asp-controller="Account" asp-action="Login" class="btn-new-thread">
+               <a asp-controller="Account" asp-action="Login" class="btn-new-thread"
+                   style="background:rgba(232,93,74,0.12);border:1px solid rgba(232,93,74,0.25);
+                          color:#a06060;"
+                   onmouseover="this.style.background='rgba(232,93,74,0.18)';this.style.borderColor='rgba(232,93,74,0.45)'"
+                   onmouseout="this.style.background='rgba(232,93,74,0.12)';this.style.borderColor='rgba(232,93,74,0.25)'">
                     <i class="fa-solid fa-right-to-bracket fa-xs"></i>
                     <span>Login</span>
                 </a>
@@ -515,7 +539,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <script>
+   <script>
         function openSearch() {
             document.getElementById('searchOverlay').classList.add('open');
             setTimeout(() => document.getElementById('searchOverlayInput').focus(), 50);
@@ -524,18 +548,285 @@
         function closeSearch(e) {
             if (e.target === document.getElementById('searchOverlay')) {
                 document.getElementById('searchOverlay').classList.remove('open');
+                document.getElementById('searchLiveResults').innerHTML = '';
+                document.getElementById('searchLiveResults').style.display = 'none';
+                document.getElementById('searchOverlayInput').value = '';
+                document.getElementById('searchClearBtn').style.display = 'none';
+                document.getElementById('searchHint').style.display = 'flex';
             }
         }
 
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 document.getElementById('searchOverlay').classList.remove('open');
+                document.getElementById('searchLiveResults').innerHTML = '';
+                document.getElementById('searchLiveResults').style.display = 'none';
+                document.getElementById('searchOverlayInput').value = '';
+                document.getElementById('searchClearBtn').style.display = 'none';
+                document.getElementById('searchHint').style.display = 'flex';
             }
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
                 openSearch();
             }
         });
+
+        (function () {
+            let searchTimer = null;
+            let lastQuery = '';
+
+            const input    = document.getElementById('searchOverlayInput');
+            const results  = document.getElementById('searchLiveResults');
+            const hint     = document.getElementById('searchHint');
+            const clearBtn = document.getElementById('searchClearBtn');
+            const form     = document.getElementById('searchOverlayForm');
+
+            if (!input) return;
+
+            input.addEventListener('input', function () {
+                const q = this.value.trim();
+
+                clearBtn.style.display = q.length > 0 ? 'block' : 'none';
+
+                if (q.length === 0) {
+                    results.style.display = 'none';
+                    results.innerHTML = '';
+                    hint.style.display = 'flex';
+                    lastQuery = '';
+                    return;
+                }
+
+                if (q === lastQuery) return;
+                lastQuery = q;
+
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => fetchResults(q), 220);
+            });
+
+            // Enter key submits the full search page
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    form.submit();
+                }
+                // Arrow key navigation
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const items = results.querySelectorAll('.search-live-item');
+                    if (items.length) items[0].focus();
+                }
+            });
+
+            async function fetchResults(q) {
+                hint.style.display = 'none';
+                results.style.display = 'block';
+                results.innerHTML = `
+                    <div style="padding:1rem 1.1rem;display:flex;align-items:center;gap:0.5rem;
+                                color:var(--text-dim);font-size:0.82rem;">
+                        <i class="fa-solid fa-circle-notch fa-spin fa-xs"></i> Searching…
+                    </div>`;
+
+                try {
+                    const resp = await fetch(`/Search/Live?query=${encodeURIComponent(q)}`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await resp.json();
+                    renderResults(data, q);
+                } catch {
+                    results.innerHTML = `<div style="padding:1rem 1.1rem;color:var(--text-dim);font-size:0.82rem;">Something went wrong.</div>`;
+                }
+            }
+
+            function renderResults(data, q) {
+                if (!data || data.length === 0) {
+                    results.innerHTML = `
+                        <div style="padding:1.25rem 1.1rem;text-align:center;color:var(--text-dim);font-size:0.82rem;">
+                            <i class="fa-regular fa-face-sad-tear fa-sm" style="display:block;margin-bottom:0.4rem;opacity:0.4;"></i>
+                            No results for "<strong style="color:var(--text-muted);">${escHtml(q)}</strong>"
+                        </div>`;
+                    return;
+                }
+
+                const colorMap = { art: '#4caf72', music: '#7c6fff', fashion: '#f0a04b' };
+
+                let html = '';
+                data.forEach((post, i) => {
+                    const tc = (post.topicName || '').toLowerCase();
+                    const color = colorMap[tc] || '#e85d4a';
+                    const preview = post.preview ? `<span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.5rem;">${escHtml(post.preview)}</span>` : '';
+                    html += `
+                        <a href="/Posts/Details/${post.id}"
+                           class="search-live-item"
+                           tabindex="0"
+                           style="display:flex;align-items:center;gap:0.75rem;
+                                  padding:0.7rem 1.1rem;text-decoration:none;
+                                  border-bottom:1px solid var(--border);
+                                  transition:background 100ms;outline:none;"
+                           onmouseover="this.style.background='var(--bg-hover)'"
+                           onmouseout="this.style.background='transparent'"
+                           onfocus="this.style.background='var(--bg-hover)'"
+                           onblur="this.style.background='transparent'"
+                           onkeydown="searchItemKeydown(event, ${i})">
+                            <div style="width:28px;height:28px;border-radius:6px;flex-shrink:0;
+                                        background:${color}18;display:flex;align-items:center;
+                                        justify-content:center;">
+                                <i class="fa-solid fa-file-lines fa-xs" style="color:${color};font-size:11px;"></i>
+                            </div>
+                            <div style="flex:1;min-width:0;overflow:hidden;">
+                                <div style="font-size:0.85rem;font-weight:500;color:var(--text);
+                                            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                    ${highlightMatch(escHtml(post.title), escHtml(q))}
+                                </div>
+                                <div style="display:flex;align-items:center;gap:0.4rem;margin-top:1px;">
+                                    <span style="font-family:var(--font-mono);font-size:0.62rem;
+                                                 color:${color};text-transform:uppercase;
+                                                 letter-spacing:0.05em;">${escHtml(post.topicName)}</span>
+                                    ${preview}
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-arrow-right fa-xs" style="color:var(--text-dim);font-size:10px;flex-shrink:0;"></i>
+                        </a>`;
+                });
+
+                // "See all results" footer
+                html += `
+                    <a href="/Search/Index?query=${encodeURIComponent(q)}"
+                       style="display:flex;align-items:center;justify-content:center;gap:0.5rem;
+                              padding:0.7rem;font-family:var(--font-mono);font-size:0.68rem;
+                              color:var(--accent);text-decoration:none;transition:background 100ms;"
+                       onmouseover="this.style.background='var(--bg-hover)'"
+                       onmouseout="this.style.background='transparent'">
+                        See all results for "<strong>${escHtml(q)}</strong>"
+                        <i class="fa-solid fa-arrow-right fa-xs"></i>
+                    </a>`;
+
+                results.innerHTML = html;
+            }
+
+            function highlightMatch(text, q) {
+                try {
+                    const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    return text.replace(re, `<mark style="background:rgba(232,93,74,0.25);color:var(--text);border-radius:2px;padding:0 1px;">$1</mark>`);
+                } catch { return text; }
+            }
+
+            function escHtml(str) {
+                return String(str ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            window.searchItemKeydown = function (e, idx) {
+                const items = results.querySelectorAll('.search-live-item');
+                if (e.key === 'ArrowDown') { e.preventDefault(); if (items[idx + 1]) items[idx + 1].focus(); }
+                if (e.key === 'ArrowUp')   { e.preventDefault(); if (idx === 0) input.focus(); else if (items[idx - 1]) items[idx - 1].focus(); }
+            };
+        })();
+    </script>
+
+    <script>
+    (function () {
+        let notifOpen = false;
+
+        window.toggleNotifDropdown = async function (e) {
+            e.stopPropagation();
+            const anchor = document.getElementById('notif-dropdown-anchor');
+            if (!anchor) return;
+
+            if (notifOpen) {
+                anchor.style.display = 'none';
+                notifOpen = false;
+                return;
+            }
+
+            anchor.style.display = 'block';
+            notifOpen = true;
+            anchor.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--text-dim);font-size:0.8rem;">Loading…</div>';
+
+            try {
+                const resp = await fetch('/Notifications/Dropdown', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                anchor.innerHTML = await resp.text();
+            } catch {
+                anchor.innerHTML = '<div style="padding:1rem;color:var(--text-dim);font-size:0.8rem;">Could not load.</div>';
+            }
+        };
+
+        document.addEventListener('click', function (e) {
+            if (notifOpen && !document.getElementById('notif-bell-wrap')?.contains(e.target)) {
+                const anchor = document.getElementById('notif-dropdown-anchor');
+                if (anchor) anchor.style.display = 'none';
+                notifOpen = false;
+            }
+        });
+
+        window.notifRowClick = async function (el, id, href) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+            try {
+                const resp = await fetch('/Notifications/MarkRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+                const data = await resp.json();
+                updateNotifBadge(data.unreadCount);
+            } catch {}
+
+            el.classList.remove('notif-unread');
+            el.style.background = 'transparent';
+            el.style.opacity = '0.55';
+            const dot = el.querySelector('.notif-dot');
+            if (dot) dot.style.display = 'none';
+
+            if (href && href !== 'null' && href !== '') {
+                window.location.href = href;
+            }
+        };
+
+        window.notifMarkAllRead = async function () {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+            try {
+                await fetch('/Notifications/MarkAllRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+            } catch {}
+
+            updateNotifBadge(0);
+            document.querySelectorAll('.notif-row.notif-unread').forEach(row => {
+                row.classList.remove('notif-unread');
+                row.style.background = 'transparent';
+                row.style.opacity = '0.55';
+                const dot = row.querySelector('.notif-dot');
+                if (dot) dot.style.display = 'none';
+            });
+            const headerBadge = document.getElementById('notif-header-badge');
+            if (headerBadge) headerBadge.style.display = 'none';
+        };
+
+        window.notifRestoreHover = function (el) {
+            el.style.background = el.classList.contains('notif-unread')
+                ? 'rgba(232,93,74,0.045)'
+                : 'transparent';
+        };
+
+        function updateNotifBadge(count) {
+            const badge = document.getElementById('notif-badge');
+            if (!badge) return;
+            badge.style.display = count <= 0 ? 'none' : 'flex';
+            badge.textContent = count > 99 ? '99+' : count;
+        }
+    })();
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

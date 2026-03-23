@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using UrbanJunction.Data;
 using UrbanJunction.Data.Models;
 using UrbanJunction.Services.Interfaces;
@@ -9,10 +8,12 @@ namespace UrbanJunction.Services.Implementations
     public class ReactionService : IReactionService
     {
         private readonly ApplicationDbContext _context;
+        private readonly INotificationService _notificationService;
 
-        public ReactionService(ApplicationDbContext context)
+        public ReactionService(ApplicationDbContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<int> ToggleAsync(int postId, string userId)
@@ -51,13 +52,13 @@ namespace UrbanJunction.Services.Implementations
             var existing = await _context.Reactions
                 .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId);
 
+            bool isNewUpvote = false;
+
             if (existing != null)
             {
-                // If same vote — remove it (toggle off)
                 if (existing.IsUpvote == isUpvote)
                     _context.Reactions.Remove(existing);
                 else
-                    // Switch vote direction
                     existing.IsUpvote = isUpvote;
             }
             else
@@ -69,9 +70,26 @@ namespace UrbanJunction.Services.Implementations
                     IsUpvote = isUpvote,
                     CreatedOn = DateTime.UtcNow
                 });
+
+                if (isUpvote) isNewUpvote = true;
             }
 
             await _context.SaveChangesAsync();
+
+            if (isNewUpvote)
+            {
+                var post = await _context.Posts
+                    .FirstOrDefaultAsync(p => p.Id == postId);
+
+                if (post != null && post.UserId != userId)
+                {
+                    await _notificationService.CreateAsync(
+                        userId: post.UserId,
+                        actorId: userId,
+                        type: NotificationType.Reaction,
+                        postId: postId);
+                }
+            }
         }
 
         public async Task<int> GetScoreAsync(int postId)

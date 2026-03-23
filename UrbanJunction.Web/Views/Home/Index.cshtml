@@ -108,7 +108,6 @@
         transform: translateY(0);
     }
 
-    /* Admin block */
     .admin-block {
         display: flex;
         align-items: center;
@@ -124,34 +123,35 @@
         transition: border-color 200ms;
     }
 
-    .admin-block::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--accent), transparent);
-    }
+        .admin-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+        }
 
-    .admin-block:hover {
-        border-color: rgba(232, 93, 74, 0.35);
-    }
+        .admin-block:hover {
+            border-color: rgba(232, 93, 74, 0.35);
+        }
 </style>
 
 <div style="padding: 3rem 2rem; max-width: 1100px; margin: 0 auto;">
 
     <h1 style="font-family:var(--font-head);font-size:2.5rem;font-weight:800;
-               letter-spacing:-0.03em;text-align:center;margin-bottom:0.5rem;
-               color:var(--text);">
+        letter-spacing:-0.03em;text-align:center;margin-bottom:0.5rem;
+        color:var(--text);">
         Urban Junction
     </h1>
     <p style="text-align:center;color:var(--text-dim);font-size:0.875rem;
-              margin-bottom:2.5rem;font-family:var(--font-body);">
+        margin-bottom:2.5rem;font-family:var(--font-body);">
         Choose your corner of the culture
     </p>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
-        <!-- Art -->
         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Art" class="home-card">
             <img src="~/images/art.jpg" alt="Art" />
             <div class="home-card-overlay"></div>
@@ -163,7 +163,6 @@
             </div>
         </a>
 
-        <!-- Music -->
         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Music" class="home-card">
             <img src="~/images/music.jpg" alt="Music" />
             <div class="home-card-overlay"></div>
@@ -175,7 +174,6 @@
             </div>
         </a>
 
-        <!-- Fashion -->
         <a asp-controller="Topics" asp-action="ByName" asp-route-name="Fashion" class="home-card">
             <img src="~/images/fashion.jpg" alt="Fashion" />
             <div class="home-card-overlay"></div>
@@ -189,32 +187,31 @@
 
     </div>
 
-    <!-- Admin block — only visible to admins -->
     @if (User.IsInRole("Admin"))
     {
         <a asp-controller="Admin" asp-action="Index" class="admin-block">
             <div style="display:flex;align-items:center;gap:1rem;">
                 <div style="width:38px;height:38px;border-radius:8px;
-                            background:rgba(232,93,74,0.1);flex-shrink:0;
-                            display:flex;align-items:center;justify-content:center;">
+                    background:rgba(232,93,74,0.1);flex-shrink:0;
+                    display:flex;align-items:center;justify-content:center;">
                     <i class="fa-solid fa-grid-2" style="color:var(--accent);font-size:0.85rem;"></i>
                 </div>
                 <div>
                     <div style="font-size:0.88rem;font-weight:600;color:var(--text);
-                                margin-bottom:0.15rem;letter-spacing:-0.01em;">
+                        margin-bottom:0.15rem;letter-spacing:-0.01em;">
                         Admin Panel
                     </div>
                     <div style="font-family:var(--font-mono);font-size:0.68rem;
-                                color:var(--text-dim);letter-spacing:0.03em;">
+                        color:var(--text-dim);letter-spacing:0.03em;">
                         Manage posts · users · reports
                     </div>
                 </div>
             </div>
             <div style="display:flex;align-items:center;gap:0.6rem;">
                 <span style="font-family:var(--font-mono);font-size:0.62rem;
-                             letter-spacing:0.08em;text-transform:uppercase;
-                             padding:0.2rem 0.5rem;border-radius:3px;
-                             background:rgba(232,93,74,0.1);color:var(--accent);">
+                    letter-spacing:0.08em;text-transform:uppercase;
+                    padding:0.2rem 0.5rem;border-radius:3px;
+                    background:rgba(232,93,74,0.1);color:var(--accent);">
                     Admin
                 </span>
                 <i class="fa-solid fa-arrow-right fa-xs" style="color:var(--text-dim);"></i>

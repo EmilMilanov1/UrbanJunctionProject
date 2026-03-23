@@ -56,10 +56,22 @@
     </form>
 
     <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1rem;">
+
         <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
             <span style="font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;
             letter-spacing:0.1em;color:var(--text-dim);margin-right:0.15rem;">Topic</span>
-            @foreach (var (t, color) in new[] { ("all", "var(--text-dim)"), ("Art", "#4caf72"), ("Music", "#7c6fff"), ("Fashion", "#f0a04b") })
+
+            <a asp-controller="Search" asp-action="Index"
+                   asp-route-query="@query" asp-route-topic="all" asp-route-sort="@activeSort"
+                   style="font-family:var(--font-mono);font-size:0.65rem;padding:0.25rem 0.65rem;
+                border-radius:20px;text-decoration:none;transition:all 120ms;
+                border:1px solid @(activeTopic == "all" ? "var(--accent)" : "var(--border)");
+                background:@(activeTopic == "all" ? "rgba(232,93,74,0.1)" : "transparent");
+                color:@(activeTopic == "all" ? "var(--accent)" : "var(--text-dim)");">
+                All
+            </a>
+
+            @foreach (var (t, color) in new[] { ("Art", "#4caf72"), ("Music", "#7c6fff"), ("Fashion", "#f0a04b") })
             {
                 bool isActive = activeTopic == t;
                 <a asp-controller="Search" asp-action="Index"
@@ -67,9 +79,9 @@
                        style="font-family:var(--font-mono);font-size:0.65rem;padding:0.25rem 0.65rem;
                     border-radius:20px;text-decoration:none;transition:all 120ms;
                     border:1px solid @(isActive ? color : "var(--border)");
-                    background:@(isActive ? $"rgba({(t == "Art" ? "76,175,114" : t == "Music" ? "124,111,255" : t == "Fashion" ? "240,160,75" : "255,255,255")},{(isActive ? "0.12" : "0")})": "transparent");
+                    background:@(isActive ? $"rgba({(t == "Art" ? "76,175,114" : t == "Music" ? "124,111,255" : "240,160,75")},0.12)" : "transparent");
                     color:@(isActive ? color : "var(--text-dim)");">
-                    @(t == "all" ? "All" : t)
+                    @t
                 </a>
             }
         </div>
@@ -295,17 +307,18 @@
                     if (link) window.location.href = link.href;
                 });
             });
-                    // Topic/sort filter fade animation
-        document.querySelectorAll('a[asp-controller="Search"]').forEach(link => {
-            link.addEventListener('click', function () {
-                const list = document.querySelector('.thread-list');
-                if (list) {
-                    list.style.transition = 'opacity 150ms, transform 150ms';
-                    list.style.opacity = '0';
-                    list.style.transform = 'translateY(6px)';
-                }
+
+            document.querySelectorAll('a[asp-controller="Search"]').forEach(link => {
+                link.addEventListener('click', function () {
+                    const list = document.querySelector('.thread-list');
+                    if (list) {
+                        list.style.transition = 'opacity 150ms, transform 150ms';
+                        list.style.opacity = '0';
+                        list.style.transform = 'translateY(6px)';
+                    }
+                });
             });
-        });
+
             document.querySelectorAll('.feed-vote-btn').forEach(btn => {
                 btn.addEventListener('click', async function () {
                     const postId   = this.dataset.postId;

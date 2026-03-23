@@ -1,0 +1,33 @@
+﻿@{
+    int unreadCount = ViewBag.NotifUnreadCount ?? 0;
+}
+
+<div id="notif-bell-wrap"
+     style="position:relative;display:inline-flex;align-items:center;">
+
+    <button id="notif-bell-btn"
+            onclick="toggleNotifDropdown(event)"
+            style="background:none;border:none;cursor:pointer;
+        padding:5px;display:flex;align-items:center;
+        position:relative;transition:opacity 150ms;"
+            onmouseover="this.style.opacity='0.75'"
+            onmouseout="this.style.opacity='1'"
+            title="Notifications">
+        <i class="fa-regular fa-bell fa-sm" style="color:var(--text-dim);font-size:15px;"></i>
+        <span id="notif-badge"
+              style="position:absolute;top:-1px;right:-1px;
+            background:var(--accent);color:#fff;
+            font-family:var(--font-mono);font-size:8px;font-weight:500;
+            min-width:14px;height:14px;border-radius:7px;
+            display:@(unreadCount > 0 ? "flex" : "none");
+            align-items:center;justify-content:center;
+            padding:0 3px;line-height:1;pointer-events:none;">
+            @(unreadCount > 99 ? "99+" : unreadCount.ToString())
+        </span>
+    </button>
+
+    <div id="notif-dropdown-anchor"
+         style="position:absolute;top:calc(100% + 8px);right:0;
+        display:none;z-index:10000;">
+    </div>
+</div>

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UrbanJunction.Data.Models;
 using UrbanJunction.Web.Extensions;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 namespace UrbanJunction.Web
 {
@@ -14,17 +15,15 @@ namespace UrbanJunction.Web
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // Database
-            string connectionString = builder.Configuration
-                .GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = Environment.GetEnvironmentVariable("postgresql://postgres:LuFFNDNGNCLlIsqzRXxpzRgxMuwuPcmN@centerbeam.proxy.rlwy.net:53170/railway")
+                ?? builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string not found.");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseNpgsql(connectionString));
 
-            // Services
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // Identity
             builder.Services.AddDefaultIdentity<UrbanUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
@@ -49,14 +48,13 @@ namespace UrbanJunction.Web
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<ITopicService, TopicService>();
             builder.Services.AddScoped<ITagService, TagService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
-           
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -74,11 +72,8 @@ namespace UrbanJunction.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthentication();
-            // Check if user is authenticated and update last active time
             app.UseMiddleware<LastActiveMiddleware>();
             app.UseAuthorization();
 
@@ -88,9 +83,12 @@ namespace UrbanJunction.Web
 
             app.MapRazorPages();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                db.Database.Migrate();
+            }
             await app.RunAsync();
         }
-
-       
     }
 }
