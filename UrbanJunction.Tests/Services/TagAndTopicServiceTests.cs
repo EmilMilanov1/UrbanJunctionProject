@@ -30,14 +30,15 @@ namespace UrbanJunction.Tests.Services
         public async Task GetOrCreateAsync_ReturnsExistingTag_WhenFound()
         {
             var context = TestDbContextFactory.Create();
-            context.Tags.Add(TestDataSeeder.CreateTag(1, "graffiti"));
+            context.Tags.Add(TestDataSeeder.CreateTag("graffiti"));
             await context.SaveChangesAsync();
 
+            var existing = context.Tags.First();
             var service = CreateService(context);
             var tag = await service.GetOrCreateAsync("graffiti");
 
-            Assert.That(tag.Id, Is.EqualTo(1));
-            Assert.That(context.Tags.Count(), Is.EqualTo(1)); // no duplicate
+            Assert.That(tag.Id, Is.EqualTo(existing.Id));
+            Assert.That(context.Tags.Count(), Is.EqualTo(1));
         }
 
         [Test]
@@ -63,7 +64,7 @@ namespace UrbanJunction.Tests.Services
         }
 
         [Test]
-        public async Task GetOrCreateAsync_TrimnsWhitespace_FromTagName()
+        public async Task GetOrCreateAsync_TrimsWhitespace_FromTagName()
         {
             var context = TestDbContextFactory.Create();
             var service = CreateService(context);
@@ -78,9 +79,9 @@ namespace UrbanJunction.Tests.Services
         {
             var context = TestDbContextFactory.Create();
             context.Tags.AddRange(
-                TestDataSeeder.CreateTag(1, "graffiti"),
-                TestDataSeeder.CreateTag(2, "techno"),
-                TestDataSeeder.CreateTag(3, "streetwear")
+                TestDataSeeder.CreateTag("graffiti"),
+                TestDataSeeder.CreateTag("techno"),
+                TestDataSeeder.CreateTag("streetwear")
             );
             await context.SaveChangesAsync();
 
@@ -94,19 +95,22 @@ namespace UrbanJunction.Tests.Services
     [TestFixture]
     public class TopicServiceTests
     {
-        private UrbanJunction.Services.Implementations.TopicService CreateService(UrbanJunction.Data.ApplicationDbContext context)
+        private TopicService CreateService(UrbanJunction.Data.ApplicationDbContext context)
         {
-            return new UrbanJunction.Services.Implementations.TopicService(context);
+            return new TopicService(context);
         }
 
         [Test]
         public async Task GetAllAsync_ReturnsAllTopicsWithSubcategories()
         {
             var context = TestDbContextFactory.Create();
-            var topic1 = TestDataSeeder.CreateTopic(1, "Art");
-            var topic2 = TestDataSeeder.CreateTopic(2, "Music");
-            var subcat = TestDataSeeder.CreateSubcategory(1, "Graffiti", 1);
+
+            var topic1 = TestDataSeeder.CreateTopic("Art");
+            var topic2 = TestDataSeeder.CreateTopic("Music");
             context.Topics.AddRange(topic1, topic2);
+            await context.SaveChangesAsync();
+
+            var subcat = TestDataSeeder.CreateSubcategory("Graffiti", topic1.Id);
             context.Subcategories.Add(subcat);
             await context.SaveChangesAsync();
 
@@ -120,7 +124,7 @@ namespace UrbanJunction.Tests.Services
         public async Task GetByNameAsync_ReturnsTopic_WhenFound()
         {
             var context = TestDbContextFactory.Create();
-            context.Topics.Add(TestDataSeeder.CreateTopic(1, "Art"));
+            context.Topics.Add(TestDataSeeder.CreateTopic("Art"));
             await context.SaveChangesAsync();
 
             var service = CreateService(context);

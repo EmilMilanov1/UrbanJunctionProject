@@ -28,8 +28,9 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            await service.VoteAsync(1, "user-2", isUpvote: true);
+            await service.VoteAsync(post.Id, "user-2", isUpvote: true);
 
             Assert.That(context.Reactions.Count(), Is.EqualTo(1));
             Assert.That(context.Reactions.First().IsUpvote, Is.True);
@@ -41,12 +42,13 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            var reaction = TestDataSeeder.CreateReaction(1, "user-2", 1, true);
+            var post = context.Posts.First();
+            var reaction = TestDataSeeder.CreateReaction("user-2", post.Id, true);
             context.Reactions.Add(reaction);
             await context.SaveChangesAsync();
 
             var service = CreateService(context);
-            await service.VoteAsync(1, "user-2", isUpvote: true);
+            await service.VoteAsync(post.Id, "user-2", isUpvote: true);
 
             Assert.That(context.Reactions.Count(), Is.EqualTo(0));
         }
@@ -57,12 +59,13 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            var reaction = TestDataSeeder.CreateReaction(1, "user-2", 1, true);
+            var post = context.Posts.First();
+            var reaction = TestDataSeeder.CreateReaction("user-2", post.Id, true);
             context.Reactions.Add(reaction);
             await context.SaveChangesAsync();
 
             var service = CreateService(context);
-            await service.VoteAsync(1, "user-2", isUpvote: false);
+            await service.VoteAsync(post.Id, "user-2", isUpvote: false);
 
             Assert.That(context.Reactions.First().IsUpvote, Is.False);
         }
@@ -73,16 +76,13 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            await service.VoteAsync(1, "user-2", isUpvote: true);
+            await service.VoteAsync(post.Id, "user-2", isUpvote: true);
 
             _notifMock.Verify(n => n.CreateAsync(
-                "user-1",
-                "user-2",
-                NotificationType.Reaction,
-                1,
-                null,
-                null), Times.Once);
+                "user-1", "user-2", NotificationType.Reaction,
+                post.Id, null, null), Times.Once);
         }
 
         [Test]
@@ -91,16 +91,13 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            await service.VoteAsync(1, "user-2", isUpvote: false);
+            await service.VoteAsync(post.Id, "user-2", isUpvote: false);
 
             _notifMock.Verify(n => n.CreateAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                NotificationType.Reaction,
-                It.IsAny<int?>(),
-                It.IsAny<int?>(),
-                It.IsAny<int?>()), Times.Never);
+                It.IsAny<string>(), It.IsAny<string>(), NotificationType.Reaction,
+                It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<int?>()), Times.Never);
         }
 
         [Test]
@@ -109,21 +106,17 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            var reaction = TestDataSeeder.CreateReaction(1, "user-2", 1, true);
+            var post = context.Posts.First();
+            var reaction = TestDataSeeder.CreateReaction("user-2", post.Id, true);
             context.Reactions.Add(reaction);
             await context.SaveChangesAsync();
 
             var service = CreateService(context);
-            // Voting same direction again = remove
-            await service.VoteAsync(1, "user-2", isUpvote: true);
+            await service.VoteAsync(post.Id, "user-2", isUpvote: true);
 
             _notifMock.Verify(n => n.CreateAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<NotificationType>(),
-                It.IsAny<int?>(),
-                It.IsAny<int?>(),
-                It.IsAny<int?>()), Times.Never);
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<NotificationType>(),
+                It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<int?>()), Times.Never);
         }
 
         [Test]
@@ -132,17 +125,13 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            // user-1 upvoting their own post
-            await service.VoteAsync(1, "user-1", isUpvote: true);
+            await service.VoteAsync(post.Id, "user-1", isUpvote: true);
 
             _notifMock.Verify(n => n.CreateAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                NotificationType.Reaction,
-                It.IsAny<int?>(),
-                It.IsAny<int?>(),
-                It.IsAny<int?>()), Times.Never);
+                It.IsAny<string>(), It.IsAny<string>(), NotificationType.Reaction,
+                It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<int?>()), Times.Never);
         }
 
         [Test]
@@ -151,20 +140,23 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            context.Reactions.AddRange(
-                TestDataSeeder.CreateReaction(1, "user-2", 1, true),
-                TestDataSeeder.CreateReaction(2, "user-3", 1, true),
-                TestDataSeeder.CreateReaction(3, "user-4", 1, false)
-            );
+            var post = context.Posts.First();
             var user3 = TestDataSeeder.CreateUser("user-3", "user3");
             var user4 = TestDataSeeder.CreateUser("user-4", "user4");
             context.Users.AddRange(user3, user4);
             await context.SaveChangesAsync();
 
-            var service = CreateService(context);
-            var score = await service.GetScoreAsync(1);
+            context.Reactions.AddRange(
+                TestDataSeeder.CreateReaction("user-2", post.Id, true),
+                TestDataSeeder.CreateReaction("user-3", post.Id, true),
+                TestDataSeeder.CreateReaction("user-4", post.Id, false)
+            );
+            await context.SaveChangesAsync();
 
-            Assert.That(score, Is.EqualTo(1)); // 2 up - 1 down
+            var service = CreateService(context);
+            var score = await service.GetScoreAsync(post.Id);
+
+            Assert.That(score, Is.EqualTo(1));
         }
 
         [Test]
@@ -173,8 +165,9 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            var result = await service.GetUserVoteAsync(1, "user-2");
+            var result = await service.GetUserVoteAsync(post.Id, "user-2");
 
             Assert.That(result, Is.Null);
         }
@@ -185,11 +178,12 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            context.Reactions.Add(TestDataSeeder.CreateReaction(1, "user-2", 1, true));
+            var post = context.Posts.First();
+            context.Reactions.Add(TestDataSeeder.CreateReaction("user-2", post.Id, true));
             await context.SaveChangesAsync();
 
             var service = CreateService(context);
-            var result = await service.GetUserVoteAsync(1, "user-2");
+            var result = await service.GetUserVoteAsync(post.Id, "user-2");
 
             Assert.That(result, Is.EqualTo("up"));
         }
@@ -200,11 +194,12 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            context.Reactions.Add(TestDataSeeder.CreateReaction(1, "user-2", 1, false));
+            var post = context.Posts.First();
+            context.Reactions.Add(TestDataSeeder.CreateReaction("user-2", post.Id, false));
             await context.SaveChangesAsync();
 
             var service = CreateService(context);
-            var result = await service.GetUserVoteAsync(1, "user-2");
+            var result = await service.GetUserVoteAsync(post.Id, "user-2");
 
             Assert.That(result, Is.EqualTo("down"));
         }
@@ -215,11 +210,12 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            context.Reactions.Add(TestDataSeeder.CreateReaction(1, "user-2", 1, true));
+            var post = context.Posts.First();
+            context.Reactions.Add(TestDataSeeder.CreateReaction("user-2", post.Id, true));
             await context.SaveChangesAsync();
 
             var service = CreateService(context);
-            var result = await service.HasUserLikedAsync(1, "user-2");
+            var result = await service.HasUserLikedAsync(post.Id, "user-2");
 
             Assert.That(result, Is.True);
         }
@@ -230,16 +226,19 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            context.Reactions.AddRange(
-                TestDataSeeder.CreateReaction(1, "user-2", 1, true),
-                TestDataSeeder.CreateReaction(2, "user-3", 1, false)
-            );
+            var post = context.Posts.First();
             var user3 = TestDataSeeder.CreateUser("user-3", "user3");
             context.Users.Add(user3);
             await context.SaveChangesAsync();
 
+            context.Reactions.AddRange(
+                TestDataSeeder.CreateReaction("user-2", post.Id, true),
+                TestDataSeeder.CreateReaction("user-3", post.Id, false)
+            );
+            await context.SaveChangesAsync();
+
             var service = CreateService(context);
-            var count = await service.GetCountAsync(1);
+            var count = await service.GetCountAsync(post.Id);
 
             Assert.That(count, Is.EqualTo(2));
         }

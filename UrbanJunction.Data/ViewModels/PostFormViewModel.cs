@@ -18,6 +18,7 @@ namespace UrbanJunction.Data.ViewModels
 
         [Required(ErrorMessage = "Please select a subcategory.")]
         [Display(Name = "Subcategory")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a subcategory.")]
         public int SubcategoryId { get; set; }
 
         public List<SelectListItem>? Subcategories { get; set; }
@@ -26,5 +27,6 @@ namespace UrbanJunction.Data.ViewModels
         public List<IFormFile>? ImageFiles { get; set; }
 
         public string? Tags { get; set; }
+
     }
 }

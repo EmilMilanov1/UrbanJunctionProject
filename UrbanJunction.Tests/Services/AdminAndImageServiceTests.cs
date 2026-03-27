@@ -66,8 +66,9 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            var result = await service.DeletePostAsync(1);
+            var result = await service.DeletePostAsync(post.Id);
 
             Assert.That(result, Is.True);
             Assert.That(context.Posts.Count(), Is.EqualTo(0));
@@ -109,6 +110,8 @@ namespace UrbanJunction.Tests.Services
             Assert.That(result, Is.True);
             _userManagerMock.Verify(u => u.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue), Times.Once);
         }
+
+        
 
         [Test]
         public async Task GetAllPostsAsync_ReturnsAllPosts()

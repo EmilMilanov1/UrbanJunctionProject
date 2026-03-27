@@ -12,7 +12,6 @@ namespace UrbanJunction.Tests.Helpers
                 .Options;
 
             var context = new ApplicationDbContext(options);
-            context.Database.EnsureCreated();
             return context;
         }
     }

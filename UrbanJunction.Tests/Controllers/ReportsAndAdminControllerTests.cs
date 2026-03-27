@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using NUnit.Framework;
 using System.Security.Claims;
@@ -17,14 +18,17 @@ namespace UrbanJunction.Tests.Controllers
             UrbanJunction.Data.ApplicationDbContext context,
             string userId = "user-2")
         {
-            var claims     = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
-            var identity   = new ClaimsIdentity(claims, "TestAuth");
-            var principal  = new ClaimsPrincipal(identity);
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
+            var identity = new ClaimsIdentity(claims, "TestAuth");
+            var principal = new ClaimsPrincipal(identity);
             var httpContext = new DefaultHttpContext { User = principal };
+
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             return new ReportsController(context)
             {
-                ControllerContext = new ControllerContext { HttpContext = httpContext }
+                ControllerContext = new ControllerContext { HttpContext = httpContext },
+                TempData = tempData
             };
         }
 
@@ -34,8 +38,9 @@ namespace UrbanJunction.Tests.Controllers
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var controller = CreateController(context);
-            var result = await controller.Submit(ReportReason.Spam, postId: 1, null, null, null);
+            var result = await controller.Submit(ReportReason.Spam, postId: post.Id, null, null, null);
 
             Assert.That(context.Reports.Count(), Is.EqualTo(1));
             Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
@@ -47,9 +52,10 @@ namespace UrbanJunction.Tests.Controllers
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var controller = CreateController(context);
-            await controller.Submit(ReportReason.Spam, postId: 1, null, null, null);
-            await controller.Submit(ReportReason.Spam, postId: 1, null, null, null);
+            await controller.Submit(ReportReason.Spam, postId: post.Id, null, null, null);
+            await controller.Submit(ReportReason.Spam, postId: post.Id, null, null, null);
 
             Assert.That(context.Reports.Count(), Is.EqualTo(1));
         }
@@ -73,7 +79,6 @@ namespace UrbanJunction.Tests.Controllers
 
             context.Reports.Add(new Report
             {
-                Id = 1,
                 ReporterId = "user-2",
                 Reason = ReportReason.Spam,
                 Status = ReportStatus.Pending,
@@ -81,8 +86,9 @@ namespace UrbanJunction.Tests.Controllers
             });
             await context.SaveChangesAsync();
 
+            var report = context.Reports.First();
             var controller = CreateController(context, "user-2");
-            await controller.Resolve(1);
+            await controller.Resolve(report.Id);
 
             Assert.That(context.Reports.First().Status, Is.EqualTo(ReportStatus.Resolved));
         }
@@ -95,7 +101,6 @@ namespace UrbanJunction.Tests.Controllers
 
             context.Reports.Add(new Report
             {
-                Id = 1,
                 ReporterId = "user-2",
                 Reason = ReportReason.Spam,
                 Status = ReportStatus.Pending,
@@ -103,8 +108,9 @@ namespace UrbanJunction.Tests.Controllers
             });
             await context.SaveChangesAsync();
 
+            var report = context.Reports.First();
             var controller = CreateController(context, "user-2");
-            await controller.Dismiss(1);
+            await controller.Dismiss(report.Id);
 
             Assert.That(context.Reports.First().Status, Is.EqualTo(ReportStatus.Dismissed));
         }
@@ -138,14 +144,17 @@ namespace UrbanJunction.Tests.Controllers
 
         private AdminController CreateController(UrbanJunction.Data.ApplicationDbContext context)
         {
-            var claims     = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "admin-1"), new Claim(ClaimTypes.Role, "Admin") };
-            var identity   = new ClaimsIdentity(claims, "TestAuth");
-            var principal  = new ClaimsPrincipal(identity);
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "admin-1"), new Claim(ClaimTypes.Role, "Admin") };
+            var identity = new ClaimsIdentity(claims, "TestAuth");
+            var principal = new ClaimsPrincipal(identity);
             var httpContext = new DefaultHttpContext { User = principal };
+
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             return new AdminController(_adminServiceMock.Object, context, _userManagerMock.Object)
             {
-                ControllerContext = new ControllerContext { HttpContext = httpContext }
+                ControllerContext = new ControllerContext { HttpContext = httpContext },
+                TempData = tempData
             };
         }
 

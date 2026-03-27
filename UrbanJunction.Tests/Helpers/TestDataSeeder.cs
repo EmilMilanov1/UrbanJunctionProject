@@ -17,37 +17,33 @@ namespace UrbanJunction.Tests.Helpers
             };
         }
 
-        public static Topic CreateTopic(int id = 1, string name = "Art")
+        public static Topic CreateTopic(string name = "Art")
         {
             return new Topic
             {
-                Id = id,
                 Name = name,
                 Description = $"Everything about {name}",
                 ImageUrl = $"/img/{name.ToLower()}.jpg"
             };
         }
 
-        public static Subcategory CreateSubcategory(int id = 1, string name = "Graffiti", int topicId = 1)
+        public static Subcategory CreateSubcategory(string name = "Graffiti", int topicId = 0)
         {
             return new Subcategory
             {
-                Id = id,
                 Name = name,
                 TopicId = topicId
             };
         }
 
         public static Post CreatePost(
-            int id = 1,
             string title = "Test Post",
             string content = "Test content",
             string userId = "user-1",
-            int subcategoryId = 1)
+            int subcategoryId = 0)
         {
             return new Post
             {
-                Id = id,
                 Title = title,
                 Content = content,
                 UserId = userId,
@@ -57,15 +53,13 @@ namespace UrbanJunction.Tests.Helpers
         }
 
         public static Comment CreateComment(
-            int id = 1,
             string content = "Test comment",
             string userId = "user-2",
-            int postId = 1,
+            int postId = 0,
             int? parentCommentId = null)
         {
             return new Comment
             {
-                Id = id,
                 Content = content,
                 UserId = userId,
                 PostId = postId,
@@ -75,14 +69,12 @@ namespace UrbanJunction.Tests.Helpers
         }
 
         public static Reaction CreateReaction(
-            int id = 1,
             string userId = "user-2",
-            int postId = 1,
+            int postId = 0,
             bool isUpvote = true)
         {
             return new Reaction
             {
-                Id = id,
                 UserId = userId,
                 PostId = postId,
                 IsUpvote = isUpvote,
@@ -90,20 +82,18 @@ namespace UrbanJunction.Tests.Helpers
             };
         }
 
-        public static Tag CreateTag(int id = 1, string name = "testtag")
+        public static Tag CreateTag(string name = "testtag")
         {
-            return new Tag { Id = id, Name = name };
+            return new Tag { Name = name };
         }
 
         public static ContactMessage CreateContactMessage(
-            int id = 1,
             string senderId = "user-1",
             string subject = "Test subject",
             string message = "Test message")
         {
             return new ContactMessage
             {
-                Id = id,
                 SenderId = senderId,
                 Name = "Test User",
                 Email = "test@test.com",
@@ -117,13 +107,18 @@ namespace UrbanJunction.Tests.Helpers
         {
             var user1 = CreateUser("user-1", "postauthor");
             var user2 = CreateUser("user-2", "commenter");
-            var topic = CreateTopic(1, "Art");
-            var subcat = CreateSubcategory(1, "Graffiti", 1);
-            var post = CreatePost(1, "Test Post", "Test content here", "user-1", 1);
-
             context.Users.AddRange(user1, user2);
+            await context.SaveChangesAsync();
+
+            var topic = CreateTopic("Art");
             context.Topics.Add(topic);
+            await context.SaveChangesAsync();
+
+            var subcat = CreateSubcategory("Graffiti", topic.Id);
             context.Subcategories.Add(subcat);
+            await context.SaveChangesAsync();
+
+            var post = CreatePost("Test Post", "Test content here", "user-1", subcat.Id);
             context.Posts.Add(post);
             await context.SaveChangesAsync();
         }

@@ -1,11 +1,11 @@
 using Moq;
 using NUnit.Framework;
 using Microsoft.AspNetCore.Hosting;
-using UrbanJunction.Data.Models;
 using UrbanJunction.Data.ViewModels;
 using UrbanJunction.Services.Implementations;
 using UrbanJunction.Services.Interfaces;
 using UrbanJunction.Tests.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace UrbanJunction.Tests.Services
 {
@@ -34,11 +34,15 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            var musicTopic = TestDataSeeder.CreateTopic(2, "Music");
-            var musicSubcat = TestDataSeeder.CreateSubcategory(2, "Techno", 2);
-            var musicPost = TestDataSeeder.CreatePost(2, "Music Post", "Music content", "user-1", 2);
+            var musicTopic = TestDataSeeder.CreateTopic("Music");
             context.Topics.Add(musicTopic);
+            await context.SaveChangesAsync();
+
+            var musicSubcat = TestDataSeeder.CreateSubcategory("Techno", musicTopic.Id);
             context.Subcategories.Add(musicSubcat);
+            await context.SaveChangesAsync();
+
+            var musicPost = TestDataSeeder.CreatePost("Music Post", "Music content", "user-1", musicSubcat.Id);
             context.Posts.Add(musicPost);
             await context.SaveChangesAsync();
 
@@ -55,9 +59,12 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            var subcat2 = TestDataSeeder.CreateSubcategory(2, "Photography", 1);
-            var post2 = TestDataSeeder.CreatePost(2, "Photography Post", "Photo content", "user-1", 2);
+            var topic = context.Topics.First();
+            var subcat2 = TestDataSeeder.CreateSubcategory("Photography", topic.Id);
             context.Subcategories.Add(subcat2);
+            await context.SaveChangesAsync();
+
+            var post2 = TestDataSeeder.CreatePost("Photography Post", "Photo content", "user-1", subcat2.Id);
             context.Posts.Add(post2);
             await context.SaveChangesAsync();
 
@@ -110,8 +117,9 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            var result = await service.GetDetailsAsync(1);
+            var result = await service.GetDetailsAsync(post.Id);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result!.Title, Is.EqualTo("Test Post"));
@@ -127,12 +135,13 @@ namespace UrbanJunction.Tests.Services
                 .Setup(s => s.SaveImagesAsync(It.IsAny<List<Microsoft.AspNetCore.Http.IFormFile>>(), It.IsAny<string>()))
                 .ReturnsAsync(new List<string>());
 
+            var subcat = context.Subcategories.First();
             var service = CreateService(context);
             var model = new PostFormViewModel
             {
                 Title = "New Post",
                 Content = "New content",
-                SubcategoryId = 1
+                SubcategoryId = subcat.Id
             };
 
             var result = await service.CreateAsync(model, "user-1");
@@ -160,9 +169,10 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            var model = new PostFormViewModel { Title = "Updated", Content = "Updated", SubcategoryId = 1 };
-            var result = await service.EditAsync(1, model, "user-2");
+            var model = new PostFormViewModel { Title = "Updated", Content = "Updated", SubcategoryId = post.SubcategoryId };
+            var result = await service.EditAsync(post.Id, model, "user-2");
 
             Assert.That(result, Is.False);
         }
@@ -173,9 +183,10 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            var model = new PostFormViewModel { Title = "Updated Title", Content = "Updated content", SubcategoryId = 1 };
-            var result = await service.EditAsync(1, model, "user-1");
+            var model = new PostFormViewModel { Title = "Updated Title", Content = "Updated content", SubcategoryId = post.SubcategoryId };
+            var result = await service.EditAsync(post.Id, model, "user-1");
 
             Assert.That(result, Is.True);
             Assert.That(context.Posts.First().Title, Is.EqualTo("Updated Title"));
@@ -198,8 +209,9 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            var result = await service.DeleteAsync(1, "user-2", false);
+            var result = await service.DeleteAsync(post.Id, "user-2", false);
 
             Assert.That(result, Is.False);
         }
@@ -210,8 +222,9 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
+            var post = context.Posts.First();
             var service = CreateService(context);
-            var result = await service.DeleteAsync(1, "user-2", isAdmin: true);
+            var result = await service.DeleteAsync(post.Id, "user-2", isAdmin: true);
 
             Assert.That(result, Is.True);
             Assert.That(context.Posts.Count(), Is.EqualTo(0));
@@ -223,7 +236,8 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            var post2 = TestDataSeeder.CreatePost(2, "User2 Post", "content", "user-2", 1);
+            var subcat = context.Subcategories.First();
+            var post2 = TestDataSeeder.CreatePost("User2 Post", "content", "user-2", subcat.Id);
             context.Posts.Add(post2);
             await context.SaveChangesAsync();
 
@@ -240,11 +254,15 @@ namespace UrbanJunction.Tests.Services
             var context = TestDbContextFactory.Create();
             await TestDataSeeder.SeedBasicDataAsync(context);
 
-            var musicTopic = TestDataSeeder.CreateTopic(2, "Music");
-            var musicSubcat = TestDataSeeder.CreateSubcategory(2, "Techno", 2);
-            var musicPost = TestDataSeeder.CreatePost(2, "Music Post", "content", "user-1", 2);
+            var musicTopic = TestDataSeeder.CreateTopic("Music");
             context.Topics.Add(musicTopic);
+            await context.SaveChangesAsync();
+
+            var musicSubcat = TestDataSeeder.CreateSubcategory("Techno", musicTopic.Id);
             context.Subcategories.Add(musicSubcat);
+            await context.SaveChangesAsync();
+
+            var musicPost = TestDataSeeder.CreatePost("Music Post", "content", "user-1", musicSubcat.Id);
             context.Posts.Add(musicPost);
             await context.SaveChangesAsync();
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using NUnit.Framework;
 using System.Security.Claims;
@@ -32,15 +33,17 @@ namespace UrbanJunction.Tests.Controllers
             var context = TestDbContextFactory.Create();
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, userId),
-                new Claim(ClaimTypes.Name, "testuser")
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, userId),
+        new Claim(ClaimTypes.Name, "testuser")
+    };
             if (isAdmin) claims.Add(new Claim(ClaimTypes.Role, "Admin"));
 
-            var identity   = new ClaimsIdentity(claims, "TestAuth");
-            var principal  = new ClaimsPrincipal(identity);
+            var identity = new ClaimsIdentity(claims, "TestAuth");
+            var principal = new ClaimsPrincipal(identity);
             var httpContext = new DefaultHttpContext { User = principal };
+
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             var controller = new PostsController(
                 _postServiceMock.Object,
@@ -49,10 +52,8 @@ namespace UrbanJunction.Tests.Controllers
                 context,
                 _tagServiceMock.Object)
             {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContext
-                }
+                ControllerContext = new ControllerContext { HttpContext = httpContext },
+                TempData = tempData
             };
 
             return controller;

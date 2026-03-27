@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UrbanJunction.Data.Models;
+using UrbanJunction.Services.Implementations;
 using UrbanJunction.Tests.Helpers;
 
 namespace UrbanJunction.Tests.Services
@@ -63,11 +64,9 @@ namespace UrbanJunction.Tests.Services
             var service = CreateService(context);
             await service.CreateAsync("user-1", "user-2", NotificationType.Follow);
 
-            // Mark as read
             context.Notifications.First().IsRead = true;
             await context.SaveChangesAsync();
 
-            // Now create again — should be allowed
             await service.CreateAsync("user-1", "user-2", NotificationType.Follow);
 
             Assert.That(context.Notifications.Count(), Is.EqualTo(2));
@@ -112,7 +111,6 @@ namespace UrbanJunction.Tests.Services
 
             context.Notifications.Add(new Notification
             {
-                Id = 1,
                 UserId = "user-1",
                 ActorId = "user-2",
                 Type = NotificationType.Follow,
@@ -121,8 +119,9 @@ namespace UrbanJunction.Tests.Services
             });
             await context.SaveChangesAsync();
 
+            var notif = context.Notifications.First();
             var service = CreateService(context);
-            await service.MarkReadAsync(1, "user-1");
+            await service.MarkReadAsync(notif.Id, "user-1");
 
             Assert.That(context.Notifications.First().IsRead, Is.True);
         }
@@ -135,7 +134,6 @@ namespace UrbanJunction.Tests.Services
 
             context.Notifications.Add(new Notification
             {
-                Id = 1,
                 UserId = "user-1",
                 ActorId = "user-2",
                 Type = NotificationType.Follow,
@@ -144,8 +142,9 @@ namespace UrbanJunction.Tests.Services
             });
             await context.SaveChangesAsync();
 
+            var notif = context.Notifications.First();
             var service = CreateService(context);
-            await service.MarkReadAsync(1, "user-2"); // wrong user
+            await service.MarkReadAsync(notif.Id, "user-2");
 
             Assert.That(context.Notifications.First().IsRead, Is.False);
         }
@@ -157,9 +156,9 @@ namespace UrbanJunction.Tests.Services
             await TestDataSeeder.SeedBasicDataAsync(context);
 
             context.Notifications.AddRange(
-                new Notification { UserId = "user-1", ActorId = "user-2", Type = NotificationType.Follow,   IsRead = false, CreatedOn = DateTime.UtcNow },
-                new Notification { UserId = "user-1", ActorId = "user-2", Type = NotificationType.Comment,  IsRead = false, CreatedOn = DateTime.UtcNow },
-                new Notification { UserId = "user-1", ActorId = "user-2", Type = NotificationType.Reaction, IsRead = true,  CreatedOn = DateTime.UtcNow }
+                new Notification { UserId = "user-1", ActorId = "user-2", Type = NotificationType.Follow, IsRead = false, CreatedOn = DateTime.UtcNow },
+                new Notification { UserId = "user-1", ActorId = "user-2", Type = NotificationType.Comment, IsRead = false, CreatedOn = DateTime.UtcNow },
+                new Notification { UserId = "user-1", ActorId = "user-2", Type = NotificationType.Reaction, IsRead = true, CreatedOn = DateTime.UtcNow }
             );
             await context.SaveChangesAsync();
 
@@ -176,7 +175,7 @@ namespace UrbanJunction.Tests.Services
             await TestDataSeeder.SeedBasicDataAsync(context);
 
             context.Notifications.AddRange(
-                new Notification { UserId = "user-1", ActorId = "user-2", Type = NotificationType.Follow,  IsRead = false, CreatedOn = DateTime.UtcNow },
+                new Notification { UserId = "user-1", ActorId = "user-2", Type = NotificationType.Follow, IsRead = false, CreatedOn = DateTime.UtcNow },
                 new Notification { UserId = "user-2", ActorId = "user-1", Type = NotificationType.Comment, IsRead = false, CreatedOn = DateTime.UtcNow }
             );
             await context.SaveChangesAsync();
