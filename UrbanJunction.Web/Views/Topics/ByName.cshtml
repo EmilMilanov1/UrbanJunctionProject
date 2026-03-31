@@ -242,39 +242,7 @@
                                     </a>
                                 }
 
-                                @if (isOwner || isAdmin)
-                                {
-                                    <div class="d-flex align-items-center gap-1 ms-auto">
-                                        @if (isAdmin)
-                                        {
-                                            <form asp-action="TogglePin" asp-controller="Admin" asp-route-id="@post.Id"
-                                                  method="post" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                                                <button type="submit" class="thread-tag custom"
-                                                        style="border:none;cursor:pointer;
-                                                               color:@(post.IsPinned ? "var(--accent)" : "var(--text-dim)");
-                                                               background:@(post.IsPinned ? "rgba(232,93,74,0.08)" : "transparent");"
-                                                        title="@(post.IsPinned ? "Unpin" : "Pin")">
-                                                    <i class="fa-solid fa-thumbtack fa-xs"></i>
-                                                </button>
-                                            </form>
-                                            <form asp-action="ToggleLock" asp-controller="Admin" asp-route-id="@post.Id"
-                                                  method="post" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                                                <button type="submit" class="thread-tag custom"
-                                                        style="border:none;cursor:pointer;
-                                                               color:@(post.IsLocked ? "var(--fashion)" : "var(--text-dim)");
-                                                               background:@(post.IsLocked ? "rgba(240,160,75,0.08)" : "transparent");"
-                                                        title="@(post.IsLocked ? "Unlock" : "Lock")">
-                                                    <i class="fa-solid fa-lock fa-xs"></i>
-                                                </button>
-                                            </form>
-                                        }
-                                        
-                                    </div>
-                                }
+                                
                             </div>
 
                             <!-- Title -->
@@ -306,14 +274,42 @@
 
                                 @if (isOwner || isAdmin)
                                 {
-                                <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
-                                      method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="thread-tag custom"
-                                            style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
-                                            onclick="return confirm('Delete this thread?')">
-                                        <i class="fa-regular fa-trash-can fa-xs"></i>
-                                    </button>
+                                    <form asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id"
+                                          method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="thread-tag custom"
+                                                style="border:none;cursor:pointer;color:var(--accent);background:rgba(232,93,74,0.08);"
+                                                onclick="return confirm('Delete this thread?')">
+                                            <i class="fa-regular fa-trash-can fa-xs"></i>
+                                        </button>
+                                    @if (isAdmin)
+                                    {
+                                        <form asp-action="TogglePin" asp-controller="Admin" asp-route-id="@post.Id"
+                                              method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                            <button type="submit" class="thread-tag custom"
+                                                    style="border:none;cursor:pointer;
+                                                color:@(post.IsPinned ? "var(--accent)" : "var(--text-dim)");
+                                                background:@(post.IsPinned ? "rgba(232,93,74,0.08)" : "transparent");"
+                                                    title="@(post.IsPinned ? "Unpin" : "Pin")">
+                                                <i class="fa-solid fa-thumbtack fa-xs"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="ToggleLock" asp-controller="Admin" asp-route-id="@post.Id"
+                                              method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                            <button type="submit" class="thread-tag custom"
+                                                    style="border:none;cursor:pointer;
+                                                color:@(post.IsLocked ? "var(--fashion)" : "var(--text-dim)");
+                                                background:@(post.IsLocked ? "rgba(240,160,75,0.08)" : "transparent");"
+                                                    title="@(post.IsLocked ? "Unlock" : "Lock")">
+                                                <i class="fa-solid fa-lock fa-xs"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    
                                 </form>
                                 }
                             </div>

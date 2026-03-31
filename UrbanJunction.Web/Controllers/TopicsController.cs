@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using UrbanJunction.Data;
 using UrbanJunction.Data.Models;
 using UrbanJunction.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 public class TopicsController : Controller
 {
@@ -10,27 +12,31 @@ public class TopicsController : Controller
     private readonly IReactionService _reactionService;
     private readonly UserManager<UrbanUser> _userManager;
     private readonly ITagService _tagService;
+    private readonly ApplicationDbContext _context;
 
     public TopicsController(
         IPostService postService,
         IReactionService reactionService,
         UserManager<UrbanUser> userManager,
-        ITagService tagService)
+        ITagService tagService,
+        ApplicationDbContext context)
     {
         _postService = postService;
         _reactionService = reactionService;
         _userManager = userManager;
         _tagService = tagService;
+        _context = context;
     }
 
     [Route("Topics/{name}")]
     public async Task<IActionResult> ByName(string name, string? query, string? sort, string? subcat, string? tag)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
         var posts = string.IsNullOrWhiteSpace(query)
             ? await _postService.GetByTopicAsync(name, subcat)
             : await _postService.SearchAsync(name, query);
 
-        // Filter by tag if provided
         if (!string.IsNullOrWhiteSpace(tag))
         {
             var tagLower = tag.ToLower().TrimStart('#');
@@ -46,37 +52,48 @@ public class TopicsController : Controller
             "hot" => posts.OrderByDescending(p => p.IsPinned)
                           .ThenByDescending(p => p.Comments?.Count() ?? 0),
             _ => posts.OrderByDescending(p => p.IsPinned)
-                      .ThenByDescending(p => p.CreatedOn)
+                          .ThenByDescending(p => p.CreatedOn)
         };
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var postList = posts.ToList();
+
+        // Single query for all user votes
         var userVotes = new Dictionary<int, string>();
         if (User.Identity?.IsAuthenticated == true && userId != null)
         {
-            foreach (var post in posts)
-            {
-                var vote = await _reactionService.GetUserVoteAsync(post.Id, userId);
-                if (vote != null) userVotes[post.Id] = vote;
-            }
-        }
-        ViewBag.UserVotes = userVotes;
+            var postIds = postList.Select(p => p.Id).ToList();
+            var reactions = await _context.Reactions
+                .AsNoTracking()
+                .Where(r => r.UserId == userId && postIds.Contains(r.PostId))
+                .Select(r => new { r.PostId, r.IsUpvote })
+                .ToListAsync();
 
-        var trending = posts
-            .OrderByDescending(p => (p.Reactions?.Count(r => r.IsUpvote) ?? 0) - (p.Reactions?.Count(r => !r.IsUpvote) ?? 0))
+            foreach (var r in reactions)
+                userVotes[r.PostId] = r.IsUpvote ? "up" : "down";
+        }
+
+        // Sequential count queries — lightweight, no full post loads
+        var artCount = await _context.Posts.AsNoTracking().CountAsync(p => p.Subcategory.Topic.Name == "Art");
+        var musicCount = await _context.Posts.AsNoTracking().CountAsync(p => p.Subcategory.Topic.Name == "Music");
+        var fashionCount = await _context.Posts.AsNoTracking().CountAsync(p => p.Subcategory.Topic.Name == "Fashion");
+        var totalMembers = await _context.Users.AsNoTracking().CountAsync();
+        var onlineCount = await _context.Users.AsNoTracking()
+            .CountAsync(u => u.LastActiveOn >= DateTime.UtcNow.AddMinutes(-15));
+
+        var trending = postList
+            .OrderByDescending(p =>
+                (p.Reactions?.Count(r => r.IsUpvote) ?? 0) -
+                (p.Reactions?.Count(r => !r.IsUpvote) ?? 0))
             .Take(4)
             .Select(p => new {
                 p.Id,
                 p.Title,
-                Score = (p.Reactions?.Count(r => r.IsUpvote) ?? 0) - (p.Reactions?.Count(r => !r.IsUpvote) ?? 0)
+                Score = (p.Reactions?.Count(r => r.IsUpvote) ?? 0) -
+                        (p.Reactions?.Count(r => !r.IsUpvote) ?? 0)
             })
             .ToList();
 
-        var artPosts = name.Equals("Art", StringComparison.OrdinalIgnoreCase) ? posts : await _postService.GetByTopicAsync("Art");
-        var musicPosts = name.Equals("Music", StringComparison.OrdinalIgnoreCase) ? posts : await _postService.GetByTopicAsync("Music");
-        var fashionPosts = name.Equals("Fashion", StringComparison.OrdinalIgnoreCase) ? posts : await _postService.GetByTopicAsync("Fashion");
-
-        // Collect all tags for this topic for the filter bar
-        var topicTags = posts
+        var topicTags = postList
             .Where(p => p.PostTags != null)
             .SelectMany(p => p.PostTags.Select(pt => pt.Tag.Name))
             .GroupBy(t => t)
@@ -85,13 +102,14 @@ public class TopicsController : Controller
             .Select(g => g.Key)
             .ToList();
 
-        ViewBag.ArtCount = artPosts.Count();
-        ViewBag.MusicCount = musicPosts.Count();
-        ViewBag.FashionCount = fashionPosts.Count();
-        ViewBag.TotalMembers = _userManager.Users.Count();
-        ViewBag.OnlineCount = _userManager.Users.Count(u => u.LastActiveOn >= DateTime.UtcNow.AddMinutes(-15));
-        ViewBag.TotalThreads = posts.Count();
-        ViewBag.TotalReplies = posts.Sum(p => p.Comments?.Count() ?? 0);
+        ViewBag.UserVotes = userVotes;
+        ViewBag.ArtCount = artCount;
+        ViewBag.MusicCount = musicCount;
+        ViewBag.FashionCount = fashionCount;
+        ViewBag.TotalMembers = totalMembers;
+        ViewBag.OnlineCount = onlineCount;
+        ViewBag.TotalThreads = postList.Count;
+        ViewBag.TotalReplies = postList.Sum(p => p.Comments?.Count() ?? 0);
         ViewBag.TrendingPosts = trending;
         ViewBag.TopicName = name;
         ViewBag.Query = query;
@@ -100,6 +118,6 @@ public class TopicsController : Controller
         ViewBag.ActiveTag = tag ?? "";
         ViewBag.TopicTags = topicTags;
 
-        return View(posts);
+        return View(postList);
     }
 }

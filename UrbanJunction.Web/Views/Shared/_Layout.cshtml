@@ -27,9 +27,7 @@
     int notifUnreadCount = 0;
     if (User.Identity?.IsAuthenticated == true && currentUser != null)
     {
-        notifUnreadCount = await NotificationService.GetUnreadCountAsync(currentUser.Id);
     }
-    ViewBag.NotifUnreadCount = notifUnreadCount;
 }
 
 <!DOCTYPE html>
@@ -825,6 +823,18 @@
             if (!badge) return;
             badge.style.display = count <= 0 ? 'none' : 'flex';
             badge.textContent = count > 99 ? '99+' : count;
+        }
+        // Add this to your script block at the bottom
+        if (document.getElementById('notif-badge')) {
+            fetch('/Notifications/UnreadCount')
+                .then(r => r.json())
+                .then(d => {
+                    const badge = document.getElementById('notif-badge');
+                    if (badge) {
+                        badge.textContent = d.count > 99 ? '99+' : d.count;
+                        badge.style.display = d.count > 0 ? 'flex' : 'none';
+                    }
+                });
         }
     })();
     </script>

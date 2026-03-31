@@ -26,6 +26,7 @@ namespace UrbanJunction.Services.Implementations
         public async Task<IEnumerable<Post>> GetByTopicAsync(string topicName, string? subcat = null)
         {
             return await _context.Posts
+                .AsNoTracking()
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
                 .Include(p => p.Images)
                 .Include(p => p.User)
@@ -36,16 +37,19 @@ namespace UrbanJunction.Services.Implementations
                             (subcat == null || p.Subcategory.Name == subcat))
                 .OrderByDescending(p => p.IsPinned)
                 .ThenByDescending(p => p.CreatedOn)
-                .AsNoTracking()
+                .AsSplitQuery()
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Post>> SearchAsync(string topicName, string? query)
         {
             var posts = _context.Posts
+                .AsNoTracking()
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
                 .Include(p => p.Images)
                 .Include(p => p.User)
+                .Include(p => p.Reactions)
+                .Include(p => p.Comments)
                 .Where(p => p.Subcategory.Topic.Name == topicName);
 
             if (!string.IsNullOrWhiteSpace(query))
@@ -58,7 +62,7 @@ namespace UrbanJunction.Services.Implementations
 
             return await posts
                 .OrderByDescending(p => p.CreatedOn)
-                .AsNoTracking()
+                .AsSplitQuery()
                 .ToListAsync();
         }
 
@@ -73,6 +77,7 @@ namespace UrbanJunction.Services.Implementations
                 .Include(p => p.Comments).ThenInclude(c => c.Replies).ThenInclude(r => r.Replies).ThenInclude(r => r.User)
                 .Include(p => p.Reactions)
                 .Include(p => p.PostTags).ThenInclude(pt => pt.Tag)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -129,15 +134,19 @@ namespace UrbanJunction.Services.Implementations
         public async Task<IEnumerable<Post>> GetByUserAsync(string userId)
         {
             return await _context.Posts
+                .AsNoTracking()
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
                 .Include(p => p.Images)
+                .Include(p => p.User)
                 .Where(p => p.UserId == userId)
                 .OrderByDescending(p => p.CreatedOn)
                 .ToListAsync();
         }
+
         public async Task<IEnumerable<Post>> SearchAllAsync(string? query, string? topic, string? sort)
         {
             var posts = _context.Posts
+                .AsNoTracking()
                 .Include(p => p.Subcategory).ThenInclude(s => s.Topic)
                 .Include(p => p.Images)
                 .Include(p => p.User)
@@ -159,11 +168,15 @@ namespace UrbanJunction.Services.Implementations
                 posts = posts.Where(p => p.Subcategory.Topic.Name == topic);
             }
 
-            var result = await posts.AsNoTracking().ToListAsync();
+            var result = await posts
+                .AsSplitQuery()
+                .ToListAsync();
 
             result = sort switch
             {
-                "top" => result.OrderByDescending(p => (p.Reactions?.Count(r => r.IsUpvote) ?? 0) - (p.Reactions?.Count(r => !r.IsUpvote) ?? 0)).ToList(),
+                "top" => result.OrderByDescending(p =>
+                                (p.Reactions?.Count(r => r.IsUpvote) ?? 0) -
+                                (p.Reactions?.Count(r => !r.IsUpvote) ?? 0)).ToList(),
                 "replies" => result.OrderByDescending(p => p.Comments?.Count() ?? 0).ToList(),
                 _ => result.OrderByDescending(p => p.CreatedOn).ToList()
             };
