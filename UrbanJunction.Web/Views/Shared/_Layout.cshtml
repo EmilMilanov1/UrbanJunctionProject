@@ -313,12 +313,6 @@
                     Contact us
                 </a>
 
-                <a asp-controller="Credits" asp-action="Index"
-                   class="sidebar-nav-item @(routeController == "Credits" ? "active" : "")">
-                    <i class="fa-solid fa-scroll fa-xs" style="color:var(--text-dim);width:14px;text-align:center;"></i>
-                    Credits
-                </a>
-
                 @if (User.Identity?.IsAuthenticated ?? false)
                 {
                     <a asp-controller="Posts" asp-action="MyPosts"

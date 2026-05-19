@@ -17,8 +17,9 @@ namespace UrbanJunction.Web
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string not found.");
 
-            builder.Services.AddDbContext<ApplicationDbContext>
-                (options =>options.UseSqlServer(connectionString, sqlOptions => sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(connectionString, sqlOptions =>
+                    sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -64,10 +65,6 @@ namespace UrbanJunction.Web
                 app.UseHsts();
             }
 
-            await app.SeedUsersAsync();
-            await app.SeedPostsAsync();
-            await app.SeedAdminAsync();
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
@@ -87,7 +84,13 @@ namespace UrbanJunction.Web
                 db.Database.Migrate();
             }
 
+            await app.SeedUsersAsync();
+            await app.SeedPostsAsync();
+            await app.SeedAdminAsync();
+
             await app.RunAsync();
+
+
         }
     }
 }
