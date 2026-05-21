@@ -1509,3 +1509,10 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .vote-active-down {
     color: var(--accent) !important;
 }
+.post-images img,
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: contain;
+}

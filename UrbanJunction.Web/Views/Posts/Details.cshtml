@@ -179,7 +179,7 @@
                         <div class="carousel-item @(i == 0 ? "active" : "")">
                             <img src="@Model.Images.ElementAt(i).ImagePath"
                                  class="d-block w-100"
-                                 style="max-height:500px;object-fit:cover;" />
+                                 style="max-height:500px;object-fit:contain;background:var(--bg-card);" />
                         </div>
                     }
                 </div>
@@ -195,6 +195,7 @@
                     </button>
                 }
             </div>
+        }
         }
 
         <!-- Vote bar -->
